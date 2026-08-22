@@ -1,0 +1,54 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://example.org/music#> .
+
+# --- ontology ---
+ex:Artist a rdfs:Class ; rdfs:label "Artist" .
+ex:Band a rdfs:Class ; rdfs:subClassOf ex:Artist ; rdfs:label "Band" .
+ex:Album a rdfs:Class ; rdfs:label "Album" .
+ex:Track a rdfs:Class ; rdfs:label "Track" .
+
+ex:releasedBy a rdf:Property ; rdfs:label "released by" ; rdfs:domain ex:Album ; rdfs:range ex:Artist .
+ex:onAlbum a rdf:Property ; rdfs:label "on album" ; rdfs:domain ex:Track ; rdfs:range ex:Album .
+ex:memberOf a rdf:Property ; rdfs:label "member of" ; rdfs:domain ex:Artist ; rdfs:range ex:Band .
+ex:releaseYear a rdf:Property ; rdfs:label "release year" .
+ex:durationSec a rdf:Property ; rdfs:label "duration (s)" .
+
+# --- shapes ---
+ex:AlbumShape a sh:NodeShape ;
+  sh:targetClass ex:Album ;
+  sh:property [
+    sh:path rdfs:label ; sh:name "Title" ; sh:datatype xsd:string ;
+    sh:minCount 1 ; sh:maxCount 1 ; sh:order 1
+  ] ;
+  sh:property [
+    sh:path ex:releaseYear ; sh:name "Release year" ; sh:datatype xsd:integer ;
+    sh:minCount 1 ; sh:maxCount 1 ; sh:minInclusive 1900 ; sh:order 2
+  ] ;
+  sh:property [
+    sh:path ex:releasedBy ; sh:name "Artist" ; sh:class ex:Artist ;
+    sh:minCount 1 ; sh:order 3
+  ] .
+
+ex:TrackShape a sh:NodeShape ;
+  sh:targetClass ex:Track ;
+  sh:property [ sh:path rdfs:label ; sh:name "Title" ; sh:datatype xsd:string ; sh:minCount 1 ; sh:order 1 ] ;
+  sh:property [ sh:path ex:durationSec ; sh:name "Duration (s)" ; sh:datatype xsd:integer ; sh:order 2 ] ;
+  sh:property [ sh:path ex:onAlbum ; sh:name "Album" ; sh:class ex:Album ; sh:minCount 1 ; sh:maxCount 1 ; sh:order 3 ] .
+
+# --- instances ---
+ex:Radiohead a ex:Band ; rdfs:label "Radiohead" .
+ex:ThomYorke a ex:Artist ; rdfs:label "Thom Yorke" ; ex:memberOf ex:Radiohead .
+ex:JonnyGreenwood a ex:Artist ; rdfs:label "Jonny Greenwood" ; ex:memberOf ex:Radiohead .
+
+ex:OKComputer a ex:Album ; rdfs:label "OK Computer" ; ex:releaseYear 1997 ; ex:releasedBy ex:Radiohead .
+ex:KidA a ex:Album ; rdfs:label "Kid A" ; ex:releaseYear 2000 ; ex:releasedBy ex:Radiohead .
+ex:InRainbows a ex:Album ; ex:releasedBy ex:Radiohead .   # missing label + year → validation demo
+
+ex:ParanoidAndroid a ex:Track ; rdfs:label "Paranoid Android" ; ex:durationSec 387 ; ex:onAlbum ex:OKComputer .
+ex:KarmaPolice a ex:Track ; rdfs:label "Karma Police" ; ex:durationSec 264 ; ex:onAlbum ex:OKComputer .
+ex:Idioteque a ex:Track ; rdfs:label "Idioteque" ; ex:durationSec 309 ; ex:onAlbum ex:KidA .
+ex:Reckoner a ex:Track ; rdfs:label "Reckoner" ; ex:durationSec 290 ; ex:onAlbum ex:InRainbows .

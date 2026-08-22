@@ -1,0 +1,97 @@
+:root {
+  --bg: #14161a;
+  --bg-panel: #1b1e24;
+  --bg-inset: #101216;
+  --border: #2a2e37;
+  --text: #d7dae0;
+  --text-dim: #8a909c;
+  --accent: #5aa9e6;
+  --ok: #4cc38a;
+  --err: #e5534b;
+  --busy: #d4a72c;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.45 'Segoe UI', system-ui, sans-serif;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ---- connection bar ---- */
+.connection-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-weight: 600; letter-spacing: 0.02em; margin-right: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-dim); flex: none; }
+.dot.ok { background: var(--ok); }
+.dot.err { background: var(--err); }
+.dot.busy { background: var(--busy); }
+.status-msg { color: var(--text-dim); max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.err-text { color: var(--err); }
+.add-form { display: flex; gap: 6px; align-items: center; }
+
+select, input, button {
+  background: var(--bg-inset);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font: inherit;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.ghost { background: transparent; }
+
+/* ---- layout ---- */
+.workspace {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  flex: 1;
+  min-height: 0;
+}
+.sidebar, .inspector {
+  background: var(--bg-panel);
+  overflow-y: auto;
+  padding: 10px;
+}
+.sidebar { border-right: 1px solid var(--border); }
+.inspector { border-left: 1px solid var(--border); }
+.canvas-area { position: relative; background: var(--bg-inset); }
+
+.panel-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.placeholder { color: var(--text-dim); }
+.placeholder.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* ---- sparql drawer ---- */
+.sparql-drawer {
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+  padding: 8px 14px;
+  min-height: 90px;
+}
