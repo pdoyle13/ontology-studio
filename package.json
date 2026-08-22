@@ -7,12 +7,15 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@types/n3": "^1.26.1",
     "@xyflow/react": "^12.11.3",
     "dagre": "^0.8.5",
+    "express": "^5.2.1",
     "n3": "^2.2.5",
     "rdf-validate-shacl": "^0.6.5",
     "react": "^19.2.8",
@@ -27,6 +30,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",
-    "vite": "^8.2.0"
+    "vite": "^8.2.0",
+    "vitest": "^4.1.11"
   }
 }

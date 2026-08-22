@@ -1,15 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// /db/* proxies to the local studio Oxigraph (port 7880) to avoid CORS.
+// /db/* routes through the studio-server caching tier (7881), which proxies to
+// Oxigraph (7880) with read-cache + write invalidation. /api/* is the sidecar.
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5180,
     proxy: {
       '/db': {
-        target: 'http://localhost:7880',
-        rewrite: (path) => path.replace(/^\/db/, ''),
+        target: 'http://localhost:7881',
+      },
+      '/api': {
+        target: 'http://localhost:7881',
       },
     },
   },

@@ -37,6 +37,28 @@ export class PrefixMap {
     }
   }
 
+  /** Auto-register the namespace of an IRI with a generated prefix (e.g. …/music# → music:). */
+  learnNamespace(iri: string) {
+    const m = iri.match(/^(.*[#/])[^#/]*$/);
+    if (!m) return;
+    const ns = m[1];
+    if (ns.length < 10) return; // ignore junk like "urn:"
+    if (this.sorted.some(([existing]) => existing === ns)) return;
+    const seg =
+      ns
+        .replace(/[#/]+$/, '')
+        .split(/[#/:.]/)
+        .filter((s) => s && !['www', 'com', 'org', 'net', 'io', 'http', 'https', 'example'].includes(s))
+        .pop() ?? 'ns';
+    let candidate = seg.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'ns';
+    if (/^\d/.test(candidate)) candidate = `n${candidate}`;
+    let unique = candidate;
+    let i = 2;
+    while (this.byPrefix.has(unique)) unique = `${candidate}${i++}`;
+    this.byPrefix.set(unique, ns);
+    this.reindex();
+  }
+
   entries(): Record<string, string> {
     return Object.fromEntries(this.byPrefix);
   }

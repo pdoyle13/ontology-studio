@@ -35,7 +35,8 @@ export const useGraph = create<GraphState>((set, get) => ({
     set({ classesLoading: true, error: null });
     try {
       const classes = await fetchClasses(ep, conn.activeGraph);
-      // teach the prefix map any namespaces present in class IRIs
+      const prefixes = get().prefixes;
+      for (const c of classes) prefixes.learnNamespace(c.iri);
       set({ classes, classesLoading: false });
     } catch (e) {
       set({ classesLoading: false, error: (e as Error).message });

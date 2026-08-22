@@ -60,21 +60,38 @@ async function post(url: string, body: string, contentType: string, accept: stri
   }
 }
 
-export async function select(ep: Endpoint, query: string): Promise<SelectResult> {
-  const res = await post(ep.queryUrl, query, 'application/sparql-query', 'application/sparql-results+json');
+/** SPARQL-protocol dataset spec: scope a query to a named graph, or (Oxigraph)
+ *  to the union of all graphs. Used where the query text itself isn't already
+ *  graph-scoped (the user-facing SPARQL drawer). */
+export interface DatasetSpec {
+  defaultGraph?: string;
+  union?: boolean; // Oxigraph's union-default-graph
+}
+
+function buildQueryUrl(ep: Endpoint, dataset?: DatasetSpec): string {
+  if (!dataset) return ep.queryUrl;
+  const params = new URLSearchParams();
+  if (dataset.defaultGraph) params.set('default-graph-uri', dataset.defaultGraph);
+  else if (dataset.union && ep.storeUrl) params.set('union-default-graph', '');
+  const qs = params.toString();
+  return qs ? `${ep.queryUrl}${ep.queryUrl.includes('?') ? '&' : '?'}${qs}` : ep.queryUrl;
+}
+
+export async function select(ep: Endpoint, query: string, dataset?: DatasetSpec): Promise<SelectResult> {
+  const res = await post(buildQueryUrl(ep, dataset), query, 'application/sparql-query', 'application/sparql-results+json');
   const json = await res.json();
   return { vars: json.head?.vars ?? [], bindings: json.results?.bindings ?? [] };
 }
 
-export async function ask(ep: Endpoint, query: string): Promise<boolean> {
-  const res = await post(ep.queryUrl, query, 'application/sparql-query', 'application/sparql-results+json');
+export async function ask(ep: Endpoint, query: string, dataset?: DatasetSpec): Promise<boolean> {
+  const res = await post(buildQueryUrl(ep, dataset), query, 'application/sparql-query', 'application/sparql-results+json');
   const json = await res.json();
   return !!json.boolean;
 }
 
 /** CONSTRUCT / DESCRIBE — returns Turtle text (parse with n3 at the call site). */
-export async function construct(ep: Endpoint, query: string): Promise<string> {
-  const res = await post(ep.queryUrl, query, 'application/sparql-query', 'text/turtle');
+export async function construct(ep: Endpoint, query: string, dataset?: DatasetSpec): Promise<string> {
+  const res = await post(buildQueryUrl(ep, dataset), query, 'application/sparql-query', 'text/turtle');
   return res.text();
 }
 

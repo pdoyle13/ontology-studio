@@ -52,3 +52,11 @@ ex:ParanoidAndroid a ex:Track ; rdfs:label "Paranoid Android" ; ex:durationSec 3
 ex:KarmaPolice a ex:Track ; rdfs:label "Karma Police" ; ex:durationSec 264 ; ex:onAlbum ex:OKComputer .
 ex:Idioteque a ex:Track ; rdfs:label "Idioteque" ; ex:durationSec 309 ; ex:onAlbum ex:KidA .
 ex:Reckoner a ex:Track ; rdfs:label "Reckoner" ; ex:durationSec 290 ; ex:onAlbum ex:InRainbows .
+
+# --- sh:in enumeration demo ---
+ex:genre a rdf:Property ; rdfs:label "genre" .
+ex:AlbumShape sh:property [
+  sh:path ex:genre ; sh:name "Genre" ; sh:datatype xsd:string ;
+  sh:in ( "rock" "electronic" "jazz" "classical" ) ; sh:maxCount 1 ; sh:order 4
+] .
+ex:OKComputer ex:genre "rock" .

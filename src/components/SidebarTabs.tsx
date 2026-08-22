@@ -4,6 +4,7 @@ import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { useValidation } from '../state/validation';
 import { listNodeShapes } from '../rdf/shacl';
+import { SqlPanel } from './SqlPanel';
 
 function ShapesList() {
   const conn = useConnection();
@@ -74,7 +75,9 @@ function IssuesList() {
   );
 }
 
-type Tab = 'classes' | 'shapes' | 'issues';
+type Tab = 'classes' | 'shapes' | 'issues' | 'sql';
+
+const TAB_LABELS: Record<Tab, string> = { classes: 'Classes', shapes: 'Shapes', issues: 'Issues', sql: 'SQL' };
 
 export function SidebarTabs() {
   const [tab, setTab] = useState<Tab>('classes');
@@ -83,9 +86,9 @@ export function SidebarTabs() {
   return (
     <div className="sidebar-tabs-wrap">
       <div className="tab-row">
-        {(['classes', 'shapes', 'issues'] as Tab[]).map((t) => (
+        {(Object.keys(TAB_LABELS) as Tab[]).map((t) => (
           <button key={t} className={`tab ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>
-            {t === 'classes' ? 'Classes' : t === 'shapes' ? 'Shapes' : `Issues${count ? ` (${count})` : ''}`}
+            {t === 'issues' && count ? `Issues (${count})` : TAB_LABELS[t]}
           </button>
         ))}
       </div>
@@ -93,6 +96,7 @@ export function SidebarTabs() {
         {tab === 'classes' && <ClassTree />}
         {tab === 'shapes' && <ShapesList />}
         {tab === 'issues' && <IssuesList />}
+        {tab === 'sql' && <SqlPanel />}
       </div>
     </div>
   );

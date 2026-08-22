@@ -1,3 +1,4 @@
 node_modules
 dist
 .oxigraph-data
+server/sources.json

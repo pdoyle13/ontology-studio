@@ -27,7 +27,7 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] Search: debounced label/IRI CONTAINS search across scope (src/rdf/queries.ts searchResources)
 - [x] GraphCanvas: selecting a resource adds it (auto-connects to nodes already on canvas); double-click expands neighbors (25 cap, radial placement + background type/label hydration); right-click removes; dagre auto-layout button; type-colored borders (hashed hue); minimap + controls; edge labels = predicate curies
 - [x] ResourcePanel: read-only property sheet (grouped by predicate, type chips, literals w/ lang/datatype, incoming "Referenced by" section, click-to-navigate)
-- [x] Prefix management: PrefixMap w/ defaults + shrink/expand; curie rendering in tree + panel (learned-from-data registration still TODO)
+- [x] Prefix management: PrefixMap w/ defaults + shrink/expand; curie rendering everywhere; namespaces auto-learned from class IRIs (generated prefixes, deduped)
 
 ### Phase 3 — write path
 - [x] Edit literals in ResourcePanel (inline ✎, replaceTriple = DELETE DATA ; INSERT DATA chain, keeps lang/datatype; smoke-tested on Oxigraph)
@@ -55,10 +55,20 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] SPARQL drawer: collapsible, textarea editor (Ctrl+Enter run, auto-prepend prefixes toggle), auto-detects SELECT/ASK/CONSTRUCT/UPDATE, result table w/ clickable IRIs, turtle output, update runs + refreshes UI. (codemirror highlight + CONSTRUCT→canvas still open)
 - [ ] Canvas niceties: minimap, grouping by class color, save/restore layouts per graph
 - [ ] Keyboard palette, empty states, error toasts
-- [ ] README with screenshots; demo dataset seed script
+- [x] README (feature tour, run instructions, architecture + design choices; screenshots still open); CONSTRUCT→canvas "Show on canvas" button in the SPARQL drawer
+
+### Phase 7 — SQL virtualization layer + agent (Pat, 2026-08-22 afternoon)
+- [x] Constrained datatypes: sh:in enums (RDF-list fetch, ordered), min/maxInclusive + pattern + datatype validation BEFORE write, typed widgets (number/date/datetime/boolean/enum), input-invalid styling
+- [x] Instance dropdowns: ResourcePicker (searchable, keyboard nav) for adding AND replacing object-property values in shape forms
+- [x] SQL datasources (server/index.mjs, port 7881, PM2 studio-server, node:sqlite read-only): attach SQLite files, PRAGMA introspection (tables/columns/FKs/rowcounts), Direct-Mapping-style translation → rdfs:Class + rdf:Property + full SHACL NodeShapes (datatype map INT→integer etc., NOT NULL→minCount, FK→sh:class object property), row materialization (paged 10k, chunked load, FK→object IRIs), read-only SQL console (drawer SPARQL|SQL toggle). E2E-verified on mlb_pbp.db: 6 tables→349 schema triples, games_done→1399 instances queryable in SPARQL.
+- [x] Ontology agent (server/agent.mjs + AgentPanel, right-side ✦ Agent tab): Claude (AGENT_MODEL env, default claude-sonnet-5) with sparql_query/sparql_update tools, SHACL-first system prompt (query-before-write, no OWL, mint in user namespace, graph-scoped), tool-trace chips in UI, auto-refresh after agent writes. NEEDS ANTHROPIC_API_KEY in studio-server env (pm2 restart studio-server --update-env); panel shows setup notice until then.
+- [ ] Live agent test once ANTHROPIC_API_KEY is provided
+- [ ] SQL: Postgres/DuckDB connectors; VIRTUAL (query-time) mapping instead of materialization; incremental re-sync
 
 ## Log
 (one line per iteration: date, what shipped)
+- 2026-08-22: FINAL — Playwright E2E smoke (8/8 pass, console clean: connect→browse→shape form→canvas→validation→SPARQL→shape editor). Fixed real bug it caught: SPARQL drawer wasn't graph-scoped (now sends default-graph-uri, or union-default-graph on Oxigraph when no graph picked). Loop wound down; core brief fully delivered.
+- 2026-08-22: Polish round 1 — learned prefixes, CONSTRUCT→canvas, full README. Remaining P6: codemirror highlight, canvas layout persistence, keyboard palette, code-split, screenshots.
 - 2026-08-22: Phase 5 COMPLETE — shape editor (bnode-safe constraint edits) + generate-shape-from-data. NEXT: Phase 6 polish (learned prefixes, CONSTRUCT→canvas, README, code-split, empty states).
 - 2026-08-22: SHACL VALIDATION shipped — sidebar tabs (Classes/Shapes/Issues), rdf-validate-shacl engine, violations overlaid on canvas + forms. Remaining P5: shape editor, generate-shapes-from-data.
 - 2026-08-22: SHACL shape-driven forms shipped (shacl.ts + ShapeForm) — the DASH-lineage differentiator. NEXT: shapes panel + validation.

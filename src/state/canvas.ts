@@ -36,6 +36,7 @@ export interface CanvasState {
   addResource: (iri: string, at?: { x: number; y: number }) => Promise<void>;
   expandNode: (iri: string) => Promise<void>;
   removeNode: (iri: string) => void;
+  addTriples: (triples: { s: string; p: string; o: string; oIsIri: boolean }[]) => void;
   addEdgeLocal: (s: string, p: string, o: string) => void;
   clear: () => void;
   relayout: () => void;
@@ -157,6 +158,40 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     } catch {
       set({ expanding: null });
     }
+  },
+
+  /** Bulk-load triples (e.g. CONSTRUCT results) onto the canvas: IRI-object triples become nodes+edges. */
+  addTriples: (triples) => {
+    const prefixes = useGraph.getState().prefixes;
+    const nodes = [...get().nodes];
+    const edges = [...get().edges];
+    const existing = new Set(nodes.map((n) => n.id));
+    const edgeIds = new Set(edges.map((e) => e.id));
+    const labels = new Map<string, string>();
+    for (const t of triples) {
+      if (t.p === 'http://www.w3.org/2000/01/rdf-schema#label') labels.set(t.s, t.o);
+    }
+    let i = 0;
+    const ensure = (iri: string) => {
+      if (existing.has(iri)) return;
+      const col = i % 8;
+      const row = Math.floor(i / 8);
+      i++;
+      nodes.push(makeNode(iri, labels.get(iri) ?? null, [], { x: 80 + col * 200, y: 80 + row * 110 }));
+      existing.add(iri);
+    };
+    for (const t of triples) {
+      if (!t.oIsIri || t.p === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type') continue;
+      ensure(t.s);
+      ensure(t.o);
+      const id = edgeId(t.s, t.p, t.o);
+      if (!edgeIds.has(id)) {
+        edges.push({ id, source: t.s, target: t.o, label: prefixes.shrink(t.p), className: 'rdf-edge' });
+        edgeIds.add(id);
+      }
+    }
+    set({ nodes, edges });
+    get().relayout();
   },
 
   addEdgeLocal: (s, p, o) => {

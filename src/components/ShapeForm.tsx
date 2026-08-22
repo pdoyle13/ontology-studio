@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import type { ResourceDescription, TermValue } from '../rdf/queries';
-import { fetchInstances, type InstanceInfo } from '../rdf/queries';
 import { fetchShapesForClasses, datatypeToKind, type NodeShapeInfo, type PropertyShapeInfo } from '../rdf/shacl';
+import { ResourcePicker } from './ResourcePicker';
 import { parseTermInput } from '../rdf/mutations';
 import { cmdInsert, cmdDelete, cmdReplace } from '../rdf/commands';
 import { useValidation } from '../state/validation';
+import { widgetFor, validateAgainstShape } from '../rdf/constraints';
 
 function useWrite() {
   const conn = useConnection();
@@ -25,6 +26,72 @@ function useWrite() {
     }
   };
   return { run, error, ep: conn.active(), graph: conn.activeGraph };
+}
+
+/** Constraint-aware literal input: right widget for the datatype, live validation. */
+function ConstrainedInput({
+  ps,
+  text,
+  setText,
+  onSave,
+  onCancel,
+}: {
+  ps: PropertyShapeInfo;
+  text: string;
+  setText: (s: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  const widget = widgetFor(ps);
+  const error = text.trim() ? validateAgainstShape(ps, text) : null;
+  const keys = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !error) onSave();
+    if (e.key === 'Escape') onCancel();
+  };
+  return (
+    <>
+      {widget === 'enum' && ps.inValues ? (
+        <select autoFocus value={text} onChange={(e) => setText(e.target.value)} onKeyDown={keys}>
+          <option value="" disabled>
+            select…
+          </option>
+          {ps.inValues.map((iv) => (
+            <option key={iv.value} value={iv.value}>
+              {iv.value}
+            </option>
+          ))}
+        </select>
+      ) : widget === 'boolean' ? (
+        <select autoFocus value={text} onChange={(e) => setText(e.target.value)} onKeyDown={keys}>
+          <option value="" disabled>
+            select…
+          </option>
+          <option value="true">true</option>
+          <option value="false">false</option>
+        </select>
+      ) : (
+        <input
+          autoFocus
+          type={widget === 'number' ? 'number' : widget === 'date' ? 'date' : widget === 'datetime' ? 'datetime-local' : 'text'}
+          min={ps.minInclusive ?? undefined}
+          max={ps.maxInclusive ?? undefined}
+          step={ps.datatype?.endsWith('integer') ? 1 : undefined}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={keys}
+          className={error ? 'input-invalid' : ''}
+          style={{ width: '100%' }}
+        />
+      )}
+      <span className="row-actions always">
+        <button className="micro" onClick={onSave} disabled={!!error || !text.trim()} title={error ?? 'Save'}>
+          ✓
+        </button>
+        <button className="micro" onClick={onCancel}>✕</button>
+      </span>
+      {error && <span className="missing-note" style={{ flexBasis: '100%' }}>{error}</span>}
+    </>
+  );
 }
 
 function FieldValue({
@@ -43,27 +110,29 @@ function FieldValue({
 
   if (editing && value.type === 'literal') {
     const save = () => {
-      if (!ep) return;
-      run(() => cmdReplace(ep, graph, subject, ps.path, value, { ...value, value: text }));
+      if (!ep || validateAgainstShape(ps, text)) return;
+      run(() => cmdReplace(ep, graph, subject, ps.path, value, { ...value, value: text.trim() }));
       setEditing(false);
     };
     return (
       <div className="value-row">
-        <input
-          autoFocus
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') save();
-            if (e.key === 'Escape') setEditing(false);
-          }}
-          style={{ width: '100%' }}
-        />
-        <span className="row-actions always">
-          <button className="micro" onClick={save}>✓</button>
-          <button className="micro" onClick={() => setEditing(false)}>✕</button>
-        </span>
+        <ConstrainedInput ps={ps} text={text} setText={setText} onSave={save} onCancel={() => setEditing(false)} />
       </div>
+    );
+  }
+
+  // object value: replace via searchable dropdown of existing instances
+  if (editing && value.type === 'uri') {
+    return (
+      <ResourcePicker
+        classIri={ps.classIri}
+        onPick={(iri) => {
+          if (!ep) return;
+          run(() => cmdReplace(ep, graph, subject, ps.path, value, { type: 'uri', value: iri }));
+          setEditing(false);
+        }}
+        onCancel={() => setEditing(false)}
+      />
     );
   }
   return (
@@ -76,9 +145,7 @@ function FieldValue({
         <span className="term-literal">{value.value}</span>
       )}
       <span className="row-actions">
-        {value.type === 'literal' && (
-          <button className="micro" title="Edit" onClick={() => { setText(value.value); setEditing(true); }}>✎</button>
-        )}
+        <button className="micro" title="Edit" onClick={() => { setText(value.type === 'literal' ? value.value : ''); setEditing(true); }}>✎</button>
         <button
           className="micro danger"
           title="Remove"
@@ -94,18 +161,8 @@ function FieldValue({
 function FieldAdd({ subject, ps }: { subject: string; ps: PropertyShapeInfo }) {
   const { run, ep, graph } = useWrite();
   const { prefixes } = useGraph();
-  const conn = useConnection();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
-  const [options, setOptions] = useState<InstanceInfo[] | null>(null);
-
-  useEffect(() => {
-    if (!open || !ps.classIri) return;
-    const ep2 = conn.active();
-    if (!ep2) return;
-    fetchInstances(ep2, conn.activeGraph, ps.classIri, '', 100).then(setOptions).catch(() => setOptions(null));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, ps.classIri]);
 
   if (!open) {
     return (
@@ -122,52 +179,26 @@ function FieldAdd({ subject, ps }: { subject: string; ps: PropertyShapeInfo }) {
     setOpen(false);
   };
 
-  if (ps.classIri && options) {
+  // object property → searchable dropdown of existing instances
+  if (widgetFor(ps) === 'iri') {
     return (
-      <div className="value-row">
-        <select
-          autoFocus
-          onChange={(e) => e.target.value && saveTerm({ type: 'uri', value: e.target.value })}
-          defaultValue=""
-        >
-          <option value="" disabled>
-            select {prefixes.shrink(ps.classIri)}…
-          </option>
-          {options.map((o) => (
-            <option key={o.iri} value={o.iri}>
-              {o.label ?? prefixes.shrink(o.iri)}
-            </option>
-          ))}
-        </select>
-        <button className="micro" onClick={() => setOpen(false)}>✕</button>
-      </div>
+      <ResourcePicker
+        classIri={ps.classIri}
+        onPick={(iri) => saveTerm({ type: 'uri', value: iri })}
+        onCancel={() => setOpen(false)}
+      />
     );
   }
 
-  const kind = ps.classIri ? 'iri' : datatypeToKind(ps.datatype);
   const save = () => {
-    if (!text.trim()) return;
-    const term = parseTermInput(text, kind, (s) => prefixes.expand(s));
+    if (!text.trim() || validateAgainstShape(ps, text)) return;
+    const term = parseTermInput(text, datatypeToKind(ps.datatype), (s) => prefixes.expand(s));
     if (ps.datatype && term.type === 'literal') term.datatype = ps.datatype;
     saveTerm(term);
   };
   return (
     <div className="value-row">
-      <input
-        autoFocus
-        placeholder={kind === 'iri' ? 'IRI or curie' : kind}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') save();
-          if (e.key === 'Escape') setOpen(false);
-        }}
-        style={{ width: '100%' }}
-      />
-      <span className="row-actions always">
-        <button className="micro" onClick={save}>✓</button>
-        <button className="micro" onClick={() => setOpen(false)}>✕</button>
-      </span>
+      <ConstrainedInput ps={ps} text={text} setText={setText} onSave={save} onCancel={() => setOpen(false)} />
     </div>
   );
 }

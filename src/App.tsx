@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ConnectionBar } from './components/ConnectionBar';
+import { AgentPanel } from './components/AgentPanel';
 import { useHistory } from './state/history';
 import { useGraph } from './state/graph';
 import { SidebarTabs } from './components/SidebarTabs';
@@ -11,6 +12,7 @@ import './App.css';
 
 export default function App() {
   const status = useConnection((s) => s.status);
+  const [rightTab, setRightTab] = useState<'inspector' | 'agent'>('inspector');
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -43,8 +45,15 @@ export default function App() {
           )}
         </main>
         <aside className="inspector">
-          <div className="panel-title">Inspector</div>
-          <ResourcePanel />
+          <div className="tab-row">
+            <button className={`tab ${rightTab === 'inspector' ? 'active' : ''}`} onClick={() => setRightTab('inspector')}>
+              Inspector
+            </button>
+            <button className={`tab ${rightTab === 'agent' ? 'active' : ''}`} onClick={() => setRightTab('agent')}>
+              ✦ Agent
+            </button>
+          </div>
+          {rightTab === 'inspector' ? <ResourcePanel /> : <AgentPanel />}
         </aside>
       </div>
       <SparqlDrawer />
