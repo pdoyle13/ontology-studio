@@ -3,6 +3,13 @@
 
 import type { Endpoint, SelectBinding } from './sparqlClient';
 import { select } from './sparqlClient';
+import {
+  virtualClasses,
+  isVirtualClass,
+  matchVirtualIri,
+  fetchVirtualInstances,
+  fetchVirtualDescribe,
+} from './virtualApi';
 
 /** Wrap a pattern in the active graph scope. null scope = default ∪ all named graphs. */
 export function scoped(pattern: string, graph: string | null): string {
@@ -55,7 +62,7 @@ SELECT ?cls (SAMPLE(?lbl) AS ?label) (SAMPLE(?sup) AS ?superClass) (COUNT(DISTIN
 }
 GROUP BY ?cls ORDER BY DESC(?n) LIMIT 500`;
   const r = await select(ep, q);
-  return r.bindings
+  const classes = r.bindings
     .filter((b) => b.cls)
     .map((b) => ({
       iri: b.cls.value,
@@ -63,6 +70,14 @@ GROUP BY ?cls ORDER BY DESC(?n) LIMIT 500`;
       instances: Number(b.n?.value ?? 0),
       superClass: b.superClass?.type === 'uri' ? b.superClass.value : null,
     }));
+  // virtual classes: instance data lives in SQL, so counts come from the sources
+  try {
+    const virt = await virtualClasses();
+    const counts = new Map(virt.map((v) => [v.classIri, v.rowCount]));
+    for (const c of classes) if (counts.has(c.iri)) c.instances = counts.get(c.iri)!;
+    classes.sort((a, b) => b.instances - a.instances);
+  } catch { /* virtual layer offline — schema counts stand */ }
+  return classes;
 }
 
 export interface InstanceInfo {
@@ -77,6 +92,8 @@ export async function fetchInstances(
   search = '',
   limit = 200
 ): Promise<InstanceInfo[]> {
+  // virtual classes resolve live from their owning database
+  if (await isVirtualClass(classIri)) return fetchVirtualInstances(classIri, search, limit);
   const filter = search
     ? `FILTER(CONTAINS(LCASE(COALESCE(?lbl, STR(?inst))), LCASE(${JSON.stringify(search)})))`
     : '';
@@ -143,6 +160,8 @@ export interface ResourceDescription {
   outgoing: Statement[];
   incoming: IncomingStatement[];
   incomingTotal: number;
+  /** present when the resource lives in a SQL source (read-only in the UI) */
+  virtual?: { sourceId: string; table: string };
 }
 
 function toTerm(b: SelectBinding[string], label?: string): TermValue {
@@ -160,6 +179,24 @@ export async function describeResource(
   graph: string | null,
   iri: string
 ): Promise<ResourceDescription> {
+  // virtual instances: one live row + field-level link traversal from the meta layer
+  if (await matchVirtualIri(iri)) {
+    const d = await fetchVirtualDescribe(iri);
+    if (d && !d.missing) {
+      return {
+        iri: d.iri,
+        label: d.label,
+        types: d.types,
+        outgoing: d.outgoing.map((o) => ({
+          predicate: o.predicate,
+          object: { type: o.object.type, value: o.object.value, datatype: o.object.datatype, label: o.object.label },
+        })),
+        incoming: d.incoming,
+        incomingTotal: d.incomingTotal,
+        virtual: d.virtual,
+      };
+    }
+  }
   const outQ = `
 SELECT ?p ?o (SAMPLE(?ol) AS ?olbl) WHERE {
   ${scoped(

@@ -427,3 +427,19 @@ button.micro.add-field:hover { color: var(--accent); }
 }
 .result-table td { padding: 2px 8px 2px 2px; border-bottom: 1px solid var(--border); vertical-align: top; word-break: break-word; }
 .turtle-out { margin: 0; font: 11px/1.55 var(--mono); color: var(--text); white-space: pre-wrap; word-break: break-all; }
+
+/* ---- drag and drop ---- */
+.instance-list li[draggable], .class-name[draggable] { cursor: grab; }
+.instance-list li[draggable]:active, .class-name[draggable]:active { cursor: grabbing; }
+
+/* ---- virtual (live SQL) resources ---- */
+.virtual-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 1px 8px;
+  font: 10.5px var(--mono);
+  color: var(--ok);
+  border: 1px solid var(--ok);
+  border-radius: var(--radius);
+  opacity: 0.85;
+}

@@ -10,9 +10,12 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, basename } from 'node:path';
 import { runAgent, agentAvailable } from './agent.mjs';
-import { QueryCache } from './cache.mjs';
+import { QueryCache, DiskCache, TieredCache } from './cache.mjs';
 import { emitR2rml, emitSyncProvenance, MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
 import { createDriver, safeDescriptor } from './drivers.mjs';
+import { readCatalog, planSources, queryClass } from './federation.mjs';
+import { discoverBusinessAreas, readAlignment } from './discover.mjs';
+import { virtualInstances, virtualDescribe } from './virtual.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -28,10 +31,31 @@ const OXIGRAPH = (process.env.OXIGRAPH_URL ?? 'http://localhost:7880').replace(/
 const SOURCES_FILE = join(__dirname, 'sources.json');
 
 const app = express();
-const cache = new QueryCache({
-  maxEntries: Number(process.env.CACHE_MAX ?? 500),
-  ttlMs: Number(process.env.CACHE_TTL_MS ?? 60_000),
+const cache = new TieredCache({
+  memory: new QueryCache({
+    maxEntries: Number(process.env.CACHE_MAX ?? 500),
+    ttlMs: Number(process.env.CACHE_TTL_MS ?? 60_000),
+  }),
+  disk: process.env.DISK_CACHE === '0'
+    ? null
+    : new DiskCache({
+        dir: join(__dirname, '.cache'),
+        ttlMs: Number(process.env.DISK_CACHE_TTL_MS ?? 600_000),
+        maxEntries: Number(process.env.DISK_CACHE_MAX ?? 2000),
+      }),
 });
+// short-TTL federated SQL result cache, tagged per source
+const sqlCache = new QueryCache({
+  maxEntries: Number(process.env.SQL_CACHE_MAX ?? 300),
+  ttlMs: Number(process.env.SQL_CACHE_TTL_MS ?? 15_000),
+});
+
+/** Which graph tags does a SPARQL update body touch? Empty → unknown → global. */
+function updateTags(body) {
+  const tags = new Set();
+  for (const m of String(body).matchAll(/GRAPH\s*<([^>]+)>/gi)) tags.add(m[1]);
+  return [...tags];
+}
 
 // ---------------- caching SPARQL passthrough (/db → Oxigraph) ----------------
 // All UI reads route through here; every write path invalidates the cache.
@@ -44,7 +68,8 @@ app.post('/db/query', async (req, res) => {
   const body = typeof req.body === 'string' ? req.body : '';
   const hit = cache.get(cacheUrl, body);
   if (hit) {
-    res.status(hit.status).set('Content-Type', hit.contentType).set('X-Cache', 'HIT').send(hit.body);
+    res.status(hit.entry.status).set('Content-Type', hit.entry.contentType)
+      .set('X-Cache', hit.tier === 'mem' ? 'HIT-MEM' : 'HIT-DISK').send(hit.entry.body);
     return;
   }
   try {
@@ -55,7 +80,11 @@ app.post('/db/query', async (req, res) => {
     });
     const text = await up.text();
     const contentType = up.headers.get('content-type') ?? 'application/json';
-    if (up.ok) cache.set(cacheUrl, body, { status: up.status, contentType, body: text });
+    if (up.ok) {
+      // scope: named-graph queries depend only on that graph; unscoped depend on everything
+      const g = /[?&]default-graph-uri=([^&]+)/.exec(url)?.[1];
+      cache.set(cacheUrl, body, { status: up.status, contentType, body: text }, g ? [decodeURIComponent(g)] : ['*']);
+    }
     res.status(up.status).set('Content-Type', contentType).set('X-Cache', 'MISS').send(text);
   } catch (e) {
     bad(res, 502, `oxigraph unreachable: ${e.message}`);
@@ -64,12 +93,14 @@ app.post('/db/query', async (req, res) => {
 
 app.post('/db/update', async (req, res) => {
   try {
+    const body = typeof req.body === 'string' ? req.body : '';
     const up = await fetch(`${OXIGRAPH}/update`, {
       method: 'POST',
       headers: { 'Content-Type': req.headers['content-type'] ?? 'application/sparql-update' },
-      body: typeof req.body === 'string' ? req.body : '',
+      body,
     });
-    cache.invalidate();
+    const tags = updateTags(body);
+    cache.invalidate(tags.length ? tags : undefined); // scoped when the update names graphs
     res.status(up.status).send(await up.text());
   } catch (e) {
     bad(res, 502, `oxigraph unreachable: ${e.message}`);
@@ -84,7 +115,10 @@ app.all(/^\/db\/store/, async (req, res) => {
       headers: req.headers['content-type'] ? { 'Content-Type': req.headers['content-type'] } : {},
       body: ['GET', 'HEAD', 'DELETE'].includes(req.method) ? undefined : (typeof req.body === 'string' ? req.body : ''),
     });
-    if (req.method !== 'GET' && req.method !== 'HEAD') cache.invalidate();
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      const g = /[?&]graph=([^&]+)/.exec(url)?.[1];
+      cache.invalidate(g ? [decodeURIComponent(g)] : undefined);
+    }
     const text = await up.text();
     res.status(up.status).set('Content-Type', up.headers.get('content-type') ?? 'text/plain').send(text);
   } catch (e) {
@@ -92,9 +126,10 @@ app.all(/^\/db\/store/, async (req, res) => {
   }
 });
 
-app.get('/api/cache/stats', (_req, res) => res.json(cache.stats()));
+app.get('/api/cache/stats', (_req, res) => res.json({ ...cache.stats(), sql: sqlCache.stats() }));
 app.post('/api/cache/clear', (_req, res) => {
   cache.invalidate();
+  sqlCache.invalidate();
   res.json({ ok: true });
 });
 
@@ -289,12 +324,173 @@ app.post('/api/sql/sources/:id/query', async (req, res) => {
   }
 });
 
+// ---------------- federation (KG-planned data access) ----------------
+// The catalog derives from the mappings graph — memoized until any write
+// invalidates the cache (translate/materialize/update all do) or sources change.
+let catalogMemo = null;
+cache.onInvalidate(() => { catalogMemo = null; });
+
+async function cachedCatalog() {
+  const key = [...sources.keys()].sort().join(',');
+  if (catalogMemo?.key === key && Date.now() - catalogMemo.at < 300_000) return catalogMemo.value;
+  const value = await readCatalog(OXIGRAPH, new Set(sources.keys()));
+  // enrich with FIBO business alignment when discovery has run
+  try {
+    const alignment = await readAlignment(OXIGRAPH);
+    for (const entry of value) {
+      const cls = alignment.get(entry.classIri);
+      if (cls) {
+        entry.businessConcept = cls.conceptLabel;
+        entry.businessArea = cls.area;
+      }
+      for (const col of entry.columns) {
+        const a = alignment.get(col.property);
+        if (a) {
+          col.businessConcept = a.conceptLabel;
+          col.businessArea = a.area;
+        }
+      }
+    }
+  } catch { /* no alignment yet */ }
+  catalogMemo = { key, value, at: Date.now() };
+  return value;
+}
+
+const federation = {
+  readCatalog: cachedCatalog,
+  queryClass: async (args) => {
+    const catalog = await cachedCatalog();
+    // short-TTL SQL result cache, tagged by owning source
+    const key = JSON.stringify([args.classIri, args.columns ?? null, args.filters ?? null, args.limit ?? null]);
+    const hit = sqlCache.get('fed', key);
+    if (hit) return JSON.parse(hit.body);
+    const result = await queryClass({ oxigraph: OXIGRAPH, drivers: sources, catalog, ...args });
+    sqlCache.set('fed', key, { status: 200, contentType: 'application/json', body: JSON.stringify(result) }, [result.source.id]);
+    return result;
+  },
+  discover: async () => {
+    const catalog = await readCatalog(OXIGRAPH, new Set(sources.keys()));
+    const result = await discoverBusinessAreas({ oxigraph: OXIGRAPH, catalog });
+    cache.invalidate(); // alignment graph changed → catalog memo + query cache refresh
+    return result;
+  },
+};
+
+// ---------------- virtual instance layer (meta-only graph; live SQL) ----------------
+let rowCountsMemo = null;
+async function rowCounts() {
+  if (rowCountsMemo && Date.now() - rowCountsMemo.at < 60_000) return rowCountsMemo.value;
+  const catalog = await cachedCatalog();
+  const value = new Map();
+  for (const sid of new Set(catalog.map((c) => c.sourceId))) {
+    const driver = sources.get(sid);
+    if (!driver) continue;
+    try {
+      for (const t of await driver.introspect()) {
+        const entry = catalog.find((c) => c.sourceId === sid && c.table === t.name);
+        if (entry) value.set(entry.classIri, t.rowCount);
+      }
+    } catch { /* unreachable source */ }
+  }
+  rowCountsMemo = { at: Date.now(), value };
+  return value;
+}
+cache.onInvalidate(() => { rowCountsMemo = null; });
+
+app.get('/api/virtual/classes', async (_req, res) => {
+  try {
+    const [catalog, counts] = await Promise.all([cachedCatalog(), rowCounts()]);
+    res.json(
+      catalog.map((c) => ({
+        classIri: c.classIri,
+        sourceId: c.sourceId,
+        table: c.table,
+        rowCount: counts.get(c.classIri) ?? 0,
+        businessArea: c.businessArea ?? null,
+      }))
+    );
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/virtual/instances', async (req, res) => {
+  const { classIri, search, limit } = req.body ?? {};
+  if (!classIri) return bad(res, 400, 'classIri required');
+  try {
+    const catalog = await cachedCatalog();
+    const key = JSON.stringify(['vi', classIri, search ?? '', limit ?? 200]);
+    const hit = sqlCache.get('virt', key);
+    if (hit) return res.json(JSON.parse(hit.body));
+    const rows = await virtualInstances({ oxigraph: OXIGRAPH, catalog, drivers: sources, classIri, search, limit });
+    if (rows === null) return bad(res, 404, 'not a virtual class');
+    const entry = catalog.find((c) => c.classIri === classIri);
+    sqlCache.set('virt', key, { status: 200, contentType: 'application/json', body: JSON.stringify(rows) }, [entry?.sourceId ?? '*']);
+    res.json(rows);
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/virtual/describe', async (req, res) => {
+  const { iri } = req.body ?? {};
+  if (!iri) return bad(res, 400, 'iri required');
+  try {
+    const catalog = await cachedCatalog();
+    const key = JSON.stringify(['vd', iri]);
+    const hit = sqlCache.get('virt', key);
+    if (hit) return res.json(JSON.parse(hit.body));
+    const d = await virtualDescribe({ oxigraph: OXIGRAPH, catalog, drivers: sources, iri });
+    if (d === null) return bad(res, 404, 'not a virtual resource');
+    sqlCache.set('virt', key, { status: 200, contentType: 'application/json', body: JSON.stringify(d) }, [d.virtual?.sourceId ?? '*']);
+    res.json(d);
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/discover/business-areas', async (_req, res) => {
+  try {
+    res.json(await federation.discover());
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/federate/catalog', async (_req, res) => {
+  try {
+    const catalog = await federation.readCatalog();
+    res.json({ classes: catalog, sources: [...sources.values()].map((s) => ({ id: s.id, kind: s.kind })) });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/federate/plan', async (req, res) => {
+  try {
+    const catalog = await federation.readCatalog();
+    res.json({ plan: planSources(catalog, req.body?.classes ?? []) });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/federate/query', async (req, res) => {
+  const { classIri, columns, filters, limit } = req.body ?? {};
+  if (!classIri) return bad(res, 400, 'classIri required');
+  try {
+    res.json(await federation.queryClass({ classIri, columns, filters, limit }));
+  } catch (e) {
+    bad(res, 400, e.message);
+  }
+});
+
 // ---------------- agent ----------------
 app.post('/api/agent', async (req, res) => {
   try {
     const { messages, graph } = req.body ?? {};
     if (!Array.isArray(messages) || messages.length === 0) return bad(res, 400, 'messages required');
-    const result = await runAgent({ messages, graph: graph || null, oxigraph: OXIGRAPH });
+    const result = await runAgent({ messages, graph: graph || null, oxigraph: OXIGRAPH, federation });
     if (result.trace?.some((t) => t.tool === 'sparql_update' && t.ok)) cache.invalidate();
     res.json(result);
   } catch (e) {

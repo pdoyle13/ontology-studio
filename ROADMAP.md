@@ -78,6 +78,13 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] LINEAGE DEMO (the end goal, verified live): postgres orders_db (customers/orders) + postgres warehouse_db (warehouses/shipments) + sqlite delivery.db (delivery_events) → one graph; GROK AGENT joined them via link_by_key (order_number↔order_ref, tracking_no↔tracking_ref); one SPARQL walks customer→order→shipment→delivery events with per-hop DB attribution. Demo pg container: studio-pg (port 15432, user postgres/studio). 61 tests green.
 - [ ] Lineage path VIEW in UI (one-click trace on canvas); incremental re-sync; agent-run validation loop
 
+### Phase 10 — KG-planned federated data access (Pat, 2026-08-22 evening) — THE END-GOAL DEMO
+- [x] server/federation.mjs: the R2RML mappings graph IS the catalog (class→TriplesMap→table/columns/source, subject templates); planSources picks which DBs a request touches; queryClass dispatches guarded live SQL (column whitelist, op whitelist, escaped literals, capped limits) through the right driver and mints IRIs from templates
+- [x] link_by_key now RECORDS its join spec in the graph (studio:sourceKeyProperty/targetKeyProperty on the predicate) — cross-DB joins are KG-derived, not re-guessed
+- [x] Agent tools get_data_catalog (KG-derived structure incl. cross-DB links + join keys) + query_source_data (federated live fetch; agent never names a database — the catalog resolves it); /api/federate/catalog|plan|query endpoints
+- [x] VERIFIED END GOAL: Grok answered "which customers have shipped-but-undelivered orders and where are the packages now" from LIVE data across 4 engines/5 databases — 1 catalog call + 10 chained federated queries, correct answer (Alan Turing / ORD-1004 / TRK-77003 in_transit Cary NC, delivered ORD-1001 excluded), per-fact source attribution. BECAUSE of the knowledge graph.
+- [x] Straight midpoint-anchored edges (no bezier cheating); layout engine extracted to src/layout/ package (types/metrics/algorithms/refine/anchors/engine; adapters in store+renderer). 84 tests.
+
 ## Log
 (one line per iteration: date, what shipped)
 - 2026-08-22: FINAL — Playwright E2E smoke (8/8 pass, console clean: connect→browse→shape form→canvas→validation→SPARQL→shape editor). Fixed real bug it caught: SPARQL drawer wasn't graph-scoped (now sends default-graph-uri, or union-default-graph on Oxigraph when no graph picked). Loop wound down; core brief fully delivered.

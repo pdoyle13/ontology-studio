@@ -15,8 +15,9 @@ You act ONLY through your typed tools. Do not write SPARQL updates; the tools bu
 Method:
 1. Call get_schema_overview first to learn what exists — classes, shapes, namespaces, naming conventions. Follow the conventions you find.
 2. Make the change with the smallest set of typed tool calls. Create shapes alongside classes (SHACL-first: shapes drive the UI forms and validation). Do not use OWL axioms.
-3. For cross-database lineage: materialized SQL data lives as instances typed per source table (e.g. orders, shipments from different databases). Use link_by_key to join them on shared business keys — that is how a lineage path (customer → order → shipment → delivery) gets connected across sources.
-4. Report exactly what you created or changed (IRIs, counts) in a short list. Be concise.
+3. THE GRAPH HOLDS THE META LAYER ONLY: classes, shapes, mappings, and FIELD-LEVEL connections between databases. Instance data is NOT in the graph — it stays in the SQL sources and is fetched live. Connect databases with declare_link (predicate + matching key fields); instance joins then resolve at query time. Never try to insert instance data into the graph.
+4. ANSWERING DATA QUESTIONS ACROSS DATABASES: the knowledge graph is the map of the underlying systems. Call get_data_catalog to see which class lives in which database, its columns, and the cross-database link predicates with their join key properties. Then chain query_source_data calls — filter each query by the key values you learned from the previous hop — to walk a question across databases (e.g. customer in the CRM → orders in sales → shipments in logistics → delivery events). You never choose a database yourself; the catalog resolves it. Prefer live source queries for current-state questions; use sparql_query over the graph for questions about the modeled/linked structure.
+5. Report exactly what you created, changed, or found (IRIs, counts) in a short list. Be concise.
 
 If a request is ambiguous, make the reasonable modeling choice and state it.`;
 
@@ -151,12 +152,12 @@ async function runAnthropic({ cfg, messages, tools, system }) {
   return { reply: '(agent hit the turn limit — check the trace for what was applied)', trace };
 }
 
-export async function runAgent({ messages, graph, oxigraph }) {
+export async function runAgent({ messages, graph, oxigraph, federation }) {
   const cfg = providerConfig();
   if (!cfg) throw new Error('No agent API key: set GROK_API_KEY (or XAI_API_KEY / ANTHROPIC_API_KEY) on the studio server');
 
   const namespace = (await detectNamespace(oxigraph, graph)) ?? undefined;
-  const tools = buildTools({ oxigraph, graph, namespace });
+  const tools = buildTools({ oxigraph, graph, namespace, federation });
   const system = [
     SYSTEM,
     graph ? `Active named graph: <${graph}> — all tool writes are scoped to it automatically.` : 'No named graph selected — tools write to the default graph.',

@@ -273,13 +273,18 @@ export function ResourcePanel() {
             ))}
           </div>
         )}
+        {d.virtual && (
+          <div className="virtual-badge" title="Instance data is not in the graph - fetched live from the owning database">
+            live · {d.virtual.sourceId}.{d.virtual.table}
+          </div>
+        )}
         <div className="resource-actions">
-          {isClass && (
+          {!d.virtual && isClass && (
             <button className="ghost" onClick={newInstance}>
               + New instance
             </button>
           )}
-          {isClass && !hasShape && (
+          {!d.virtual && isClass && !hasShape && (
             <button
               className="ghost"
               title="Profile instances of this class and draft a SHACL NodeShape"
@@ -294,9 +299,11 @@ export function ResourcePanel() {
               ⚙ Generate shape
             </button>
           )}
-          <button className="ghost danger-text" onClick={removeResource}>
-            Delete
-          </button>
+          {!d.virtual && (
+            <button className="ghost danger-text" onClick={removeResource}>
+              Delete
+            </button>
+          )}
           {busy && <span className="tree-loading">saving…</span>}
         </div>
         {writeError && <div className="err-text">{writeError}</div>}
@@ -317,16 +324,22 @@ export function ResourcePanel() {
                 </a>
               </td>
               <td className="obj-cell">
-                {objs.map((o, i) => (
-                  <ValueRow key={`${pred}|${i}|${o.value}`} subject={d.iri} predicate={pred} object={o} />
-                ))}
-                <AddValue subject={d.iri} predicate={pred} />
+                {objs.map((o, i) =>
+                  d.virtual ? (
+                    <div key={`${pred}|${i}|${o.value}`} className="value-row">
+                      <ObjectTerm t={o} />
+                    </div>
+                  ) : (
+                    <ValueRow key={`${pred}|${i}|${o.value}`} subject={d.iri} predicate={pred} object={o} />
+                  )
+                )}
+                {!d.virtual && <AddValue subject={d.iri} predicate={pred} />}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <AddProperty subject={d.iri} />
+      {!d.virtual && <AddProperty subject={d.iri} />}
       </details>
 
       {d.incoming.length > 0 && (

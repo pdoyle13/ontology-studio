@@ -61,10 +61,12 @@ const str = { type: 'string' };
 const int = { type: 'integer' };
 const bool = { type: 'boolean' };
 
-/** Tool registry: JSON-schema defs + async executors. */
-export function buildTools({ oxigraph, graph, namespace }) {
+/** Tool registry: JSON-schema defs + async executors. federation (optional):
+ *  { readCatalog(), queryClass({classIri, columns, filters, limit}) } */
+export function buildTools({ oxigraph, graph, namespace, federation }) {
   const c = ctx(oxigraph, graph);
   const ns = namespace || DEFAULT_NS;
+  const STUDIO_NS = 'https://studio.local/ns#';
 
   const defs = [
     {
@@ -265,9 +267,9 @@ export function buildTools({ oxigraph, graph, namespace }) {
       },
     },
     {
-      name: 'link_by_key',
+      name: 'declare_link',
       description:
-        'CROSS-SOURCE JOIN: link all instances where sourceKeyProperty on the subject equals targetKeyProperty on the object (e.g. shipment order_ref = order order_number). Creates predicate edges in bulk. Also declares the predicate as an rdf:Property. Returns how many links were created.',
+        'FIELD-LEVEL CROSS-DATABASE CONNECTION: declare that two classes are related by matching key FIELDS (e.g. shipment order_ref = order order_number). Writes ONLY the meta-layer declaration — predicate with domain/range and the join key properties. NO instance edges are materialized; instance joins resolve live at query time from this declaration (virtual traversal, federation, lineage).',
       parameters: {
         type: 'object',
         properties: {
@@ -291,13 +293,12 @@ export function buildTools({ oxigraph, graph, namespace }) {
           predicateLabel ? `<${pred}> <${RDFS}label> "${esc(predicateLabel)}" .` : '',
           `<${pred}> <${RDFS}domain> <${sc}> .`,
           `<${pred}> <${RDFS}range> <${tc}> .`,
+          // the join spec IS the connection — everything downstream reads it
+          `<${pred}> <${STUDIO_NS}sourceKeyProperty> <${skp}> .`,
+          `<${pred}> <${STUDIO_NS}targetKeyProperty> <${tkp}> .`,
         ].filter(Boolean).join('\n');
         await c.update(`INSERT DATA { ${c.wrap(decl)} }`);
-        const pattern = `?s a <${sc}> . ?s <${skp}> ?k . ?t a <${tc}> . ?t <${tkp}> ?k2 . FILTER(STR(?k) = STR(?k2))`;
-        await c.update(`INSERT { ${c.wrap(`?s <${pred}> ?t .`)} } WHERE { ${c.wrap(pattern)} }`);
-        const n = await c.query(`SELECT (COUNT(*) AS ?n) WHERE { ?s <${pred}> ?t . ?s a <${sc}> }`);
-        const count = JSON.parse(n).results.bindings[0]?.n?.value ?? '?';
-        return `linked: ${count} <${pred}> edges from <${sc}> to <${tc}>`;
+        return `declared field-level link <${pred}>: <${sc}>.<${skp}> = <${tc}>.<${tkp}> (no instance edges — resolved live)`;
       },
     },
     {
@@ -312,6 +313,80 @@ export function buildTools({ oxigraph, graph, namespace }) {
       },
     },
   ];
+
+  if (federation) {
+    defs.push(
+      {
+        name: 'get_data_catalog',
+        description:
+          'THE KNOWLEDGE-GRAPH-DERIVED DATA CATALOG: which classes live in which database (source, engine kind, table), their column↔property mappings, and the cross-database link predicates WITH their join key properties. Use this to plan which databases to query for live data. Everything here comes from the R2RML mappings graph and the ontology — nothing is hardcoded.',
+        parameters: { type: 'object', properties: {}, required: [] },
+        run: async () => {
+          const catalog = await federation.readCatalog();
+          // cross-class link predicates + their recorded join keys (written by link_by_key)
+          const linksRaw = await c.query(
+            `SELECT ?p ?dom ?rng ?sk ?tk WHERE {
+  ?p <http://www.w3.org/2000/01/rdf-schema#domain> ?dom ;
+     <http://www.w3.org/2000/01/rdf-schema#range> ?rng .
+  OPTIONAL { ?p <${STUDIO_NS}sourceKeyProperty> ?sk }
+  OPTIONAL { ?p <${STUDIO_NS}targetKeyProperty> ?tk }
+  FILTER(isIRI(?rng) && !STRSTARTS(STR(?rng), "http://www.w3.org/2001/XMLSchema#"))
+}`
+          );
+          const classIris = new Set(catalog.map((e) => e.classIri));
+          const links = JSON.parse(linksRaw)
+            .results.bindings.filter(
+              (b) => classIris.has(b.dom?.value) && classIris.has(b.rng?.value)
+            )
+            .map((b) => ({
+              property: b.p.value,
+              from: b.dom.value,
+              to: b.rng.value,
+              sourceKeyProperty: b.sk?.value ?? null,
+              targetKeyProperty: b.tk?.value ?? null,
+            }));
+          return JSON.stringify({ classes: catalog, links });
+        },
+      },
+      {
+        name: 'discover_business_areas',
+        description:
+          'Run FIBO-based business-area auto-discovery: matches every mapped data field across ALL attached databases against the shared FIBO vocabulary (Parties, Monetary Amounts, Contracts, Accounts, Identifiers, Dates…) and records the alignment in the graph. Afterwards get_data_catalog includes businessConcept/businessArea per field. Returns the discovery report.',
+        parameters: { type: 'object', properties: {}, required: [] },
+        run: async () => {
+          const r = await federation.discover();
+          return JSON.stringify({ fields: r.fields, areas: r.areas, sample: r.report.slice(0, 40) });
+        },
+      },
+      {
+        name: 'query_source_data',
+        description:
+          'FEDERATED LIVE QUERY: fetch fresh rows for a class directly from the database that owns it (resolved via the knowledge-graph catalog — you never name a database, the KG decides). filters: [{column, op (= != > < >= <= LIKE), value}]. Returns rows with minted IRIs plus which source/engine served them. Use the catalog first to learn classes, columns, and join keys, then chain queries across sources to answer cross-database questions.',
+        parameters: {
+          type: 'object',
+          properties: {
+            classIri: str,
+            columns: { type: 'array', items: str },
+            filters: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: { column: str, op: str, value: { type: ['string', 'number'] } },
+                required: ['column', 'value'],
+              },
+            },
+            limit: int,
+          },
+          required: ['classIri'],
+        },
+        run: async ({ classIri, columns, filters, limit }) => {
+          const r = await federation.queryClass({ classIri: mint(ns, classIri), columns, filters, limit });
+          const rows = r.rows.slice(0, 100);
+          return JSON.stringify({ ...r, rows, truncated: r.rows.length > 100 });
+        },
+      }
+    );
+  }
 
   return { defs, ns };
 }

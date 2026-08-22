@@ -248,6 +248,7 @@ export function ShapeForm({ description }: { description: ResourceDescription })
             const missing = required && vals.length === 0;
             const canAdd = ps.maxCount === null || vals.length < ps.maxCount;
             const fieldViolations = myViolations.filter((v) => v.path === ps.path);
+            const readOnly = !!description.virtual;
             return (
               <div
                 key={`${shape.iri}|${ps.path}`}
@@ -259,16 +260,28 @@ export function ShapeForm({ description }: { description: ResourceDescription })
                   {ps.datatype && <span className="term-meta"> {prefixes.shrink(ps.datatype)}</span>}
                   {ps.classIri && <span className="term-meta"> → {prefixes.shrink(ps.classIri)}</span>}
                 </div>
-                {vals.map((v, i) => (
-                  <FieldValue key={i} subject={description.iri} ps={ps} value={v} />
-                ))}
+                {vals.map((v, i) =>
+                  readOnly ? (
+                    <div key={i} className="value-row">
+                      {v.type === 'uri' ? (
+                        <a className="term-link" title={v.value} onClick={() => selectResource(v.value)}>
+                          {displayName(v.value, v.label)}
+                        </a>
+                      ) : (
+                        <span className="term-literal">{v.value}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <FieldValue key={i} subject={description.iri} ps={ps} value={v} />
+                  )
+                )}
                 {missing && <div className="missing-note">required — no value</div>}
                 {fieldViolations.map((v, i) => (
                   <div key={i} className="missing-note" title={v.sourceShape ?? ''}>
                     {v.severity !== 'Violation' ? `[${v.severity}] ` : ''}{v.message}
                   </div>
                 ))}
-                {canAdd && <FieldAdd subject={description.iri} ps={ps} />}
+                {canAdd && !readOnly && <FieldAdd subject={description.iri} ps={ps} />}
               </div>
             );
           })}

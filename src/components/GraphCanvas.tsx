@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -120,8 +120,34 @@ export function GraphCanvas() {
   const doUndo = () => undo().then(() => refreshSelected());
   const doRedo = () => redo().then(() => refreshSelected());
 
+  // drag-and-drop from the class tree: drop a resource at the cursor position
+  const flowRef = useRef<{ screenToFlowPosition: (p: { x: number; y: number }) => { x: number; y: number } } | null>(null);
+  const { addResource } = useCanvas();
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      const iri = e.dataTransfer.getData('application/x-studio-iri');
+      if (!iri) return;
+      e.preventDefault();
+      const at = flowRef.current
+        ? flowRef.current.screenToFlowPosition({ x: e.clientX, y: e.clientY })
+        : undefined;
+      addResource(iri, at);
+      selectResource(iri);
+    },
+    [addResource, selectResource]
+  );
+
   return (
-    <div className="canvas-wrap">
+    <div
+      className="canvas-wrap"
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes('application/x-studio-iri')) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+        }
+      }}
+      onDrop={handleDrop}
+    >
       <div className="canvas-toolbar">
         <button className="ghost" onClick={doUndo} disabled={undoStack.length === 0} title="Undo (Ctrl+Z)">
           ⟲ Undo
@@ -164,6 +190,9 @@ export function GraphCanvas() {
         onNodeContextMenu={(e, n) => {
           e.preventDefault();
           removeNode(n.id);
+        }}
+        onInit={(instance) => {
+          flowRef.current = instance;
         }}
         fitView
         proOptions={{ hideAttribution: true }}

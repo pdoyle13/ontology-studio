@@ -4,6 +4,12 @@ import { useConnection } from '../state/connection';
 import { fetchInstances, searchResources, type InstanceInfo } from '../rdf/queries';
 import { displayName } from '../rdf/display';
 
+/** Drag source: carries the resource IRI to the canvas drop handler. */
+export const dragIri = (e: React.DragEvent, iri: string) => {
+  e.dataTransfer.setData('application/x-studio-iri', iri);
+  e.dataTransfer.effectAllowed = 'copy';
+};
+
 function InstanceList({ classIri }: { classIri: string }) {
   const conn = useConnection();
   const { selected, selectResource } = useGraph();
@@ -30,6 +36,8 @@ function InstanceList({ classIri }: { classIri: string }) {
           key={i.iri}
           className={selected === i.iri ? 'selected' : ''}
           title={i.iri}
+          draggable
+          onDragStart={(e) => dragIri(e, i.iri)}
           onClick={() => selectResource(i.iri)}
         >
           {displayName(i.iri, i.label)}
@@ -82,6 +90,8 @@ export function ClassTree() {
               key={r.iri}
               className={selected === r.iri ? 'selected' : ''}
               title={r.iri}
+              draggable
+              onDragStart={(e) => dragIri(e, r.iri)}
               onClick={() => selectResource(r.iri)}
             >
               {displayName(r.iri, r.label)}
@@ -110,6 +120,8 @@ export function ClassTree() {
                   <span
                     className="class-name"
                     title={c.iri}
+                    draggable
+                    onDragStart={(e) => dragIri(e, c.iri)}
                     onClick={(e) => {
                       e.stopPropagation();
                       selectResource(c.iri);

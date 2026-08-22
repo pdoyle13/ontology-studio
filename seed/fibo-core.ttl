@@ -1,0 +1,146 @@
+# Curated FIBO core — a compact subset of FIBO (EDM Council) classes used as the
+# shared business vocabulary for cross-industry field discovery.
+# IRIs follow the spec.edmcouncil.org scheme. skos:altLabel carries the matcher
+# keywords: adding/removing keywords is a GRAPH edit, not a code change.
+# NOTE: curated subset for the studio testbed — verify module paths against the
+# published FIBO release before external interchange.
+
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix studio: <https://studio.local/ns#> .
+@prefix fibo-fnd-aap-ppl: <https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/> .
+@prefix fibo-fnd-org-fm: <https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/> .
+@prefix fibo-fnd-pty-pty: <https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/> .
+@prefix fibo-fnd-pas-pas: <https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/> .
+@prefix fibo-fnd-acc-cur: <https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/> .
+@prefix fibo-fnd-agr-ctr: <https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/> .
+@prefix fibo-fnd-plc-adr: <https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/> .
+@prefix fibo-fnd-plc-loc: <https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/> .
+@prefix fibo-fnd-dt-fd: <https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/> .
+@prefix fibo-fnd-arr-id: <https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/> .
+@prefix fibo-fbc-pas-caa: <https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/> .
+@prefix fibo-fbc-pas-fpas: <https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/> .
+
+# ---- Parties & People ----
+fibo-fnd-aap-ppl:Person a rdfs:Class ;
+  rdfs:label "Person" ;
+  skos:definition "An individual human being." ;
+  skos:altLabel "person", "name", "full name", "first name", "last name", "contact", "holder", "counterparty name" ;
+  studio:businessArea "Parties & People" .
+
+fibo-fnd-pty-pty:PartyInRole a rdfs:Class ;
+  rdfs:label "Party In Role" ;
+  skos:definition "A party playing a role in a business relationship." ;
+  skos:altLabel "party", "role", "agent" ;
+  studio:businessArea "Parties & People" .
+
+fibo-fnd-pas-pas:Customer a rdfs:Class ;
+  rdfs:label "Customer" ;
+  skos:definition "A party that receives or purchases products or services." ;
+  skos:altLabel "customer", "client", "buyer", "customers", "customer id", "customer ref", "customer email", "holder email" ;
+  studio:businessArea "Parties & People" .
+
+fibo-fnd-org-fm:FormalOrganization a rdfs:Class ;
+  rdfs:label "Formal Organization" ;
+  skos:definition "An organization recognized by some legal jurisdiction." ;
+  skos:altLabel "organization", "company", "employer", "department", "vendor", "supplier", "carrier" ;
+  studio:businessArea "Parties & People" .
+
+# ---- Money & Accounting ----
+fibo-fnd-acc-cur:MonetaryAmount a rdfs:Class ;
+  rdfs:label "Monetary Amount" ;
+  skos:definition "A number of monetary units specified in a currency." ;
+  skos:altLabel "amount", "total", "balance", "price", "premium", "salary", "gross amount", "net amount", "claim amount", "total amount", "cost", "fee", "value" ;
+  studio:businessArea "Money & Accounting" .
+
+fibo-fnd-acc-cur:Currency a rdfs:Class ;
+  rdfs:label "Currency" ;
+  skos:definition "A medium of exchange value defined by reference to a geopolitical or economic area." ;
+  skos:altLabel "currency", "currency code", "ccy" ;
+  studio:businessArea "Money & Accounting" .
+
+fibo-fnd-acc-cur:MonetaryPrice a rdfs:Class ;
+  rdfs:label "Monetary Price" ;
+  skos:definition "A price expressed as a monetary amount." ;
+  skos:altLabel "unit price", "rate", "list price" ;
+  studio:businessArea "Money & Accounting" .
+
+# ---- Agreements & Contracts ----
+fibo-fnd-agr-ctr:Contract a rdfs:Class ;
+  rdfs:label "Contract" ;
+  skos:definition "A voluntary, deliberate agreement between competent parties." ;
+  skos:altLabel "contract", "policy", "agreement", "policy number", "policy ref", "terms" ;
+  studio:businessArea "Agreements & Contracts" .
+
+fibo-fnd-pas-pas:Transaction a rdfs:Class ;
+  rdfs:label "Transaction" ;
+  skos:definition "An agreement or exchange between parties carried out in the course of business." ;
+  skos:altLabel "transaction", "order", "sale", "purchase", "payment", "payroll", "claim", "orders", "transactions" ;
+  studio:businessArea "Agreements & Contracts" .
+
+# ---- Products & Services ----
+fibo-fnd-pas-pas:Product a rdfs:Class ;
+  rdfs:label "Product" ;
+  skos:definition "Anything offered to a market to satisfy a want or need." ;
+  skos:altLabel "product", "item", "goods", "sku" ;
+  studio:businessArea "Products & Services" .
+
+fibo-fnd-pas-pas:Service a rdfs:Class ;
+  rdfs:label "Service" ;
+  skos:definition "Intangible value provided by one party to another." ;
+  skos:altLabel "service", "shipment", "delivery", "shipping" ;
+  studio:businessArea "Products & Services" .
+
+# ---- Accounts ----
+fibo-fbc-pas-caa:Account a rdfs:Class ;
+  rdfs:label "Account" ;
+  skos:definition "A container for records of financial activity between parties." ;
+  skos:altLabel "account", "accounts", "account id", "iban", "account number" ;
+  studio:businessArea "Accounts & Banking" .
+
+fibo-fbc-pas-fpas:FinancialService a rdfs:Class ;
+  rdfs:label "Financial Service" ;
+  skos:definition "A service provided by the financial services industry." ;
+  skos:altLabel "loan", "deposit", "credit" ;
+  studio:businessArea "Accounts & Banking" .
+
+# ---- Locations & Addresses ----
+fibo-fnd-plc-adr:PhysicalAddress a rdfs:Class ;
+  rdfs:label "Physical Address" ;
+  skos:definition "A postal address at which a party is located." ;
+  skos:altLabel "address", "street", "city", "state", "zip", "postal code" ;
+  studio:businessArea "Locations" .
+
+fibo-fnd-plc-loc:PhysicalLocation a rdfs:Class ;
+  rdfs:label "Physical Location" ;
+  skos:definition "A place in physical space." ;
+  skos:altLabel "location", "warehouse", "site", "region", "warehouses" ;
+  studio:businessArea "Locations" .
+
+# ---- Dates & Times ----
+fibo-fnd-dt-fd:Date a rdfs:Class ;
+  rdfs:label "Date" ;
+  skos:definition "A calendar day on some calendar." ;
+  skos:altLabel "date", "created at", "shipped at", "occurred at", "opened at", "hired at", "filed at", "executed at", "sold at", "start date", "end date", "pay period", "timestamp" ;
+  studio:businessArea "Dates & Times" .
+
+# ---- Identifiers ----
+fibo-fnd-arr-id:Identifier a rdfs:Class ;
+  rdfs:label "Identifier" ;
+  skos:definition "A sequence of characters uniquely identifying something within a context." ;
+  skos:altLabel "id", "identifier", "number", "order number", "tracking no", "tracking ref", "order ref", "receipt no", "code", "reference", "ref" ;
+  studio:businessArea "Identifiers" .
+
+# ---- Communications ----
+fibo-fnd-plc-adr:ElectronicMailAddress a rdfs:Class ;
+  rdfs:label "Electronic Mail Address" ;
+  skos:definition "An address for electronic mail delivery." ;
+  skos:altLabel "email", "e-mail", "mail" ;
+  studio:businessArea "Communications" .
+
+# ---- Status / lifecycle (studio extension — FIBO models these as lifecycle stages) ----
+studio:LifecycleStatus a rdfs:Class ;
+  rdfs:label "Lifecycle Status" ;
+  skos:definition "The current stage of a business object in its lifecycle." ;
+  skos:altLabel "status", "state", "stage", "event" ;
+  studio:businessArea "Lifecycle & Events" .

@@ -3,3 +3,6 @@ dist
 .oxigraph-data
 server/sources.json
 .env
+server/.cache
+seed/retail_pos.db
+seed/delivery.db
