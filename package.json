@@ -12,12 +12,14 @@
   "dependencies": {
     "@types/n3": "^1.26.1",
     "@xyflow/react": "^12.11.3",
+    "dagre": "^0.8.5",
     "n3": "^2.2.5",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@types/dagre": "^0.7.54",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",

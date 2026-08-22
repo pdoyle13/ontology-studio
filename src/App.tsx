@@ -1,9 +1,31 @@
+import { useEffect } from 'react';
 import { ConnectionBar } from './components/ConnectionBar';
+import { useHistory } from './state/history';
+import { useGraph } from './state/graph';
+import { ClassTree } from './components/ClassTree';
+import { ResourcePanel } from './components/ResourcePanel';
+import { GraphCanvas } from './components/GraphCanvas';
 import { useConnection } from './state/connection';
 import './App.css';
 
 export default function App() {
   const status = useConnection((s) => s.status);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        useHistory.getState().undo().then(() => useGraph.getState().refreshSelected());
+      } else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+        e.preventDefault();
+        useHistory.getState().redo().then(() => useGraph.getState().refreshSelected());
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <div className="app">
@@ -11,20 +33,18 @@ export default function App() {
       <div className="workspace">
         <aside className="sidebar">
           <div className="panel-title">Classes</div>
-          <div className="placeholder">
-            {status === 'connected' ? 'Class tree — next iteration' : 'Connect to an endpoint to browse'}
-          </div>
+          <ClassTree />
         </aside>
         <main className="canvas-area">
-          <div className="placeholder center">
-            {status === 'connected'
-              ? 'Graph canvas — drop a resource here (next iteration)'
-              : 'Ontology Studio — connect to Oxigraph to begin'}
-          </div>
+          {status === 'connected' ? (
+            <GraphCanvas />
+          ) : (
+            <div className="placeholder center">Ontology Studio — connect to Oxigraph to begin</div>
+          )}
         </main>
         <aside className="inspector">
           <div className="panel-title">Inspector</div>
-          <div className="placeholder">Select a resource to view its properties</div>
+          <ResourcePanel />
         </aside>
       </div>
       <footer className="sparql-drawer">

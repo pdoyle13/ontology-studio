@@ -88,6 +88,116 @@ button.ghost { background: transparent; }
   height: 100%;
 }
 
+/* ---- class tree ---- */
+.search-box { width: 100%; margin-bottom: 8px; }
+.class-list, .instance-list { list-style: none; margin: 0; padding: 0; }
+.class-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.class-row:hover { background: var(--bg-inset); }
+.class-row.selected, .instance-list li.selected { background: rgba(90, 169, 230, 0.15); }
+.twisty { color: var(--text-dim); width: 12px; flex: none; font-size: 10px; }
+.class-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.class-name:hover { color: var(--accent); }
+.count { color: var(--text-dim); font-size: 11px; }
+.instance-list { margin-left: 18px; border-left: 1px solid var(--border); }
+.instance-list li {
+  padding: 2px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.instance-list li:hover { background: var(--bg-inset); color: var(--accent); }
+.tree-loading { color: var(--text-dim); font-size: 12px; padding: 4px; }
+
+/* ---- resource panel ---- */
+.resource-header { margin-bottom: 10px; }
+.resource-title { font-size: 15px; font-weight: 600; }
+.resource-iri {
+  color: var(--text-dim);
+  font-size: 11px;
+  word-break: break-all;
+  margin: 2px 0 6px;
+}
+.resource-types { display: flex; flex-wrap: wrap; gap: 4px; }
+.type-chip {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.type-chip:hover { border-color: var(--accent); }
+.prop-table { width: 100%; border-collapse: collapse; }
+.prop-table td { vertical-align: top; padding: 3px 4px; border-top: 1px solid var(--border); }
+.pred-cell { color: var(--text-dim); width: 40%; word-break: break-word; }
+.obj-cell { word-break: break-word; }
+.term-link { color: var(--accent); cursor: pointer; text-decoration: none; }
+.term-link:hover { text-decoration: underline; }
+.term-literal { color: #c8e1a8; }
+.term-meta { color: var(--text-dim); font-size: 11px; margin-left: 2px; }
+.term-bnode { color: var(--busy); }
+
+/* ---- editing ---- */
+.value-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.row-actions { visibility: hidden; display: inline-flex; gap: 2px; }
+.value-row:hover .row-actions, .row-actions.always { visibility: visible; }
+button.micro {
+  padding: 0 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+}
+button.micro:hover { color: var(--accent); border-color: var(--border); }
+button.micro.danger:hover { color: var(--err); }
+button.micro.add { visibility: hidden; }
+.obj-cell:hover button.micro.add { visibility: visible; }
+.danger-text { color: var(--err); }
+.resource-actions { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+.add-prop { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+.add-prop input { flex: 1; min-width: 110px; }
+
+/* ---- graph canvas ---- */
+.canvas-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.canvas-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+.canvas-wrap .react-flow { flex: 1; background: var(--bg-inset); }
+.rdf-node {
+  background: var(--bg-panel);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  min-width: 90px;
+  max-width: 200px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text);
+}
+.rdf-node.selected { box-shadow: 0 0 0 2px var(--accent); }
+.rdf-node-label { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rdf-node-type { font-size: 10px; margin-top: 1px; }
+.rdf-handle { opacity: 0; }
+.rdf-minimap { background: var(--bg-panel) !important; }
+.react-flow__edge-path { stroke: #4a5060; }
+.react-flow__edge-textbg { fill: var(--bg-inset); }
+.react-flow__edge-text { fill: var(--text-dim); font-size: 10px; }
+
 /* ---- sparql drawer ---- */
 .sparql-drawer {
   border-top: 1px solid var(--border);

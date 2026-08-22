@@ -16,26 +16,26 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 ## Phases
 
 ### Phase 1 — foundation
-- [ ] Scaffold Vite react-ts, deps (n3, @xyflow/react, zustand)
-- [ ] SPARQL client (`src/rdf/sparqlClient.ts`): query (SELECT/ASK json, CONSTRUCT turtle), update, graph-store PUT/POST for bulk load; timeout + error surfaces
-- [ ] Connection store + ConnectionBar UI: endpoint presets (Oxigraph localhost), test connection, named-graph picker (enumerate via SELECT DISTINCT ?g)
-- [ ] App shell layout: left sidebar (tree/search), center canvas, right inspector, bottom SPARQL drawer. Dark theme.
-- [ ] Dev Oxigraph instance for the editor (port 7880, own data dir) — script + README note
+- [x] Scaffold Vite react-ts, deps (n3, @xyflow/react, zustand)
+- [x] SPARQL client (`src/rdf/sparqlClient.ts`): query (SELECT/ASK json, CONSTRUCT turtle), update, graph-store PUT/POST for bulk load; timeout + error surfaces
+- [x] Connection store + ConnectionBar UI: endpoint presets (Oxigraph localhost), test connection, named-graph picker (enumerate via SELECT DISTINCT ?g)
+- [x] App shell layout: left sidebar (tree/search), center canvas, right inspector, bottom SPARQL drawer. Dark theme.
+- [x] Dev Oxigraph instance for the editor (port 7880, own data dir) — PM2 `studio-oxigraph` (job-pipeline's oxigraph.exe binary), UI dev server PM2 `studio-ui` on http://localhost:5180, Vite proxies /db → 7880. Seeded seed/demo.ttl into graph <https://example.org/graphs/music> (102 triples, music domain + SHACL shapes + a deliberately-invalid album for validation demo)
 
 ### Phase 2 — read path (browse before edit)
-- [ ] Class tree sidebar: rdfs:Class/owl:Class list w/ instance counts (SPARQL), subclass hierarchy
-- [ ] Search: label/IRI contains search (SELECT w/ FILTER or bif — plain FILTER for Oxigraph)
-- [ ] GraphCanvas: drop a resource on canvas → node; expand edges (outgoing/incoming, batched CONSTRUCT); auto-layout (dagre or elk); edge labels = predicate curies
-- [ ] ResourcePanel: read-only property sheet for selected node (grouped, prefixed, literals w/ lang/datatype)
-- [ ] Prefix management: default set (rdf, rdfs, owl, sh, skos, xsd, dcterms, foaf) + learned from data; curie rendering everywhere
+- [x] Class tree sidebar: class list w/ instance counts (flat, sorted by count; subclass hierarchy = later polish), expandable instance lists
+- [x] Search: debounced label/IRI CONTAINS search across scope (src/rdf/queries.ts searchResources)
+- [x] GraphCanvas: selecting a resource adds it (auto-connects to nodes already on canvas); double-click expands neighbors (25 cap, radial placement + background type/label hydration); right-click removes; dagre auto-layout button; type-colored borders (hashed hue); minimap + controls; edge labels = predicate curies
+- [x] ResourcePanel: read-only property sheet (grouped by predicate, type chips, literals w/ lang/datatype, incoming "Referenced by" section, click-to-navigate)
+- [x] Prefix management: PrefixMap w/ defaults + shrink/expand; curie rendering in tree + panel (learned-from-data registration still TODO)
 
 ### Phase 3 — write path
-- [ ] Edit literals in ResourcePanel (DELETE/INSERT DATA per triple, optimistic UI)
-- [ ] Add/remove property values incl. object properties (IRI picker w/ search)
-- [ ] Create resource (class picker → mint IRI w/ configurable namespace)
-- [ ] Delete resource (with incoming-reference warning)
-- [ ] Create/delete edges by drag on canvas
-- [ ] Undo/redo (inverse-update stack)
+- [x] Edit literals in ResourcePanel (inline ✎, replaceTriple = DELETE DATA ; INSERT DATA chain, keeps lang/datatype; smoke-tested on Oxigraph)
+- [x] Add/remove property values (hover ✕ per value, + per predicate, "+ Add property" with curie expansion; 'auto' term parsing: IRI/curie/integer/decimal/boolean/date detection)
+- [x] Create resource ("+ New instance" on class pages — mints IRI in the class's namespace, window.prompt for now; proper modal = Phase 6 polish)
+- [x] Delete resource (confirm dialog includes incoming-reference count; deletes incoming refs too when present)
+- [x] Create edges by drag on canvas (drag node handle→node, predicate prompt w/ curie expansion, writes triple + draws edge). Edge deletion = delete the value in inspector (canvas edge-delete gesture = Phase 6 polish)
+- [x] Undo/redo (command layer src/rdf/commands.ts + history store; every write records its inverse incl. delete-resource snapshot restore; Ctrl+Z/Ctrl+Y + toolbar buttons)
 
 ### Phase 4 — imports/exports + connectors
 - [ ] Import file: Turtle/N-Triples (n3 parse client-side → graph-store POST in chunks); progress UI
@@ -59,3 +59,8 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 
 ## Log
 (one line per iteration: date, what shipped)
+- 2026-08-22: Phase 3 COMPLETE — undoable command layer (all writes reversible), drag-to-create edges, Ctrl+Z/Y. Build green.
+- 2026-08-22: Write path shipped — mutations.ts (insert/delete/replace/create/deleteResource + term parsing), full inline editing in inspector. Write round-trip smoke-tested (insert 204 → ASK true → chained delete 204). Remaining Phase 3: drag-to-create edges, undo/redo.
+- 2026-08-22: Graph canvas shipped (react-flow + dagre) — Phase 2 complete except learned-prefix registration. Build green (469kB bundle).
+- 2026-08-22: Phase 2 read path (minus canvas) — queries.ts (scoped class/instance/search/describe), graph store, ClassTree w/ search, ResourcePanel w/ incoming refs + navigation. Class query smoke-tested on live Oxigraph. Build green.
+- 2026-08-22: Phase 1 complete — scaffold, SPARQL client, connection bar w/ graph picker, dark shell, Oxigraph:7880 under PM2 (studio-oxigraph + studio-ui), demo seed loaded, build green, first commit.
