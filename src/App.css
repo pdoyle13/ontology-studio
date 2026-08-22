@@ -336,6 +336,14 @@ button.micro.add-field:hover { color: var(--accent); }
 .rdf-handle { opacity: 0; }
 .rdf-minimap { background: var(--bg-panel) !important; }
 .react-flow__edge-path { stroke: #55503f; }
+.edge-label {
+  position: absolute;
+  pointer-events: none;
+  font: 10px/1.2 var(--mono);
+  color: var(--text-dim);
+  background: var(--bg-inset);
+  padding: 0 4px;
+}
 .react-flow__edge-textbg { fill: var(--bg-inset); }
 .react-flow__edge-text { fill: var(--text-dim); font-size: 10px; font-family: var(--mono); }
 .react-flow__controls { box-shadow: none; border: 1px solid var(--border); }

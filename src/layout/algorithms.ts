@@ -1,61 +1,55 @@
-// Canvas layout algorithms. Each takes the current nodes/edges and returns new
-// positions; the store applies them. All run synchronously.
+// Base layout algorithms — pure functions LayoutNode/LayoutEdge → Positions.
 
 import dagre from 'dagre';
 import { forceSimulation, forceManyBody, forceLink, forceCenter, forceCollide } from 'd3-force';
-import type { Edge } from '@xyflow/react';
-import type { RdfNode } from './canvas';
+import type { LayoutEdge, LayoutNode, Positions } from './types';
+import { rng } from './rng';
 
-export type LayoutAlgo = 'tree-lr' | 'tree-tb' | 'force' | 'radial' | 'circle' | 'grid';
-
-export const LAYOUTS: { id: LayoutAlgo; label: string }[] = [
-  { id: 'tree-lr', label: 'Tree →' },
-  { id: 'tree-tb', label: 'Tree ↓' },
-  { id: 'force', label: 'Force' },
-  { id: 'radial', label: 'Radial' },
-  { id: 'circle', label: 'Circle' },
-  { id: 'grid', label: 'Grid' },
-];
-
-const W = 180;
-const H = 52;
-
-type Pos = Map<string, { x: number; y: number }>;
-
-function treeLayout(nodes: RdfNode[], edges: Edge[], rankdir: 'LR' | 'TB'): Pos {
+export function treeLayout(nodes: LayoutNode[], edges: LayoutEdge[], rankdir: 'LR' | 'TB'): Positions {
   const g = new dagre.graphlib.Graph();
   g.setGraph({ rankdir, nodesep: 42, ranksep: rankdir === 'LR' ? 95 : 70 });
   g.setDefaultEdgeLabel(() => ({}));
-  for (const n of nodes) g.setNode(n.id, { width: W, height: H });
+  for (const n of nodes) g.setNode(n.id, { width: n.w, height: n.h });
   for (const e of edges) g.setEdge(e.source, e.target);
   dagre.layout(g);
-  const pos: Pos = new Map();
+  const pos: Positions = new Map();
   for (const n of nodes) {
     const p = g.node(n.id);
-    if (p) pos.set(n.id, { x: p.x - W / 2, y: p.y - H / 2 });
+    if (p) pos.set(n.id, { x: p.x - n.w / 2, y: p.y - n.h / 2 });
   }
   return pos;
 }
 
-function forceLayout(nodes: RdfNode[], edges: Edge[]): Pos {
-  const simNodes = nodes.map((n) => ({ id: n.id, x: n.position.x, y: n.position.y }));
+export function forceLayout(nodes: LayoutNode[], edges: LayoutEdge[], seed = 1): Positions {
+  const rand = rng(seed * 7919 + 13);
+  // seeded circular init — deterministic and spread out, so ticks untangle instead of exploding
+  const R = Math.max(220, nodes.length * 30);
+  const simNodes = nodes.map((n, i) => {
+    const angle = (2 * Math.PI * i) / nodes.length + rand() * 2 * Math.PI;
+    return {
+      id: n.id,
+      x: 500 + R * Math.cos(angle) * (0.6 + rand() * 0.6),
+      y: 350 + R * Math.sin(angle) * (0.6 + rand() * 0.6),
+    };
+  });
+  const ids = new Set(simNodes.map((n) => n.id));
   const simLinks = edges
-    .filter((e) => simNodes.some((n) => n.id === e.source) && simNodes.some((n) => n.id === e.target))
+    .filter((e) => e.source !== e.target && ids.has(e.source) && ids.has(e.target))
     .map((e) => ({ source: e.source, target: e.target }));
   const sim = forceSimulation(simNodes as { id: string; x: number; y: number }[])
-    .force('charge', forceManyBody().strength(-420))
-    .force('link', forceLink(simLinks).id((d) => (d as { id: string }).id).distance(170))
-    .force('center', forceCenter(420, 300))
-    .force('collide', forceCollide(70))
+    .force('charge', forceManyBody().strength(-650).distanceMax(900))
+    .force('link', forceLink(simLinks).id((d) => (d as { id: string }).id).distance(190).strength(0.9))
+    .force('center', forceCenter(500, 350))
+    .force('collide', forceCollide(92).strength(0.95))
     .stop();
-  for (let i = 0; i < 300; i++) sim.tick();
-  const pos: Pos = new Map();
-  for (const n of simNodes) pos.set(n.id, { x: n.x ?? 0, y: n.y ?? 0 });
+  for (let i = 0; i < 400; i++) sim.tick();
+  const pos: Positions = new Map();
+  for (const n of simNodes) pos.set(n.id, { x: (n.x ?? 0) * 1.35, y: n.y ?? 0 }); // widen: nodes are wide, screens are wide
   return pos;
 }
 
 /** BFS rings around the most-connected node. */
-function radialLayout(nodes: RdfNode[], edges: Edge[]): Pos {
+export function radialLayout(nodes: LayoutNode[], edges: LayoutEdge[]): Positions {
   const degree = new Map<string, number>();
   const adj = new Map<string, string[]>();
   for (const n of nodes) {
@@ -91,7 +85,7 @@ function radialLayout(nodes: RdfNode[], edges: Edge[]): Pos {
   }
   const cx = 480;
   const cy = 340;
-  const pos: Pos = new Map();
+  const pos: Positions = new Map();
   for (const [r, ids] of byRing) {
     const radius = r * 190;
     ids.forEach((id, i) => {
@@ -106,11 +100,11 @@ function radialLayout(nodes: RdfNode[], edges: Edge[]): Pos {
   return pos;
 }
 
-function circleLayout(nodes: RdfNode[]): Pos {
+export function circleLayout(nodes: LayoutNode[]): Positions {
   const cx = 480;
   const cy = 340;
   const radius = Math.max(160, nodes.length * 26);
-  const pos: Pos = new Map();
+  const pos: Positions = new Map();
   nodes.forEach((n, i) => {
     const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
     pos.set(n.id, { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) });
@@ -118,28 +112,13 @@ function circleLayout(nodes: RdfNode[]): Pos {
   return pos;
 }
 
-function gridLayout(nodes: RdfNode[]): Pos {
+export function gridLayout(nodes: LayoutNode[]): Positions {
   const cols = Math.ceil(Math.sqrt(nodes.length * 1.6));
-  const pos: Pos = new Map();
+  const maxW = Math.max(...nodes.map((n) => n.w), 1);
+  const maxH = Math.max(...nodes.map((n) => n.h), 1);
+  const pos: Positions = new Map();
   nodes.forEach((n, i) => {
-    pos.set(n.id, { x: 80 + (i % cols) * (W + 40), y: 70 + Math.floor(i / cols) * (H + 55) });
+    pos.set(n.id, { x: 80 + (i % cols) * (maxW + 40), y: 70 + Math.floor(i / cols) * (maxH + 55) });
   });
   return pos;
-}
-
-export function computeLayout(algo: LayoutAlgo, nodes: RdfNode[], edges: Edge[]): Pos {
-  switch (algo) {
-    case 'tree-lr':
-      return treeLayout(nodes, edges, 'LR');
-    case 'tree-tb':
-      return treeLayout(nodes, edges, 'TB');
-    case 'force':
-      return forceLayout(nodes, edges);
-    case 'radial':
-      return radialLayout(nodes, edges);
-    case 'circle':
-      return circleLayout(nodes);
-    case 'grid':
-      return gridLayout(nodes);
-  }
 }

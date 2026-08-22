@@ -5,6 +5,11 @@ import {
   Controls,
   MiniMap,
   applyNodeChanges,
+  ConnectionLineType,
+  BaseEdge,
+  EdgeLabelRenderer,
+  useInternalNode,
+  type EdgeProps,
   type NodeChange,
   type NodeProps,
   Handle,
@@ -12,7 +17,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCanvas, type RdfNode, type RdfNodeData } from '../state/canvas';
-import { LAYOUTS, type LayoutAlgo } from '../state/layouts';
+import { LAYOUTS, bestAnchorPair, type LayoutAlgo } from '../layout';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import { useHistory } from '../state/history';
@@ -41,6 +46,43 @@ function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
 }
 
 const nodeTypes = { rdfNode: RdfNodeView };
+
+/** Straight edge anchored at the best pair of side midpoints (top/right/bottom/left) —
+ *  anchor choice comes from the layout engine so render matches what it optimized. */
+function MidpointEdge({ id, source, target, label, style }: EdgeProps) {
+  const sourceNode = useInternalNode(source);
+  const targetNode = useInternalNode(target);
+  if (!sourceNode || !targetNode) return null;
+
+  const box = (n: typeof sourceNode) => ({
+    x: n.internals.positionAbsolute.x,
+    y: n.internals.positionAbsolute.y,
+    w: n.measured.width ?? 180,
+    h: n.measured.height ?? 52,
+  });
+  const { from, to } = bestAnchorPair(box(sourceNode), box(targetNode));
+  const path = `M ${from.x},${from.y} L ${to.x},${to.y}`;
+  const lx = (from.x + to.x) / 2;
+  const ly = (from.y + to.y) / 2;
+
+  return (
+    <>
+      <BaseEdge id={id} path={path} style={style} className="rdf-edge-path" />
+      {label && (
+        <EdgeLabelRenderer>
+          <div
+            className="edge-label"
+            style={{ transform: `translate(-50%, -50%) translate(${lx}px, ${ly}px)` }}
+          >
+            {String(label)}
+          </div>
+        </EdgeLabelRenderer>
+      )}
+    </>
+  );
+}
+
+const edgeTypes = { mid: MidpointEdge };
 
 export function GraphCanvas() {
   const { nodes, edges, onNodesChange, expandNode, removeNode, clear, relayout, expanding, addEdgeLocal, loadSchemaOverview, layoutAlgo, setLayoutAlgo } = useCanvas();
@@ -114,6 +156,7 @@ export function GraphCanvas() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={handleNodesChange}
         onConnect={handleConnect}
         onNodeClick={(_, n) => selectResource(n.id)}
@@ -125,7 +168,8 @@ export function GraphCanvas() {
         fitView
         proOptions={{ hideAttribution: true }}
         colorMode="dark"
-        defaultEdgeOptions={{ labelStyle: { fill: 'var(--text-dim)', fontSize: 10 } }}
+        defaultEdgeOptions={{ type: 'mid' }}
+        connectionLineType={ConnectionLineType.Straight}
       >
         <Background gap={22} color="#23262d" />
         <Controls showInteractive={false} />

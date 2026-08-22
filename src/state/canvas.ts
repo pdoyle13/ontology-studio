@@ -3,7 +3,7 @@
 
 import { create } from 'zustand';
 import type { Node, Edge } from '@xyflow/react';
-import { computeLayout, type LayoutAlgo } from './layouts';
+import { layout, type LayoutAlgo, type LayoutMetrics, type LayoutNode } from '../layout';
 import { describeResource } from '../rdf/queries';
 import { select } from '../rdf/sparqlClient';
 import { scoped } from '../rdf/queries';
@@ -45,6 +45,7 @@ export interface CanvasState {
   clear: () => void;
   layoutAlgo: LayoutAlgo;
   setLayoutAlgo: (a: LayoutAlgo) => void;
+  lastLayout: { picked: string; metrics: LayoutMetrics } | null;
   relayout: () => void;
   /** Root view: all classes as labeled nodes, connected by their object properties + subclass edges. */
   loadSchemaOverview: () => Promise<void>;
@@ -148,7 +149,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
             source: s,
             target: o,
             label: prefixes.shrink(nb.predicate),
-            className: 'rdf-edge',
+            type: 'mid', className: 'rdf-edge',
           });
           edgeIds.add(id);
         }
@@ -195,7 +196,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
       ensure(t.o);
       const id = edgeId(t.s, t.p, t.o);
       if (!edgeIds.has(id)) {
-        edges.push({ id, source: t.s, target: t.o, label: prefixes.shrink(t.p), className: 'rdf-edge' });
+        edges.push({ id, source: t.s, target: t.o, label: prefixes.shrink(t.p), type: 'mid', className: 'rdf-edge' });
         edgeIds.add(id);
       }
     }
@@ -208,7 +209,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     if (get().edges.some((e) => e.id === id)) return;
     const prefixes = useGraph.getState().prefixes;
     set({
-      edges: [...get().edges, { id, source: s, target: o, label: prefixes.shrink(p), className: 'rdf-edge' }],
+      edges: [...get().edges, { id, source: s, target: o, label: prefixes.shrink(p), type: 'mid', className: 'rdf-edge' }],
     });
   },
 
@@ -276,7 +277,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
         source: l.src,
         target: l.dst,
         label: isSub ? 'is a' : humanize(localName(l.prop)),
-        className: 'rdf-edge',
+        type: 'mid', className: 'rdf-edge',
         style: isSub ? { strokeDasharray: '5 4' } : undefined,
       });
     }
@@ -284,19 +285,29 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     get().relayout();
   },
 
-  layoutAlgo: 'tree-lr',
+  layoutAlgo: 'auto',
   setLayoutAlgo: (a) => {
     set({ layoutAlgo: a });
     get().relayout();
   },
+  lastLayout: null,
 
   relayout: () => {
     const { nodes, edges, layoutAlgo } = get();
     if (nodes.length === 0) return;
-    const pos = computeLayout(layoutAlgo, nodes as RdfNode[], edges);
+    // adapt UI nodes → engine primitives (measured size when available)
+    const layoutNodes: LayoutNode[] = nodes.map((n) => ({
+      id: n.id,
+      w: (n as { measured?: { width?: number } }).measured?.width ?? 180,
+      h: (n as { measured?: { height?: number } }).measured?.height ?? 52,
+      x: n.position.x,
+      y: n.position.y,
+    }));
+    const result = layout(layoutAlgo, layoutNodes, edges.map((e) => ({ source: e.source, target: e.target })));
     set({
+      lastLayout: { picked: result.picked, metrics: result.metrics },
       nodes: nodes.map((n) => {
-        const p = pos.get(n.id);
+        const p = result.positions.get(n.id);
         return p ? { ...n, position: p } : n;
       }),
     });
@@ -322,7 +333,7 @@ async function connectExisting(
       if (s.object.type === 'uri' && onCanvas.has(s.object.value)) {
         const id = edgeId(iri, s.predicate, s.object.value);
         if (!edgeIds.has(id) && s.predicate !== 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type') {
-          edges.push({ id, source: iri, target: s.object.value, label: prefixes.shrink(s.predicate), className: 'rdf-edge' });
+          edges.push({ id, source: iri, target: s.object.value, label: prefixes.shrink(s.predicate), type: 'mid', className: 'rdf-edge' });
           edgeIds.add(id);
         }
       }
@@ -331,7 +342,7 @@ async function connectExisting(
       if (onCanvas.has(s.subject)) {
         const id = edgeId(s.subject, s.predicate, iri);
         if (!edgeIds.has(id)) {
-          edges.push({ id, source: s.subject, target: iri, label: prefixes.shrink(s.predicate), className: 'rdf-edge' });
+          edges.push({ id, source: s.subject, target: iri, label: prefixes.shrink(s.predicate), type: 'mid', className: 'rdf-edge' });
           edgeIds.add(id);
         }
       }
