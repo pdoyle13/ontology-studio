@@ -5,6 +5,9 @@ import type { TermValue } from '../rdf/queries';
 import { localName } from '../rdf/prefixes';
 import { parseTermInput } from '../rdf/mutations';
 import { cmdInsert, cmdDelete, cmdReplace, cmdCreateResource, cmdDeleteResource } from '../rdf/commands';
+import { ShapeForm } from './ShapeForm';
+import { ShapeEditor } from './ShapeEditor';
+import { cmdGenerateShape } from '../rdf/shapeGen';
 
 function ObjectTerm({ t }: { t: TermValue }) {
   const { prefixes, selectResource } = useGraph();
@@ -214,6 +217,10 @@ export function ResourcePanel() {
 
   const d = description;
   const isClass = d.types.some((t) => CLASS_IRIS.has(t)) || d.incoming.some((s) => s.predicate === 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+  const isNodeShape =
+    d.types.includes('http://www.w3.org/ns/shacl#NodeShape') ||
+    d.outgoing.some((s) => s.predicate === 'http://www.w3.org/ns/shacl#property');
+  const hasShape = d.incoming.some((s) => s.predicate === 'http://www.w3.org/ns/shacl#targetClass');
   const grouped = new Map<string, TermValue[]>();
   for (const s of d.outgoing) {
     if (!grouped.has(s.predicate)) grouped.set(s.predicate, []);
@@ -271,6 +278,21 @@ export function ResourcePanel() {
               + New instance
             </button>
           )}
+          {isClass && !hasShape && (
+            <button
+              className="ghost"
+              title="Profile instances of this class and draft a SHACL NodeShape"
+              onClick={() => {
+                if (!ep) return;
+                run(async () => {
+                  const shapeIri = await cmdGenerateShape(ep, graph, d.iri);
+                  await selectResource(shapeIri);
+                });
+              }}
+            >
+              ⚙ Generate shape
+            </button>
+          )}
           <button className="ghost danger-text" onClick={removeResource}>
             Delete
           </button>
@@ -279,6 +301,11 @@ export function ResourcePanel() {
         {writeError && <div className="err-text">{writeError}</div>}
       </div>
 
+      {isNodeShape && <ShapeEditor shapeIri={d.iri} />}
+      <ShapeForm description={d} />
+
+      <details open className="triples-details">
+        <summary className="panel-title" style={{ cursor: 'pointer' }}>All triples</summary>
       <table className="prop-table">
         <tbody>
           {[...grouped.entries()].map(([pred, objs]) => (
@@ -299,6 +326,7 @@ export function ResourcePanel() {
         </tbody>
       </table>
       <AddProperty subject={d.iri} />
+      </details>
 
       {d.incoming.length > 0 && (
         <>

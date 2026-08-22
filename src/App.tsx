@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { ConnectionBar } from './components/ConnectionBar';
 import { useHistory } from './state/history';
 import { useGraph } from './state/graph';
-import { ClassTree } from './components/ClassTree';
+import { SidebarTabs } from './components/SidebarTabs';
 import { ResourcePanel } from './components/ResourcePanel';
 import { GraphCanvas } from './components/GraphCanvas';
+import { SparqlDrawer } from './components/SparqlDrawer';
 import { useConnection } from './state/connection';
 import './App.css';
 
@@ -32,8 +33,7 @@ export default function App() {
       <ConnectionBar />
       <div className="workspace">
         <aside className="sidebar">
-          <div className="panel-title">Classes</div>
-          <ClassTree />
+          <SidebarTabs />
         </aside>
         <main className="canvas-area">
           {status === 'connected' ? (
@@ -47,10 +47,7 @@ export default function App() {
           <ResourcePanel />
         </aside>
       </div>
-      <footer className="sparql-drawer">
-        <div className="panel-title">SPARQL</div>
-        <div className="placeholder">Query drawer — next iteration</div>
-      </footer>
+      <SparqlDrawer />
     </div>
   );
 }

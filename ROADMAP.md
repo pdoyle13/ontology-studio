@@ -38,27 +38,32 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] Undo/redo (command layer src/rdf/commands.ts + history store; every write records its inverse incl. delete-resource snapshot restore; Ctrl+Z/Ctrl+Y + toolbar buttons)
 
 ### Phase 4 — imports/exports + connectors
-- [ ] Import file: Turtle/N-Triples (n3 parse client-side → graph-store POST in chunks); progress UI
-- [ ] Import from URL (fetch → same path); content-negotiation
-- [ ] Export named graph as Turtle (CONSTRUCT, prefixed serialization via n3 Writer)
-- [ ] Multiple saved connections (localStorage), incl. generic SPARQL endpoints (Wikidata read-only demo)
+- [x] Import file: Turtle/N-Triples (n3 parse client-side → graph-store POST in 5000-triple N-Triples chunks); progress bar; target-graph field; discovered prefixes registered into PrefixMap (n-triples POST verified on Oxigraph)
+- [x] Import from URL (content-negotiated fetch; RDF/XML detected + rejected with clear message; CORS-dependent)
+- [x] Export named graph as Turtle (CONSTRUCT → n3 re-serialize with known prefixes → download)
+- [x] Multiple saved connections (localStorage), incl. generic SPARQL endpoints (query URL + optional update URL; Wikidata read-only preset button)
 - [ ] JSON-LD + RDF/XML import (via jsonld.js / rdfxml parser) — stretch
 
 ### Phase 5 — SHACL (the differentiator)
-- [ ] ShapesPanel: list sh:NodeShapes, targetClass, property shapes rendered as a constraint sheet
-- [ ] Shape-driven forms: when a resource's class has a NodeShape, ResourcePanel renders from the shape (order, datatype widgets, minCount required markers) — the DASH pattern
-- [ ] Shape editor: add/edit property shapes (path, datatype/class, cardinality, in-list) via forms
-- [ ] Validation: run client-side (rdf-validate-shacl or shacl-engine) against hydrated data or server-side lane; violations overlaid on canvas + forms
-- [ ] Generate starter shapes from data (profile a class: predicates, datatypes, cardinalities observed)
+- [x] ShapesPanel: sidebar Shapes tab lists NodeShapes w/ targetClass + property counts (constraint-sheet rendering of a selected shape = the shape editor item below)
+- [x] Shape-driven forms: ResourcePanel renders a Form block per NodeShape targeting the resource's classes — sh:order sorting, sh:name labels, required markers + red missing-value flags (minCount), maxCount hides add, sh:datatype types the input + stamps the literal, sh:class renders an instance dropdown picker. Raw triples collapse into an "All triples" details section. (shacl.ts smoke-tested: AlbumShape → Title/Release year/Artist, min=1 each)
+- [x] Shape editor: constraint sheet on any NodeShape page — inline name/datatype/class/minCount/maxCount/order/pattern (bnode-SAFE via DELETE/INSERT WHERE through parent shape + sh:path, verified on Oxigraph); add property shape (minted IRI); remove w/ snapshot undo. All undoable.
+- [x] Validation: rdf-validate-shacl client-side over the full CONSTRUCTed scope (shapes+data same graph); Issues tab (severity-colored, click→navigate, conforms banner), red rings on canvas nodes, per-field violation messages in shape forms. Verified: catches seeded InRainbows missing label+releaseYear.
+- [x] Generate starter shapes from data: "⚙ Generate shape" on shapeless class pages — profiles predicates (datatype/object-class sampling, observed cardinalities → min/maxCount), mints <Class>Shape + property-shape IRIs, opens the editor. Undoable.
 
 ### Phase 6 — polish
-- [ ] SPARQL drawer: editor w/ syntax highlight (codemirror), result table, CONSTRUCT→canvas
+- [x] SPARQL drawer: collapsible, textarea editor (Ctrl+Enter run, auto-prepend prefixes toggle), auto-detects SELECT/ASK/CONSTRUCT/UPDATE, result table w/ clickable IRIs, turtle output, update runs + refreshes UI. (codemirror highlight + CONSTRUCT→canvas still open)
 - [ ] Canvas niceties: minimap, grouping by class color, save/restore layouts per graph
 - [ ] Keyboard palette, empty states, error toasts
 - [ ] README with screenshots; demo dataset seed script
 
 ## Log
 (one line per iteration: date, what shipped)
+- 2026-08-22: Phase 5 COMPLETE — shape editor (bnode-safe constraint edits) + generate-shape-from-data. NEXT: Phase 6 polish (learned prefixes, CONSTRUCT→canvas, README, code-split, empty states).
+- 2026-08-22: SHACL VALIDATION shipped — sidebar tabs (Classes/Shapes/Issues), rdf-validate-shacl engine, violations overlaid on canvas + forms. Remaining P5: shape editor, generate-shapes-from-data.
+- 2026-08-22: SHACL shape-driven forms shipped (shacl.ts + ShapeForm) — the DASH-lineage differentiator. NEXT: shapes panel + validation.
+- 2026-08-22: SPARQL drawer + generic-endpoint connectors (Wikidata preset). Phase 4 done except JSON-LD/RDF-XML stretch. NEXT: Phase 5 SHACL (shapes panel, shape-driven forms, validation).
+- 2026-08-22: Phase 4 imports/exports — ImportExportDialog (file/URL import w/ progress + prefix learning, Turtle export). Remaining P4: saved generic SPARQL connections UI, JSON-LD/RDF-XML.
 - 2026-08-22: Phase 3 COMPLETE — undoable command layer (all writes reversible), drag-to-create edges, Ctrl+Z/Y. Build green.
 - 2026-08-22: Write path shipped — mutations.ts (insert/delete/replace/create/deleteResource + term parsing), full inline editing in inspector. Write round-trip smoke-tested (insert 204 → ASK true → chained delete 204). Remaining Phase 3: drag-to-create edges, undo/redo.
 - 2026-08-22: Graph canvas shipped (react-flow + dagre) — Phase 2 complete except learned-prefix registration. Build green (469kB bundle).

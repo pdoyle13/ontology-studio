@@ -15,13 +15,18 @@ import { useCanvas, type RdfNode, type RdfNodeData } from '../state/canvas';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import { useHistory } from '../state/history';
+import { useValidation } from '../state/validation';
 import { cmdInsert } from '../rdf/commands';
 import type { Connection } from '@xyflow/react';
 
 function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
+  const hasViolation = useValidation((s) => s.violations.some((v) => v.focusNode === data.iri));
   const border = data.hue !== null ? `hsl(${data.hue} 55% 55%)` : 'var(--border)';
   return (
-    <div className={`rdf-node ${selected ? 'selected' : ''}`} style={{ borderColor: border }}>
+    <div
+      className={`rdf-node ${selected ? 'selected' : ''} ${hasViolation ? 'violation' : ''}`}
+      style={{ borderColor: hasViolation ? 'var(--err)' : border }}
+    >
       <Handle type="target" position={Position.Left} className="rdf-handle" />
       <div className="rdf-node-label">{data.label}</div>
       {data.typeCurie && (
