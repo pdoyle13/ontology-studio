@@ -1,0 +1,28 @@
+services:
+  oxigraph:
+    image: ghcr.io/oxigraph/oxigraph:latest
+    command: serve --location /data --bind 0.0.0.0:7878
+    volumes:
+      - oxigraph-data:/data
+    # add a ports: mapping here if you want direct store access from the host
+    # (7878 on this machine is taken by the kalshi stack's Oxigraph)
+
+  studio:
+    build: .
+    depends_on:
+      - oxigraph
+    environment:
+      OXIGRAPH_URL: http://oxigraph:7878
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AGENT_MODEL: ${AGENT_MODEL:-claude-sonnet-5}
+      CACHE_TTL_MS: ${CACHE_TTL_MS:-60000}
+    volumes:
+      - studio-sources:/app/server-state
+      # mount host folders read-only to attach their SQLite files, e.g.:
+      # - ./data:/data:ro
+    ports:
+      - "8890:7881"
+
+volumes:
+  oxigraph-data:
+  studio-sources:

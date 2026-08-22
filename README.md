@@ -18,6 +18,30 @@ Browse, edit, and validate RDF the way it should work: **shapes are the model**.
 - **SPARQL drawer** — run SELECT/ASK/CONSTRUCT/UPDATE against the active connection; result tables with clickable IRIs; CONSTRUCT results can be thrown onto the canvas.
 - **Import / Export** — Turtle/N-Triples from file or URL, parsed client-side (syntax errors surface before upload), loaded in 5,000-triple chunks with progress; prefixed Turtle export of any graph.
 
+## The semantic layer (VendorA-class features, RDF-native methodology)
+
+The studio does what SQL "semantic layer" products pitch — but the VendorB/VendorC way: the model, the mapping, and the metadata are all governed RDF in the store, not opaque product state.
+
+- **SQL virtualization**: attach SQLite sources, translate schemas to ontology + **SHACL shapes**, materialize rows as typed, FK-linked RDF instances.
+- **The mapping is RDF**: every translation also emits standard **R2RML** (`rr:TriplesMap`, subject templates from PKs, FK IRI templates, column/datatype maps) into `https://studio.local/graphs/mappings` — inspect it, query it, edit it in the studio like any other model.
+- **Provenance & freshness**: each materialization writes a `prov:Activity` (source, table, counts, timestamp) — "when was this graph last synced?" is a SPARQL query.
+- **Caching tier**: all SPARQL reads route through the server cache (LRU + TTL, `X-Cache: HIT/MISS`); **every write invalidates** — SPARQL updates, graph-store loads, materializations, agent writes. Stats at `/api/cache/stats`.
+- **Agent**: a Claude-powered modeling copilot (SPARQL tools, SHACL-first prompt) for creating classes, shapes, and connections conversationally.
+
+## Tests
+
+```bash
+npm test        # vitest — client RDF layer + server translation/cache/R2RML
+```
+
+## Docker
+
+```bash
+docker compose up -d --build   # UI+server on http://localhost:8890, Oxigraph on the compose network
+```
+
+Volumes persist the store (`oxigraph-data`) and attached sources. Pass `ANTHROPIC_API_KEY` in the environment to enable the agent. Mount host folders read-only into the studio container to attach their SQLite files.
+
 ## Run it
 
 ```bash

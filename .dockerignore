@@ -1,5 +1,6 @@
 node_modules
 dist
 .oxigraph-data
+.git
+*.log
 server/sources.json
-.env

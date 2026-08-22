@@ -32,9 +32,12 @@ export const useGraph = create<GraphState>((set, get) => ({
     const conn = useConnection.getState();
     const ep = conn.active();
     if (!ep) return;
+    const scope = conn.activeGraph;
     set({ classesLoading: true, error: null });
     try {
-      const classes = await fetchClasses(ep, conn.activeGraph);
+      const classes = await fetchClasses(ep, scope);
+      // discard stale responses: the graph scope may have changed mid-flight
+      if (useConnection.getState().activeGraph !== scope) return;
       const prefixes = get().prefixes;
       for (const c of classes) prefixes.learnNamespace(c.iri);
       set({ classes, classesLoading: false });

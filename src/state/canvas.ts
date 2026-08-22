@@ -3,8 +3,12 @@
 
 import { create } from 'zustand';
 import type { Node, Edge } from '@xyflow/react';
-import dagre from 'dagre';
+import { computeLayout, type LayoutAlgo } from './layouts';
 import { describeResource } from '../rdf/queries';
+import { select } from '../rdf/sparqlClient';
+import { scoped } from '../rdf/queries';
+import { localName } from '../rdf/prefixes';
+import { displayName, humanize } from '../rdf/display';
 import { useConnection } from './connection';
 import { useGraph } from './graph';
 
@@ -39,14 +43,19 @@ export interface CanvasState {
   addTriples: (triples: { s: string; p: string; o: string; oIsIri: boolean }[]) => void;
   addEdgeLocal: (s: string, p: string, o: string) => void;
   clear: () => void;
+  layoutAlgo: LayoutAlgo;
+  setLayoutAlgo: (a: LayoutAlgo) => void;
   relayout: () => void;
+  /** Root view: all classes as labeled nodes, connected by their object properties + subclass edges. */
+  loadSchemaOverview: () => Promise<void>;
 }
 
 function makeNode(
   iri: string,
   label: string | null,
   types: string[],
-  position: { x: number; y: number }
+  position: { x: number; y: number },
+  typeLabel?: string | null
 ): RdfNode {
   const prefixes = useGraph.getState().prefixes;
   const primaryType = types[0];
@@ -56,10 +65,10 @@ function makeNode(
     position,
     data: {
       iri,
-      label: label ?? prefixes.shrink(iri),
+      label: displayName(iri, label),
       curie: prefixes.shrink(iri),
       types,
-      typeCurie: primaryType ? prefixes.shrink(primaryType) : null,
+      typeCurie: primaryType ? (typeLabel ?? humanize(localName(primaryType))) : null,
       hue: hueFor(primaryType),
     },
   };
@@ -212,19 +221,83 @@ export const useCanvas = create<CanvasState>((set, get) => ({
 
   clear: () => set({ nodes: [], edges: [] }),
 
+  loadSchemaOverview: async () => {
+    const conn = useConnection.getState();
+    const ep = conn.active();
+    if (!ep) return;
+    const graphState = useGraph.getState();
+    if (graphState.classes.length === 0) await graphState.loadClasses();
+    const classes = useGraph.getState().classes
+      .filter((cls) => !/w3\.org|datashapes\.org/.test(cls.iri))
+      .slice(0, 40);
+    if (classes.length === 0) return;
+
+    // object-property links between classes: rdfs:domain/range + shape sh:class
+    const SH = 'http://www.w3.org/ns/shacl#';
+    const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
+    let links: { src: string; prop: string; dst: string }[] = [];
+    try {
+      const r = await select(
+        ep,
+        `SELECT DISTINCT ?src ?prop ?dst WHERE {
+  ${scoped(
+    `{ ?prop <${RDFS}domain> ?src ; <${RDFS}range> ?dst . FILTER(isIRI(?dst) && !STRSTARTS(STR(?dst), "http://www.w3.org/2001/XMLSchema#")) }
+     UNION { ?sh <${SH}targetClass> ?src ; <${SH}property> ?ps . ?ps <${SH}path> ?prop ; <${SH}class> ?dst }
+     UNION { ?src <${RDFS}subClassOf> ?dst . BIND(<${RDFS}subClassOf> AS ?prop) }`,
+    conn.activeGraph
+  )}
+} LIMIT 300`
+      );
+      links = r.bindings
+        .filter((b) => b.src && b.prop && b.dst)
+        .map((b) => ({ src: b.src.value, prop: b.prop.value, dst: b.dst.value }));
+    } catch { /* overview still renders without edges */ }
+
+    const nodes: RdfNode[] = classes.map((cls, i) =>
+      makeNode(
+        cls.iri,
+        cls.label,
+        ['http://www.w3.org/2000/01/rdf-schema#Class'],
+        { x: 120 + (i % 6) * 220, y: 90 + Math.floor(i / 6) * 130 },
+        `${cls.instances} instance${cls.instances === 1 ? '' : 's'}`
+      )
+    );
+    const onCanvas = new Set(nodes.map((n) => n.id));
+    const edges: Edge[] = [];
+    const seen = new Set<string>();
+    for (const l of links) {
+      if (!onCanvas.has(l.src) || !onCanvas.has(l.dst) || l.src === l.dst) continue;
+      const id = edgeId(l.src, l.prop, l.dst);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const isSub = l.prop.endsWith('subClassOf');
+      edges.push({
+        id,
+        source: l.src,
+        target: l.dst,
+        label: isSub ? 'is a' : humanize(localName(l.prop)),
+        className: 'rdf-edge',
+        style: isSub ? { strokeDasharray: '5 4' } : undefined,
+      });
+    }
+    set({ nodes, edges });
+    get().relayout();
+  },
+
+  layoutAlgo: 'tree-lr',
+  setLayoutAlgo: (a) => {
+    set({ layoutAlgo: a });
+    get().relayout();
+  },
+
   relayout: () => {
-    const { nodes, edges } = get();
+    const { nodes, edges, layoutAlgo } = get();
     if (nodes.length === 0) return;
-    const g = new dagre.graphlib.Graph();
-    g.setGraph({ rankdir: 'LR', nodesep: 40, ranksep: 90 });
-    g.setDefaultEdgeLabel(() => ({}));
-    for (const n of nodes) g.setNode(n.id, { width: 170, height: 48 });
-    for (const e of edges) g.setEdge(e.source, e.target);
-    dagre.layout(g);
+    const pos = computeLayout(layoutAlgo, nodes as RdfNode[], edges);
     set({
       nodes: nodes.map((n) => {
-        const p = g.node(n.id);
-        return p ? { ...n, position: { x: p.x - 85, y: p.y - 24 } } : n;
+        const p = pos.get(n.id);
+        return p ? { ...n, position: p } : n;
       }),
     });
   },
@@ -273,5 +346,15 @@ async function connectExisting(
 useGraph.subscribe((state, prev) => {
   if (state.selected && state.selected !== prev.selected) {
     useCanvas.getState().addResource(state.selected);
+  }
+});
+
+// Opening a graph lands on the schema overview — the root view.
+useConnection.subscribe((state, prev) => {
+  if (state.status === 'connected' && (state.status !== prev.status || state.activeGraph !== prev.activeGraph)) {
+    const canvas = useCanvas.getState();
+    canvas.clear();
+    // let loadClasses (triggered by the graph store's own subscription) land first
+    setTimeout(() => useCanvas.getState().loadSchemaOverview(), 400);
   }
 });

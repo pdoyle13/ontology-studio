@@ -8,8 +8,11 @@ import {
   isReadOnlySql,
   translateSchema,
   rowsToBlocks,
+  humanize,
+  pickLabelColumn,
   XSD,
   SH,
+  DASH,
 } from './translate.mjs';
 
 const NS = 'https://studio.local/sql/test#';
@@ -100,6 +103,51 @@ describe('translateSchema', () => {
 
   it('BLOB columns get no datatype constraint', () => {
     expect(nt).not.toContain(`albumShape-p-cover> <${SH}datatype>`);
+  });
+});
+
+describe('humanize', () => {
+  it('turns identifiers into Title Case', () => {
+    expect(humanize('delivery_events')).toBe('Delivery Events');
+    expect(humanize('orderNumber')).toBe('Order Number');
+    expect(humanize('tracking_no')).toBe('Tracking No');
+    expect(humanize('id')).toBe('Id');
+  });
+});
+
+describe('pickLabelColumn', () => {
+  const table = (cols, fks = []) => ({ name: 't', rowCount: 0, columns: cols, fks });
+  const col = (name, type = 'TEXT', pk = false) => ({ name, type, notnull: false, pk });
+
+  it('prefers name/title columns', () => {
+    expect(pickLabelColumn(table([col('id', 'INTEGER', true), col('name'), col('status')]))?.name).toBe('name');
+  });
+
+  it('falls back to business keys, then first text column', () => {
+    expect(pickLabelColumn(table([col('id', 'INTEGER', true), col('order_number'), col('notes')]))?.name).toBe('order_number');
+    expect(pickLabelColumn(table([col('id', 'INTEGER', true), col('notes')]))?.name).toBe('notes');
+  });
+
+  it('never picks an FK column', () => {
+    const t = table([col('id', 'INTEGER', true), col('customer_name')], [{ from: 'customer_name', table: 'c', to: 'id' }]);
+    expect(pickLabelColumn(t)).toBeNull();
+  });
+});
+
+describe('dash:LabelRole designation (no fabricated labels)', () => {
+  const nt = translateSchema(SCHEMA, NS);
+
+  it('marks the label column property shape with dash:propertyRole dash:LabelRole', () => {
+    expect(nt).toContain(`<${NS}artistShape-p-name> <${DASH}propertyRole> <${DASH}LabelRole> .`);
+  });
+
+  it('emits NO rdfs:label triples on instances', () => {
+    const [block] = rowsToBlocks(
+      [{ id: 7, title: 'OK Computer', year: 1997, artist_id: 3, cover: null }],
+      SCHEMA[1],
+      NS
+    );
+    expect(block).not.toContain('rdf-schema#label');
   });
 });
 

@@ -1,131 +1,169 @@
-// Modeling copilot: a server-side agent loop against the Anthropic API with
-// SPARQL tools over the studio's Oxigraph. Helps author classes, shapes,
-// properties, and connections. SHACL-first by design.
+// Modeling copilot: Grok (xAI, OpenAI-compatible tool calling) driving typed
+// graph-editing tools (server/agentTools.mjs). Anthropic fallback when only
+// ANTHROPIC_API_KEY is set. The model never writes update SPARQL directly.
 
-const MODEL = process.env.AGENT_MODEL ?? 'claude-sonnet-5';
-const MAX_TURNS = 12;
+import { buildTools } from './agentTools.mjs';
+
+const MAX_TURNS = 16;
 
 const SYSTEM = `You are the modeling copilot inside Ontology Studio, a visual RDF/SHACL editor backed by an Oxigraph triplestore.
 
-Your job: help the user author and evolve their ontology — classes, properties, SHACL node/property shapes, instances, and the connections between them. You act by executing SPARQL against the store using your tools.
+Your job: help the user author and evolve their knowledge graph — classes, properties, SHACL shapes, instances, and the links between them (including cross-database joins for data lineage).
 
-Principles:
-- SHACL-first. Every class you create should get a sh:NodeShape with sh:targetClass and property shapes (sh:path, sh:name, sh:datatype or sh:class, sh:minCount/sh:maxCount, sh:order). Shapes are the model contract; the UI renders forms from them.
-- Use rdfs:Class, rdfs:label, rdfs:subClassOf, rdfs:domain/range for the ontology skeleton. Do NOT use OWL axioms (no restrictions, no DL) unless the user explicitly asks.
-- Mint IRIs in the user's namespace. Infer it from existing data (query first!); if none exists, ask or use https://studio.local/model#. Property-shape IRIs: <ShapeIRI>-p-<localname>.
-- ALWAYS query before you write: check what already exists (classes, shapes, prefixes, naming conventions) and follow the established conventions.
-- Write into the active named graph when one is given. Use GRAPH <g> { } in updates, and query with the graph in mind.
-- Keep updates small and reviewable: one logical change per sparql_update call. Report exactly what you created or changed.
-- If the user's request is ambiguous, make the reasonable modeling choice and state it — don't stall on questions for small decisions.
+You act ONLY through your typed tools. Do not write SPARQL updates; the tools build them. sparql_query is a read-only escape hatch for inspection.
 
-Answer style: concise. After acting, summarize what changed (IRIs created, constraints set) in a short list the user can verify in the UI.`;
+Method:
+1. Call get_schema_overview first to learn what exists — classes, shapes, namespaces, naming conventions. Follow the conventions you find.
+2. Make the change with the smallest set of typed tool calls. Create shapes alongside classes (SHACL-first: shapes drive the UI forms and validation). Do not use OWL axioms.
+3. For cross-database lineage: materialized SQL data lives as instances typed per source table (e.g. orders, shipments from different databases). Use link_by_key to join them on shared business keys — that is how a lineage path (customer → order → shipment → delivery) gets connected across sources.
+4. Report exactly what you created or changed (IRIs, counts) in a short list. Be concise.
 
-function tools() {
-  return [
-    {
-      name: 'sparql_query',
-      description:
-        'Run a SPARQL SELECT/ASK query against the store. Returns JSON results. Use to inspect existing classes, shapes, namespaces, and data before modeling.',
-      input_schema: {
-        type: 'object',
-        properties: { query: { type: 'string', description: 'SPARQL query text' } },
-        required: ['query'],
-      },
-    },
-    {
-      name: 'sparql_update',
-      description:
-        'Run a SPARQL UPDATE (INSERT DATA / DELETE DATA / DELETE-INSERT-WHERE) against the store. Use GRAPH blocks when a named graph is active.',
-      input_schema: {
-        type: 'object',
-        properties: { update: { type: 'string', description: 'SPARQL update text' } },
-        required: ['update'],
-      },
-    },
-  ];
+If a request is ambiguous, make the reasonable modeling choice and state it.`;
+
+function providerConfig() {
+  const grokKey = process.env.GROK_API_KEY || process.env.XAI_API_KEY;
+  if (grokKey) {
+    return {
+      kind: 'xai',
+      key: grokKey,
+      url: 'https://api.x.ai/v1/chat/completions',
+      model: process.env.AGENT_MODEL || 'grok-4',
+    };
+  }
+  if (process.env.ANTHROPIC_API_KEY) {
+    return {
+      kind: 'anthropic',
+      key: process.env.ANTHROPIC_API_KEY,
+      url: 'https://api.anthropic.com/v1/messages',
+      model: process.env.AGENT_MODEL || 'claude-sonnet-5',
+    };
+  }
+  return null;
 }
 
-async function sparqlQuery(oxigraph, query, graph) {
-  const url = new URL(`${oxigraph}/query`);
-  if (graph) url.searchParams.set('default-graph-uri', graph);
-  else url.searchParams.set('union-default-graph', '');
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
-    body: query,
-  });
-  const text = await res.text();
-  if (!res.ok) throw new Error(`query ${res.status}: ${text.slice(0, 500)}`);
-  // trim huge result sets before they hit the model
-  return text.length > 20000 ? `${text.slice(0, 20000)}\n…(truncated)` : text;
+export function agentAvailable() {
+  return !!providerConfig();
 }
 
-async function sparqlUpdate(oxigraph, update) {
-  const res = await fetch(`${oxigraph}/update`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-update' },
-    body: update,
-  });
-  if (!res.ok) throw new Error(`update ${res.status}: ${(await res.text()).slice(0, 500)}`);
-  return 'OK';
+async function detectNamespace(oxigraph, graph) {
+  try {
+    const url = new URL(`${oxigraph}/query`);
+    if (graph) url.searchParams.set('default-graph-uri', graph);
+    else url.searchParams.set('union-default-graph', '');
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
+      body: 'SELECT ?cls WHERE { ?cls a <http://www.w3.org/2000/01/rdf-schema#Class> FILTER(isIRI(?cls)) } LIMIT 1',
+    });
+    const json = await res.json();
+    const iri = json.results?.bindings?.[0]?.cls?.value;
+    if (iri) {
+      const m = iri.match(/^(.*[#/])[^#/]*$/);
+      if (m) return m[1];
+    }
+  } catch { /* fall through */ }
+  return null;
 }
 
-/**
- * Run the agent loop. `messages` is [{role, content}] with plain-text content.
- * Returns { reply, trace } — trace lists tool calls for UI display.
- */
-export async function runAgent({ messages, graph, oxigraph }) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set on the studio server');
-
-  const system = graph
-    ? `${SYSTEM}\n\nActive named graph: <${graph}>. Scope reads and writes to it (updates: wrap triples in GRAPH <${graph}> { … }; queries are already scoped server-side).`
-    : `${SYSTEM}\n\nNo named graph selected — the default graph union is queried; write to the default graph unless told otherwise.`;
-
-  const convo = messages.map((m) => ({ role: m.role, content: m.content }));
+// ---------------- xAI (OpenAI-format) loop ----------------
+async function runXai({ cfg, messages, tools, system }) {
+  const toolDefs = tools.defs.map((t) => ({
+    type: 'function',
+    function: { name: t.name, description: t.description, parameters: t.parameters },
+  }));
+  const convo = [{ role: 'system', content: system }, ...messages.map((m) => ({ role: m.role, content: m.content }))];
   const trace = [];
+  const byName = new Map(tools.defs.map((t) => [t.name, t]));
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(cfg.url, {
       method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({ model: MODEL, max_tokens: 4000, system, tools: tools(), messages: convo }),
+      headers: { Authorization: `Bearer ${cfg.key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: cfg.model, messages: convo, tools: toolDefs, tool_choice: 'auto' }),
+    });
+    if (!res.ok) throw new Error(`xAI API ${res.status}: ${(await res.text()).slice(0, 500)}`);
+    const data = await res.json();
+    const msg = data.choices?.[0]?.message;
+    if (!msg) throw new Error('xAI API returned no message');
+    convo.push(msg);
+
+    if (!msg.tool_calls || msg.tool_calls.length === 0) {
+      return { reply: msg.content ?? '(no reply)', trace };
+    }
+
+    for (const call of msg.tool_calls) {
+      const tool = byName.get(call.function?.name);
+      let out;
+      let ok = true;
+      try {
+        if (!tool) throw new Error(`unknown tool ${call.function?.name}`);
+        const args = call.function.arguments ? JSON.parse(call.function.arguments) : {};
+        out = await tool.run(args);
+        trace.push({ tool: tool.name, input: JSON.stringify(args).slice(0, 1500), ok: true });
+      } catch (e) {
+        out = `ERROR: ${e.message}`;
+        ok = false;
+        trace.push({ tool: call.function?.name ?? '?', input: (call.function?.arguments ?? '').slice(0, 1500), ok });
+      }
+      convo.push({ role: 'tool', tool_call_id: call.id, content: String(out) });
+    }
+  }
+  return { reply: '(agent hit the turn limit — check the trace for what was applied)', trace };
+}
+
+// ---------------- Anthropic fallback loop ----------------
+async function runAnthropic({ cfg, messages, tools, system }) {
+  const toolDefs = tools.defs.map((t) => ({ name: t.name, description: t.description, input_schema: t.parameters }));
+  const convo = messages.map((m) => ({ role: m.role, content: m.content }));
+  const trace = [];
+  const byName = new Map(tools.defs.map((t) => [t.name, t]));
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const res = await fetch(cfg.url, {
+      method: 'POST',
+      headers: { 'x-api-key': cfg.key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify({ model: cfg.model, max_tokens: 4000, system, tools: toolDefs, messages: convo }),
     });
     if (!res.ok) throw new Error(`Anthropic API ${res.status}: ${(await res.text()).slice(0, 500)}`);
     const msg = await res.json();
-
     convo.push({ role: 'assistant', content: msg.content });
-
     if (msg.stop_reason !== 'tool_use') {
-      const reply = msg.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n');
-      return { reply, trace };
+      return { reply: msg.content.filter((b) => b.type === 'text').map((b) => b.text).join('\n'), trace };
     }
-
     const results = [];
     for (const block of msg.content) {
       if (block.type !== 'tool_use') continue;
+      const tool = byName.get(block.name);
       let out;
       let isError = false;
       try {
-        if (block.name === 'sparql_query') out = await sparqlQuery(oxigraph, block.input.query, graph);
-        else if (block.name === 'sparql_update') out = await sparqlUpdate(oxigraph, block.input.update);
-        else out = `unknown tool ${block.name}`;
+        if (!tool) throw new Error(`unknown tool ${block.name}`);
+        out = await tool.run(block.input ?? {});
       } catch (e) {
-        out = String(e.message);
+        out = `ERROR: ${e.message}`;
         isError = true;
       }
-      trace.push({
-        tool: block.name,
-        input: (block.input.query ?? block.input.update ?? '').slice(0, 2000),
-        ok: !isError,
-      });
-      results.push({ type: 'tool_result', tool_use_id: block.id, content: out, is_error: isError });
+      trace.push({ tool: block.name, input: JSON.stringify(block.input ?? {}).slice(0, 1500), ok: !isError });
+      results.push({ type: 'tool_result', tool_use_id: block.id, content: String(out), is_error: isError });
     }
     convo.push({ role: 'user', content: results });
   }
-  return { reply: '(agent hit the turn limit — partial work may have been applied; check the trace)', trace };
+  return { reply: '(agent hit the turn limit — check the trace for what was applied)', trace };
+}
+
+export async function runAgent({ messages, graph, oxigraph }) {
+  const cfg = providerConfig();
+  if (!cfg) throw new Error('No agent API key: set GROK_API_KEY (or XAI_API_KEY / ANTHROPIC_API_KEY) on the studio server');
+
+  const namespace = (await detectNamespace(oxigraph, graph)) ?? undefined;
+  const tools = buildTools({ oxigraph, graph, namespace });
+  const system = [
+    SYSTEM,
+    graph ? `Active named graph: <${graph}> — all tool writes are scoped to it automatically.` : 'No named graph selected — tools write to the default graph.',
+    `Working namespace for minting new IRIs: ${tools.ns}`,
+  ].join('\n\n');
+
+  return cfg.kind === 'xai'
+    ? runXai({ cfg, messages, tools, system })
+    : runAnthropic({ cfg, messages, tools, system });
 }

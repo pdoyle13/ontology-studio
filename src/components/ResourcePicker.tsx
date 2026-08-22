@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { fetchInstances, searchResources, type InstanceInfo } from '../rdf/queries';
+import { displayName } from '../rdf/display';
 
 export function ResourcePicker({
   classIri,
@@ -69,7 +70,7 @@ export function ResourcePicker({
               onPick(o.iri);
             }}
           >
-            {o.label ?? prefixes.shrink(o.iri)}
+            {displayName(o.iri, o.label)}
             {o.label && <span className="term-meta"> {prefixes.shrink(o.iri)}</span>}
           </li>
         ))}

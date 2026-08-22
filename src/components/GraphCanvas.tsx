@@ -12,6 +12,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCanvas, type RdfNode, type RdfNodeData } from '../state/canvas';
+import { LAYOUTS, type LayoutAlgo } from '../state/layouts';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import { useHistory } from '../state/history';
@@ -21,11 +22,11 @@ import type { Connection } from '@xyflow/react';
 
 function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
   const hasViolation = useValidation((s) => s.violations.some((v) => v.focusNode === data.iri));
-  const border = data.hue !== null ? `hsl(${data.hue} 55% 55%)` : 'var(--border)';
+  const border = data.hue !== null ? `hsl(${data.hue} 38% 52%)` : 'var(--border-strong)';
   return (
     <div
       className={`rdf-node ${selected ? 'selected' : ''} ${hasViolation ? 'violation' : ''}`}
-      style={{ borderColor: hasViolation ? 'var(--err)' : border }}
+      style={{ borderLeftColor: hasViolation ? 'var(--err)' : border }}
     >
       <Handle type="target" position={Position.Left} className="rdf-handle" />
       <div className="rdf-node-label">{data.label}</div>
@@ -42,7 +43,7 @@ function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
 const nodeTypes = { rdfNode: RdfNodeView };
 
 export function GraphCanvas() {
-  const { nodes, edges, onNodesChange, expandNode, removeNode, clear, relayout, expanding, addEdgeLocal } = useCanvas();
+  const { nodes, edges, onNodesChange, expandNode, removeNode, clear, relayout, expanding, addEdgeLocal, loadSchemaOverview, layoutAlgo, setLayoutAlgo } = useCanvas();
   const selectResource = useGraph((s) => s.selectResource);
   const refreshSelected = useGraph((s) => s.refreshSelected);
   const prefixes = useGraph((s) => s.prefixes);
@@ -86,8 +87,20 @@ export function GraphCanvas() {
         <button className="ghost" onClick={doRedo} disabled={redoStack.length === 0} title="Redo (Ctrl+Y)">
           ⟳ Redo
         </button>
+        <button className="ghost" onClick={loadSchemaOverview} title="Show all classes and how they connect">
+          ⌂ Overview
+        </button>
+        <select
+          value={layoutAlgo}
+          onChange={(e) => setLayoutAlgo(e.target.value as LayoutAlgo)}
+          title="Layout algorithm"
+        >
+          {LAYOUTS.map((l) => (
+            <option key={l.id} value={l.id}>{l.label}</option>
+          ))}
+        </select>
         <button className="ghost" onClick={relayout} disabled={nodes.length === 0}>
-          Auto-layout
+          Re-layout
         </button>
         <button className="ghost" onClick={clear} disabled={nodes.length === 0}>
           Clear

@@ -10,6 +10,28 @@ export function scoped(pattern: string, graph: string | null): string {
   return `{ { ${pattern} } UNION { GRAPH ?__g { ${pattern} } } }`;
 }
 
+const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
+const SH_NS = 'http://www.w3.org/ns/shacl#';
+const DASH_NS = 'http://datashapes.org/dash#';
+
+/**
+ * Label resolution for a subject variable: rdfs:label when asserted, otherwise
+ * the value of the property the class's shape designates via dash:propertyRole
+ * dash:LabelRole (the DASH pattern — no fabricated labels in the data).
+ * Binds the result to ?<out>. `sfx` keeps helper vars unique per usage.
+ */
+export function labelPattern(subjectVar: string, out: string, sfx: string): string {
+  return `
+     OPTIONAL { ${subjectVar} <${RDFS_LABEL}> ?__rl${sfx} }
+     OPTIONAL {
+       ${subjectVar} a ?__lc${sfx} .
+       ?__lsh${sfx} <${SH_NS}targetClass> ?__lc${sfx} ; <${SH_NS}property> ?__lps${sfx} .
+       ?__lps${sfx} <${DASH_NS}propertyRole> <${DASH_NS}LabelRole> ; <${SH_NS}path> ?__lp${sfx} .
+       ${subjectVar} ?__lp${sfx} ?__dl${sfx} .
+     }
+     BIND(COALESCE(?__rl${sfx}, ?__dl${sfx}) AS ?${out})`;
+}
+
 export interface ClassInfo {
   iri: string;
   label: string | null;
@@ -62,10 +84,10 @@ export async function fetchInstances(
 SELECT DISTINCT ?inst (SAMPLE(?l) AS ?lbl2) WHERE {
   ${scoped(
     `?inst a <${classIri}> .
-     OPTIONAL { ?inst <http://www.w3.org/2000/01/rdf-schema#label> ?l }`,
+     ${labelPattern('?inst', 'l', 'a')}`,
     graph
   )}
-  ${filter ? `OPTIONAL { ?inst <http://www.w3.org/2000/01/rdf-schema#label> ?lbl } ${filter}` : ''}
+  ${filter ? `${filter.replace('?lbl', '?l')}` : ''}
   FILTER(isIRI(?inst))
 }
 GROUP BY ?inst ORDER BY ?inst LIMIT ${limit}`;
@@ -84,7 +106,7 @@ export async function searchResources(
 SELECT DISTINCT ?r (SAMPLE(?l) AS ?lbl) WHERE {
   ${scoped(
     `{ ?r ?p ?o } UNION { ?s2 ?p2 ?r . FILTER(isIRI(?r)) }
-     OPTIONAL { ?r <http://www.w3.org/2000/01/rdf-schema#label> ?l }`,
+     ${labelPattern('?r', 'l', 'b')}`,
     graph
   )}
   FILTER(isIRI(?r))
@@ -142,7 +164,7 @@ export async function describeResource(
 SELECT ?p ?o (SAMPLE(?ol) AS ?olbl) WHERE {
   ${scoped(
     `<${iri}> ?p ?o .
-     OPTIONAL { ?o <http://www.w3.org/2000/01/rdf-schema#label> ?ol }`,
+     OPTIONAL { FILTER(isIRI(?o)) ${labelPattern('?o', 'ol', 'c')} }`,
     graph
   )}
 }
@@ -151,13 +173,18 @@ GROUP BY ?p ?o ORDER BY ?p LIMIT 1000`;
 SELECT ?s ?p (SAMPLE(?sl) AS ?slbl) WHERE {
   ${scoped(
     `?s ?p <${iri}> .
-     OPTIONAL { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?sl }`,
+     ${labelPattern('?s', 'sl', 'd')}`,
     graph
   )}
 }
 GROUP BY ?s ?p ORDER BY ?p LIMIT 200`;
 
-  const [outR, inR] = await Promise.all([select(ep, outQ), select(ep, inQ)]);
+  const selfLabelQ = `
+SELECT ?l WHERE {
+  ${scoped(`BIND(<${iri}> AS ?self) ${labelPattern('?self', 'l', 'e')}`, graph)}
+  FILTER(BOUND(?l))
+} LIMIT 1`;
+  const [outR, inR, selfR] = await Promise.all([select(ep, outQ), select(ep, inQ), select(ep, selfLabelQ)]);
 
   const outgoing: Statement[] = [];
   const types: string[] = [];
@@ -173,5 +200,6 @@ GROUP BY ?s ?p ORDER BY ?p LIMIT 200`;
     .filter((b) => b.s && b.p)
     .map((b) => ({ subject: b.s.value, subjectLabel: b.slbl?.value ?? null, predicate: b.p.value }));
 
-  return { iri, label, types, outgoing, incoming, incomingTotal: incoming.length };
+  const resolvedLabel = label ?? selfR.bindings[0]?.l?.value ?? null;
+  return { iri, label: resolvedLabel, types, outgoing, incoming, incomingTotal: incoming.length };
 }

@@ -3,6 +3,7 @@ import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import type { TermValue } from '../rdf/queries';
 import { localName } from '../rdf/prefixes';
+import { displayName, humanize } from '../rdf/display';
 import { parseTermInput } from '../rdf/mutations';
 import { cmdInsert, cmdDelete, cmdReplace, cmdCreateResource, cmdDeleteResource } from '../rdf/commands';
 import { ShapeForm } from './ShapeForm';
@@ -14,7 +15,7 @@ function ObjectTerm({ t }: { t: TermValue }) {
   if (t.type === 'uri') {
     return (
       <a className="term-link" title={t.value} onClick={() => selectResource(t.value)}>
-        {t.label ?? prefixes.shrink(t.value)}
+        {displayName(t.value, t.label)}
       </a>
     );
   }
@@ -260,7 +261,7 @@ export function ResourcePanel() {
     <div className="resource-panel">
       <div className="resource-header">
         <div className="resource-title" title={d.iri}>
-          {d.label ?? localName(d.iri)}
+          {displayName(d.iri, d.label)}
         </div>
         <div className="resource-iri">{d.iri}</div>
         {d.types.length > 0 && (
@@ -310,9 +311,9 @@ export function ResourcePanel() {
         <tbody>
           {[...grouped.entries()].map(([pred, objs]) => (
             <tr key={pred}>
-              <td className="pred-cell" title={pred}>
+              <td className="pred-cell" title={prefixes.shrink(pred)}>
                 <a className="term-link" onClick={() => selectResource(pred)}>
-                  {prefixes.shrink(pred)}
+                  {humanize(localName(pred))}
                 </a>
               </td>
               <td className="obj-cell">
@@ -338,7 +339,7 @@ export function ResourcePanel() {
               {d.incoming.map((s, i) => (
                 <tr key={i}>
                   <td className="pred-cell" title={s.predicate}>
-                    ← {prefixes.shrink(s.predicate)}
+                    ← {humanize(localName(s.predicate))}
                   </td>
                   <td className="obj-cell">
                     <a className="term-link" title={s.subject} onClick={() => selectResource(s.subject)}>

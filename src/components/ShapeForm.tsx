@@ -7,6 +7,7 @@ import { useConnection } from '../state/connection';
 import type { ResourceDescription, TermValue } from '../rdf/queries';
 import { fetchShapesForClasses, datatypeToKind, type NodeShapeInfo, type PropertyShapeInfo } from '../rdf/shacl';
 import { ResourcePicker } from './ResourcePicker';
+import { displayName } from '../rdf/display';
 import { parseTermInput } from '../rdf/mutations';
 import { cmdInsert, cmdDelete, cmdReplace } from '../rdf/commands';
 import { useValidation } from '../state/validation';
@@ -104,7 +105,7 @@ function FieldValue({
   value: TermValue;
 }) {
   const { run, ep, graph } = useWrite();
-  const { prefixes, selectResource } = useGraph();
+  const { selectResource } = useGraph();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState('');
 
@@ -139,7 +140,7 @@ function FieldValue({
     <div className="value-row">
       {value.type === 'uri' ? (
         <a className="term-link" title={value.value} onClick={() => selectResource(value.value)}>
-          {value.label ?? prefixes.shrink(value.value)}
+          {displayName(value.value, value.label)}
         </a>
       ) : (
         <span className="term-literal">{value.value}</span>

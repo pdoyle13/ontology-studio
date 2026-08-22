@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 
-interface SourceInfo { id: string; path: string; tables: number }
+interface SourceInfo { id: string; kind: string; target: string; tables: number }
 interface ColumnInfo { name: string; type: string; notnull: boolean; pk: boolean }
 interface TableInfo { name: string; rowCount: number; columns: ColumnInfo[]; fks: { from: string; table: string; to: string }[] }
 
@@ -105,8 +105,8 @@ function SourceView({ source, onRemove }: { source: SourceInfo; onRemove: () => 
     <div className="sql-source">
       <div className="class-row" onClick={() => setOpen(!open)}>
         <span className="twisty">{open ? '▾' : '▸'}</span>
-        <span className="class-name" title={source.path}>{source.id}</span>
-        <span className="count">{source.tables}t</span>
+        <span className="class-name" title={`${source.kind}: ${source.target}`}>{source.id}</span>
+        <span className="count">{source.kind === 'postgres' ? 'pg' : 'db'} · {source.tables}t</span>
         <button className="micro danger" title="Detach" onClick={(e) => { e.stopPropagation(); onRemove(); }}>✕</button>
       </div>
       {open && (
@@ -129,7 +129,9 @@ function SourceView({ source, onRemove }: { source: SourceInfo; onRemove: () => 
 
 export function SqlPanel() {
   const [sourcesList, setSourcesList] = useState<SourceInfo[] | null>(null);
-  const [path, setPath] = useState('');
+  const [kind, setKind] = useState<'sqlite' | 'postgres'>('sqlite');
+  const [target, setTarget] = useState('');
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const refresh = useCallback(() => {
@@ -139,28 +141,35 @@ export function SqlPanel() {
   useEffect(refresh, [refresh]);
 
   const add = async () => {
-    if (!path.trim()) return;
+    if (!target.trim() || busy) return;
     setError('');
+    setBusy(true);
     try {
-      await api('/api/sql/sources', { method: 'POST', body: JSON.stringify({ path: path.trim() }) });
-      setPath('');
+      await api('/api/sql/sources', { method: 'POST', body: JSON.stringify({ kind, target: target.trim() }) });
+      setTarget('');
       refresh();
     } catch (e) {
       setError((e as Error).message);
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
     <div>
       <div className="value-row" style={{ marginBottom: 8 }}>
+        <select value={kind} onChange={(e) => setKind(e.target.value as 'sqlite' | 'postgres')}>
+          <option value="sqlite">SQLite file</option>
+          <option value="postgres">PostgreSQL</option>
+        </select>
         <input
-          placeholder="path to .db / .sqlite file"
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
+          placeholder={kind === 'sqlite' ? 'path to .db / .sqlite file' : 'postgres://user:pass@host:5432/dbname'}
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
           style={{ flex: 1 }}
         />
-        <button onClick={add} disabled={!path.trim()}>Attach</button>
+        <button onClick={add} disabled={!target.trim() || busy}>{busy ? '…' : 'Attach'}</button>
       </div>
       {error && <div className="err-text">{error}</div>}
       {sourcesList === null && !error && <div className="tree-loading">connecting to studio-server…</div>}

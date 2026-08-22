@@ -65,6 +65,19 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [ ] Live agent test once ANTHROPIC_API_KEY is provided
 - [ ] SQL: Postgres/DuckDB connectors; VIRTUAL (query-time) mapping instead of materialization; incremental re-sync
 
+### Phase 8 — real semantic layer (VendorA features, VendorB/VendorC methodology) — 2026-08-22 afternoon loop
+- [x] Caching tier: all UI SPARQL reads via server QueryCache (LRU+TTL, X-Cache headers, /api/cache/stats), write invalidation on update/store/materialize/agent-write. Verified MISS→HIT→invalidate→MISS.
+- [x] Mappings-as-RDF: translate emits standard R2RML (TriplesMap/logicalTable/subjectMap w/ PK templates/predicateObjectMap, FK IRI templates) into <https://studio.local/graphs/mappings>; materialize emits prov:Activity sync metadata. Governed, queryable, editable in-studio.
+- [x] Tests: 55 vitest tests / 6 suites (prefixes, mutations, constraints, translate, cache, r2rml); pure logic extracted to server/translate.mjs. `npm test`.
+- [x] Docker: multi-stage Dockerfile (server serves dist w/ SERVE_UI), docker-compose (oxigraph + studio, volumes, env passthrough). Built + smoke-tested live (UI 200, write→cache HIT through containers) then downed — dev stack stays on PM2. Note: host 7878 belongs to the kalshi Oxigraph.
+
+### Phase 9 — SQL connections, Grok agent, cross-DB lineage (Pat, 2026-08-22)
+- [x] Driver layer (server/drivers.mjs): SQLite files + PostgreSQL URLs behind one async interface; credentials stripped everywhere they surface; UI kind selector
+- [x] Agent → Grok (xAI, OpenAI-format tool loop; GROK_API_KEY in gitignored .env, copied from kalshi; Anthropic fallback) with TYPED tools only — create_class/create_property/create_node_shape/create_instance/set_property_value/remove_property_value/link_resources/link_by_key/delete_resource/get_resource/get_schema_overview/sparql_query(read-only). No raw update SPARQL from the model.
+- [x] Source provenance ON INSTANCES: every materialized row stamped studio:fromSource + studio:sourceTable; source nodes carry kind + server descriptor
+- [x] LINEAGE DEMO (the end goal, verified live): postgres orders_db (customers/orders) + postgres warehouse_db (warehouses/shipments) + sqlite delivery.db (delivery_events) → one graph; GROK AGENT joined them via link_by_key (order_number↔order_ref, tracking_no↔tracking_ref); one SPARQL walks customer→order→shipment→delivery events with per-hop DB attribution. Demo pg container: studio-pg (port 15432, user postgres/studio). 61 tests green.
+- [ ] Lineage path VIEW in UI (one-click trace on canvas); incremental re-sync; agent-run validation loop
+
 ## Log
 (one line per iteration: date, what shipped)
 - 2026-08-22: FINAL — Playwright E2E smoke (8/8 pass, console clean: connect→browse→shape form→canvas→validation→SPARQL→shape editor). Fixed real bug it caught: SPARQL drawer wasn't graph-scoped (now sends default-graph-uri, or union-default-graph on Oxigraph when no graph picked). Loop wound down; core brief fully delivered.

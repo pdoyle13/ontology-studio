@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import { fetchInstances, searchResources, type InstanceInfo } from '../rdf/queries';
-import { localName } from '../rdf/prefixes';
+import { displayName } from '../rdf/display';
 
 function InstanceList({ classIri }: { classIri: string }) {
   const conn = useConnection();
-  const { prefixes, selected, selectResource } = useGraph();
+  const { selected, selectResource } = useGraph();
   const [instances, setInstances] = useState<InstanceInfo[] | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ function InstanceList({ classIri }: { classIri: string }) {
           title={i.iri}
           onClick={() => selectResource(i.iri)}
         >
-          {i.label ?? prefixes.shrink(i.iri) ?? localName(i.iri)}
+          {displayName(i.iri, i.label)}
         </li>
       ))}
       {instances.length === 0 && <li className="tree-loading">no instances</li>}
@@ -42,7 +42,7 @@ function InstanceList({ classIri }: { classIri: string }) {
 
 export function ClassTree() {
   const conn = useConnection();
-  const { classes, classesLoading, prefixes, selectResource, selected, loadClasses } = useGraph();
+  const { classes, classesLoading, selectResource, selected, loadClasses } = useGraph();
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<InstanceInfo[] | null>(null);
@@ -84,7 +84,7 @@ export function ClassTree() {
               title={r.iri}
               onClick={() => selectResource(r.iri)}
             >
-              {r.label ?? prefixes.shrink(r.iri)}
+              {displayName(r.iri, r.label)}
             </li>
           ))}
           {results.length === 0 && <li className="tree-loading">no matches</li>}
@@ -115,7 +115,7 @@ export function ClassTree() {
                       selectResource(c.iri);
                     }}
                   >
-                    {c.label ?? prefixes.shrink(c.iri)}
+                    {displayName(c.iri, c.label)}
                   </span>
                   <span className="count">{c.instances}</span>
                 </div>

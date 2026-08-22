@@ -6,15 +6,23 @@
 // Requires: node --experimental-sqlite
 
 import express from 'express';
-import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, basename } from 'node:path';
-import { runAgent } from './agent.mjs';
+import { runAgent, agentAvailable } from './agent.mjs';
 import { QueryCache } from './cache.mjs';
-import { emitR2rml, emitSyncProvenance, MAPPINGS_GRAPH } from './r2rml.mjs';
+import { emitR2rml, emitSyncProvenance, MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
+import { createDriver, safeDescriptor } from './drivers.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// load .env from the project root (gitignored) — GROK_API_KEY etc.
+try {
+  for (const line of readFileSync(join(__dirname, '..', '.env'), 'utf8').split('\n')) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
+  }
+} catch { /* no .env — fine */ }
 const PORT = Number(process.env.STUDIO_SERVER_PORT ?? 7881);
 const OXIGRAPH = (process.env.OXIGRAPH_URL ?? 'http://localhost:7880').replace(/\/+$/, '');
 const SOURCES_FILE = join(__dirname, 'sources.json');
@@ -92,52 +100,38 @@ app.post('/api/cache/clear', (_req, res) => {
 
 app.use(express.json({ limit: '5mb' }));
 
-// ---------------- sources registry ----------------
-/** @type {Map<string, {id: string, path: string, db: import('node:sqlite').DatabaseSync}>} */
+// ---------------- sources registry (driver-backed) ----------------
+/** @type {Map<string, ReturnType<typeof createDriver>>} */
 const sources = new Map();
 
-function attach(path, id) {
-  const db = new DatabaseSync(path, { readOnly: true });
-  const sid = id ?? basename(path).replace(/\.[^.]*$/, '').replace(/[^\w-]/g, '_');
-  sources.set(sid, { id: sid, path, db });
-  return sources.get(sid);
+function attach({ kind = 'sqlite', target, id }) {
+  const sid =
+    id ??
+    (kind === 'sqlite'
+      ? basename(target).replace(/\.[^.]*$/, '').replace(/[^\w-]/g, '_')
+      : (() => { try { return new URL(target).pathname.replace(/^\//, '').replace(/[^\w-]/g, '_') || 'pg'; } catch { return 'pg'; } })());
+  const driver = createDriver({ id: sid, kind, target });
+  sources.set(sid, driver);
+  return driver;
 }
 
 function persist() {
-  writeFileSync(SOURCES_FILE, JSON.stringify([...sources.values()].map((s) => ({ id: s.id, path: s.path })), null, 2));
+  writeFileSync(
+    SOURCES_FILE,
+    JSON.stringify([...sources.values()].map((s) => ({ id: s.id, kind: s.kind, target: s.target })), null, 2)
+  );
 }
 
 if (existsSync(SOURCES_FILE)) {
   try {
     for (const s of JSON.parse(readFileSync(SOURCES_FILE, 'utf8'))) {
-      try { attach(s.path, s.id); } catch (e) { console.warn(`skip source ${s.path}: ${e.message}`); }
+      const target = s.target ?? s.path; // legacy field
+      try { attach({ kind: s.kind ?? 'sqlite', target, id: s.id }); } catch (e) { console.warn(`skip source ${target}: ${e.message}`); }
     }
   } catch { /* fresh start */ }
 }
 
 const bad = (res, code, message) => res.status(code).json({ error: message });
-
-// ---------------- schema introspection ----------------
-function tableNames(db) {
-  return db
-    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
-    .all()
-    .map((r) => r.name);
-}
-
-function introspect(db) {
-  return tableNames(db).map((name) => {
-    const columns = db.prepare(`PRAGMA table_info("${name}")`).all().map((c) => ({
-      name: c.name, type: String(c.type || 'TEXT').toUpperCase(), notnull: !!c.notnull, pk: !!c.pk,
-    }));
-    const fks = db.prepare(`PRAGMA foreign_key_list("${name}")`).all().map((f) => ({
-      from: f.from, table: f.table, to: f.to,
-    }));
-    let rowCount = 0;
-    try { rowCount = db.prepare(`SELECT COUNT(*) AS n FROM "${name}"`).get().n; } catch { /* virtual tables */ }
-    return { name, rowCount, columns, fks };
-  });
-}
 
 // ---------------- RDF translation (pure logic in translate.mjs) ----------------
 import { sqlTypeToXsd, classIri, propIri, translateSchema, rowsToBlocks, isReadOnlySql } from './translate.mjs';
@@ -148,49 +142,43 @@ async function loadNTriples(nt, graph) {
   if (!res.ok) throw new Error(`Oxigraph load failed: ${res.status} ${await res.text().catch(() => '')}`);
 }
 
-// ---------------- row materialization ----------------
-function* materializeRows(db, table, ns) {
-  const info = introspect(db).find((x) => x.name === table);
-  if (!info) throw new Error(`no such table: ${table}`);
-  // paged reads — .iterate() finalizes if we await between rows
-  const PAGE = 10000;
-  let offset = 0;
-  let page;
-  const nextPage = () => db.prepare(`SELECT rowid AS __rowid, * FROM "${table}" LIMIT ${PAGE} OFFSET ${offset}`).all();
-  while ((page = nextPage()).length > 0) {
-    offset += page.length;
-    yield* rowsToBlocks(page, info, ns);
-  }
-}
-
 // ---------------- routes ----------------
-app.get('/api/sql/sources', (_req, res) => {
-  res.json([...sources.values()].map((s) => ({ id: s.id, path: s.path, tables: tableNames(s.db).length })));
+app.get('/api/sql/sources', async (_req, res) => {
+  const out = [];
+  for (const s of sources.values()) {
+    let tables = 0;
+    try { tables = (await s.tables()).length; } catch { /* unreachable source */ }
+    out.push({ id: s.id, kind: s.kind, target: safeDescriptor(s.kind, s.target), tables });
+  }
+  res.json(out);
 });
 
-app.post('/api/sql/sources', (req, res) => {
-  const { path, id } = req.body ?? {};
-  if (!path) return bad(res, 400, 'path required');
-  if (!existsSync(path)) return bad(res, 404, `file not found: ${path}`);
+app.post('/api/sql/sources', async (req, res) => {
+  const { path, url, target: rawTarget, kind = 'sqlite', id } = req.body ?? {};
+  const target = rawTarget ?? (kind === 'postgres' ? url : path) ?? path ?? url;
+  if (!target) return bad(res, 400, 'target required (file path for sqlite, connection URL for postgres)');
+  if (kind === 'sqlite' && !existsSync(target)) return bad(res, 404, `file not found: ${target}`);
   try {
-    const s = attach(path, id);
+    const s = attach({ kind, target, id });
+    const tables = (await s.tables()).length; // probe the connection now
     persist();
-    res.json({ id: s.id, path: s.path, tables: tableNames(s.db).length });
+    res.json({ id: s.id, kind: s.kind, target: safeDescriptor(s.kind, s.target), tables });
   } catch (e) {
+    sources.delete(id ?? '');
     bad(res, 400, e.message);
   }
 });
 
 app.delete('/api/sql/sources/:id', (req, res) => {
   const s = sources.get(req.params.id);
-  if (s) { try { s.db.close(); } catch { /* already closed */ } sources.delete(req.params.id); persist(); }
+  if (s) { s.close(); sources.delete(req.params.id); persist(); }
   res.json({ ok: true });
 });
 
-app.get('/api/sql/sources/:id/schema', (req, res) => {
+app.get('/api/sql/sources/:id/schema', async (req, res) => {
   const s = sources.get(req.params.id);
   if (!s) return bad(res, 404, 'no such source');
-  try { res.json({ id: s.id, tables: introspect(s.db) }); } catch (e) { bad(res, 500, e.message); }
+  try { res.json({ id: s.id, tables: await s.introspect() }); } catch (e) { bad(res, 500, e.message); }
 });
 
 app.post('/api/sql/sources/:id/translate', async (req, res) => {
@@ -199,7 +187,7 @@ app.post('/api/sql/sources/:id/translate', async (req, res) => {
   const { graph, namespace } = req.body ?? {};
   const ns = (namespace || `https://studio.local/sql/${s.id}#`).trim();
   try {
-    const schema = introspect(s.db);
+    const schema = await s.introspect();
     const nt = translateSchema(schema, ns);
     await loadNTriples(nt, graph || null);
     // the mapping itself is governed RDF: R2RML TriplesMaps in the mappings graph
@@ -213,6 +201,15 @@ app.post('/api/sql/sources/:id/translate', async (req, res) => {
       nowIso: new Date().toISOString(),
     });
     await loadNTriples(r2rml, MAPPINGS_GRAPH);
+    // source descriptor (credentials stripped) — the "which server does this live on" node
+    const srcIri = `${STUDIO}source/${s.id.replace(/[^\w-]/g, '_')}`;
+    await loadNTriples(
+      [
+        `<${srcIri}> <${STUDIO}kind> "${s.kind}" .`,
+        `<${srcIri}> <${STUDIO}server> "${safeDescriptor(s.kind, s.target).replace(/\\/g, '/').replace(/"/g, '')}" .`,
+      ].join('\n'),
+      MAPPINGS_GRAPH
+    );
     cache.invalidate();
     res.json({
       ok: true,
@@ -235,18 +232,28 @@ app.post('/api/sql/sources/:id/materialize', async (req, res) => {
   const ns = (namespace || `https://studio.local/sql/${s.id}#`).trim();
   const max = Number(limit) > 0 ? Number(limit) : Infinity;
   try {
-    let batch = [];
+    const info = (await s.introspect()).find((x) => x.name === table);
+    if (!info) return bad(res, 404, `no such table: ${table}`);
+    const sourceIri = `${STUDIO}source/${s.id.replace(/[^\w-]/g, '_')}`;
+    const PAGE = 10000;
+    let offset = 0;
     let rows = 0;
     let triples = 0;
-    for (const block of materializeRows(s.db, table, ns)) {
-      batch.push(block);
-      rows++;
-      triples += block.split('\n').length;
-      if (batch.length >= 2000) {
-        await loadNTriples(batch.join('\n'), graph || null);
-        batch = [];
+    let batch = [];
+    outer: for (;;) {
+      const page = await s.page(table, PAGE, offset);
+      if (page.length === 0) break;
+      offset += page.length;
+      for (const block of rowsToBlocks(page, info, ns, { sourceIri })) {
+        batch.push(block);
+        rows++;
+        triples += block.split('\n').length;
+        if (batch.length >= 2000) {
+          await loadNTriples(batch.join('\n'), graph || null);
+          batch = [];
+        }
+        if (rows >= max) break outer;
       }
-      if (rows >= max) break;
     }
     if (batch.length) await loadNTriples(batch.join('\n'), graph || null);
     // queryable freshness metadata: prov:Activity in the mappings graph
@@ -268,14 +275,13 @@ app.post('/api/sql/sources/:id/materialize', async (req, res) => {
   }
 });
 
-app.post('/api/sql/sources/:id/query', (req, res) => {
+app.post('/api/sql/sources/:id/query', async (req, res) => {
   const s = sources.get(req.params.id);
   if (!s) return bad(res, 404, 'no such source');
   const sql = String(req.body?.sql ?? '').trim();
   if (!isReadOnlySql(sql)) return bad(res, 400, 'read-only: SELECT/WITH/PRAGMA/EXPLAIN only');
   try {
-    const stmt = s.db.prepare(sql);
-    const rows = stmt.all().slice(0, 1000);
+    const rows = (await s.query(sql)).slice(0, 1000);
     const columns = rows.length ? Object.keys(rows[0]) : [];
     res.json({ columns, rows, truncated: rows.length === 1000 });
   } catch (e) {
@@ -296,6 +302,13 @@ app.post('/api/agent', async (req, res) => {
   }
 });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, sources: sources.size, agent: !!process.env.ANTHROPIC_API_KEY }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, sources: sources.size, agent: agentAvailable() }));
 
-app.listen(PORT, () => console.log(`studio-server on :${PORT} (oxigraph: ${OXIGRAPH})`));
+// Container mode: serve the built UI from dist/ (same origin as /db and /api).
+if (process.env.SERVE_UI) {
+  const dist = join(__dirname, '..', 'dist');
+  app.use(express.static(dist));
+  app.get(/^\/(?!api|db).*/, (_req, res) => res.sendFile(join(dist, 'index.html')));
+}
+
+app.listen(PORT, () => console.log(`studio-server on :${PORT} (oxigraph: ${OXIGRAPH})${process.env.SERVE_UI ? ' serving UI' : ''}`));
