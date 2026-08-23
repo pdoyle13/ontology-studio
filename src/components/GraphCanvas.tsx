@@ -24,7 +24,8 @@ import { useContextMenu } from './ContextMenu';
 import { RelationPicker, rememberPredicate } from './RelationPicker';
 import { confirmDialog, openCreateInstance } from './Modal';
 import { openDataGrid } from './DataGrid';
-import { cmdDelete, cmdDeleteResource } from '../rdf/commands';
+import { openSourceEditor } from './SourceEditor';
+import { cmdDelete, cmdDeleteResource, cmdRenameIri } from '../rdf/commands';
 import { useConnection as useConn2 } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
@@ -250,6 +251,9 @@ export function GraphCanvas() {
         <button className="ghost" onClick={relayout} disabled={nodes.length === 0}>
           Re-layout
         </button>
+        <button className="ghost" onClick={openSourceEditor} title="Edit the active graph as raw Turtle (diff-applied)">
+          { } Source
+        </button>
         <button className="ghost" onClick={exportPng} disabled={nodes.length === 0} title="Export the canvas as PNG">
           ⇓ PNG
         </button>
@@ -279,6 +283,21 @@ export function GraphCanvas() {
             { label: '▤ Open in inspector', onClick: () => selectResource(n.id) },
             { label: '✄ Hide from canvas', onClick: () => removeNode(n.id) },
             { label: '⧉ Copy IRI', onClick: () => navigator.clipboard?.writeText(data.iri) },
+            {
+              label: '✎ Rename IRI…',
+              disabled: isVirtual,
+              onClick: async () => {
+                const next = window.prompt('New IRI (rewrites subject/predicate/object across ALL graphs):', n.id);
+                if (!next?.trim() || next === n.id) return;
+                const conn = useConn2.getState();
+                const ep = conn.active();
+                if (!ep) return;
+                await cmdRenameIri(ep, n.id, next.trim());
+                removeNode(n.id);
+                useCanvas.getState().addResource(next.trim());
+                refreshSelected();
+              },
+            },
             { separator: true, label: '' },
             ...(data.types.includes('http://www.w3.org/2000/01/rdf-schema#Class')
               ? [

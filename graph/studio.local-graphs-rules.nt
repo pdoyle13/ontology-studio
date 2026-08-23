@@ -1,0 +1,8 @@
+# graph: https://studio.local/graphs/rules
+<https://studio.local/shapes/rules/album/rule-mt61sb7r> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#TripleRule> .
+<https://studio.local/shapes/rules/album/rule-mt61sb7r> <http://www.w3.org/ns/shacl#object> "recording" .
+<https://studio.local/shapes/rules/album/rule-mt61sb7r> <http://www.w3.org/ns/shacl#predicate> <https://studio.local/vocab/asset-kind> .
+<https://studio.local/shapes/rules/album/rule-mt61sb7r> <http://www.w3.org/ns/shacl#subject> <http://www.w3.org/ns/shacl#this> .
+<https://studio.local/shapes/rules/album> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .
+<https://studio.local/shapes/rules/album> <http://www.w3.org/ns/shacl#rule> <https://studio.local/shapes/rules/album/rule-mt61sb7r> .
+<https://studio.local/shapes/rules/album> <http://www.w3.org/ns/shacl#targetClass> <https://example.org/music#Album> .

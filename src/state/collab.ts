@@ -7,17 +7,32 @@ import { useConnection } from './connection';
 import { useGraph } from './graph';
 import { invalidateVirtualMemo } from '../rdf/virtualApi';
 
+export interface Toast {
+  id: number;
+  text: string;
+  iri?: string;
+}
+
 interface CollabState {
   peers: number;
   connected: boolean;
   lastEvent: string | null;
+  toasts: Toast[];
 }
 
 export const useCollab = create<CollabState>(() => ({
   peers: 0,
   connected: false,
   lastEvent: null,
+  toasts: [],
 }));
+
+let toastSeq = 0;
+export function pushToast(text: string, iri?: string) {
+  const id = ++toastSeq;
+  useCollab.setState((s) => ({ toasts: [...s.toasts, { id, text, iri }].slice(-4) }));
+  setTimeout(() => useCollab.setState((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })), 9000);
+}
 
 let socket: WebSocket | null = null;
 let retryMs = 1000;
@@ -52,6 +67,13 @@ function connect() {
       useCollab.setState({ lastEvent: msg.type });
       if (msg.type === 'presence') useCollab.setState({ peers: msg.count });
       else if (msg.type === 'graph-changed') scheduleRefresh();
+      else if (msg.type === 'search-watch') {
+        const first = msg.newHits?.[0];
+        pushToast(
+          `Watch “${msg.query}”: ${msg.newHits?.length ?? 0} new result(s)` + (first?.label ? ` — ${first.label}` : ''),
+          first?.iri
+        );
+      }
     } catch { /* ignore */ }
   };
   socket.onclose = () => {

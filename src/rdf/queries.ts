@@ -240,3 +240,38 @@ SELECT ?l WHERE {
   const resolvedLabel = label ?? selfR.bindings[0]?.l?.value ?? null;
   return { iri, label: resolvedLabel, types, outgoing, incoming, incomingTotal: incoming.length };
 }
+
+export interface UsageReport {
+  incoming: number; // triples pointing at the IRI
+  asPredicate: number; // triples using it as the property
+  inShapes: number; // property shapes with it as sh:path
+  inMappings: number; // R2RML predicate maps binding it
+  deprecated: boolean;
+}
+
+/** Where is this IRI used, across every graph? (union scope covers them all) */
+export async function usageFor(ep: Endpoint, iri: string): Promise<UsageReport> {
+  const q = `
+SELECT
+  (COUNT(DISTINCT ?inS) AS ?incoming)
+  (COUNT(DISTINCT ?useS) AS ?asPred)
+  (COUNT(DISTINCT ?ps) AS ?inShapes)
+  (COUNT(DISTINCT ?pom) AS ?inMappings)
+  (COUNT(DISTINCT ?dep) AS ?dep)
+WHERE {
+  { ?inS ?inP <${iri}> }
+  UNION { ?useS <${iri}> ?useO }
+  UNION { ?ps <http://www.w3.org/ns/shacl#path> <${iri}> }
+  UNION { ?pom <http://www.w3.org/ns/r2rml#predicate> <${iri}> }
+  UNION { <${iri}> <https://studio.local/ns#deprecated> ?dep }
+}`;
+  const r = await select(ep, q, { union: true });
+  const b = r.bindings[0] ?? {};
+  return {
+    incoming: Number(b.incoming?.value ?? 0),
+    asPredicate: Number(b.asPred?.value ?? 0),
+    inShapes: Number(b.inShapes?.value ?? 0),
+    inMappings: Number(b.inMappings?.value ?? 0),
+    deprecated: Number(b.dep?.value ?? 0) > 0,
+  };
+}

@@ -1,0 +1,4 @@
+# graph: https://studio.local/graphs/inferred
+<https://example.org/music#InRainbows> <https://studio.local/vocab/asset-kind> "recording" .
+<https://example.org/music#KidA> <https://studio.local/vocab/asset-kind> "recording" .
+<https://example.org/music#OKComputer> <https://studio.local/vocab/asset-kind> "recording" .

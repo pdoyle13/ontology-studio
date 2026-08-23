@@ -15,6 +15,9 @@ import { Omnibox } from './components/Omnibox';
 import { AssetDialog } from './components/AssetDialog';
 import { ExtensionsDialog } from './components/ExtensionsDialog';
 import { CsvImportDialog } from './components/CsvImportDialog';
+import { ImportWizard } from './components/ImportWizard';
+import { DashboardView } from './components/DashboardsPanel';
+import { SourceEditor } from './components/SourceEditor';
 import { useConnection } from './state/connection';
 import { startCollab } from './state/collab';
 import { startIdentity } from './state/identity';
@@ -58,9 +61,11 @@ export default function App() {
             <>
               <GraphCanvas />
               <DataGrid />
+              <DashboardView />
+              <SourceEditor />
             </>
           ) : (
-            <div className="placeholder center">Ontology Studio — connect to Oxigraph to begin</div>
+            <div className="placeholder center">YAOE — connect to Oxigraph to begin</div>
           )}
         </main>
         <aside className="inspector">
@@ -82,6 +87,7 @@ export default function App() {
       <AssetDialog />
       <ExtensionsDialog />
       <CsvImportDialog />
+      <ImportWizard />
     </div>
   );
 }

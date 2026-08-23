@@ -24,6 +24,15 @@ and `create(id, target)` returning
 `{tables, introspect, page, query, close}` — drop a file in, restart, done.
 Shipped: sqlite, duckdb, postgres, mysql, snowflake (experimental).
 
+## BI tools
+
+Set `BI_PORT` and the server speaks the **PostgreSQL wire protocol** on that
+port: Tableau, Power BI, Looker, psql, or any Postgres driver connects with
+stock settings (no TLS, any user) and sees every business object as a table —
+`SELECT ... FROM orders WHERE status = 'shipped' LIMIT 50` executes through
+the federation layer against the owning database, live. Simple-query protocol
+today; extended-protocol (parameterized) support is planned.
+
 ## Realtime & ops
 
 - **WebSocket** `/ws` — `graph-changed` broadcasts (tag-aware) + presence.

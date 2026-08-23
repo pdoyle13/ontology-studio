@@ -20,6 +20,12 @@ interface Hit {
   label: string | null;
   group: 'model' | 'data';
   detail?: string;
+  highlight?: string | null;
+}
+
+interface Facets {
+  byKind?: { buckets: { key: string; doc_count: number }[] };
+  bySource?: { buckets: { key: string; doc_count: number }[] };
 }
 
 export function Omnibox() {
@@ -28,6 +34,9 @@ export function Omnibox() {
   const selectResource = useGraph((s) => s.selectResource);
   const [q, setQ] = useState('');
   const [hits, setHits] = useState<Hit[]>([]);
+  const [facets, setFacets] = useState<Facets>({});
+  const [kindFilter, setKindFilter] = useState<string | null>(null);
+  const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   const [active, setActive] = useState(0);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,10 +81,18 @@ export function Omnibox() {
         }
         // one call to the search service (BM25 over model terms + live rows);
         // SPARQL fallback keeps the box working if the index is unavailable
-        let hitsRaw: SearchHit[] = [];
+        let hitsRaw: (SearchHit & { _highlight?: string | null })[] = [];
         try {
-          const r = await fetch(`/api/search?q=${encodeURIComponent(text)}`);
-          if (r.ok) hitsRaw = (await r.json()).hits;
+          const u = new URL('/api/search', location.origin);
+          u.searchParams.set('q', text);
+          if (kindFilter) u.searchParams.set('kind', kindFilter);
+          if (sourceFilter) u.searchParams.set('sourceId', sourceFilter);
+          const r = await fetch(u);
+          if (r.ok) {
+            const json = await r.json();
+            hitsRaw = json.hits;
+            setFacets(json.facets ?? {});
+          }
         } catch {
           /* fall through */
         }
@@ -91,6 +108,7 @@ export function Omnibox() {
             h.kind === 'data' && h.classIri
               ? `${displayName(h.classIri)} · ${h.sourceId ?? ''}`
               : h.type,
+          highlight: h._highlight ?? null,
         }));
         setHits(merged);
         setActive(0);
@@ -100,7 +118,7 @@ export function Omnibox() {
     }, 200);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, open, conn.activeId, conn.activeGraph]);
+  }, [q, open, conn.activeId, conn.activeGraph, kindFilter, sourceFilter]);
 
   const close = useCallback(() => useOmnibox.setState({ open: false }), []);
   const pick = useCallback(
@@ -141,6 +159,36 @@ export function Omnibox() {
             }
           }}
         />
+        <div className="omnibox-facets">
+          <button className={`facet ${!kindFilter ? 'on' : ''}`} onClick={() => setKindFilter(null)}>All</button>
+          {(facets.byKind?.buckets ?? []).map((b) => (
+            <button key={b.key} className={`facet ${kindFilter === b.key ? 'on' : ''}`} onClick={() => setKindFilter(kindFilter === b.key ? null : b.key)}>
+              {b.key} ({b.doc_count})
+            </button>
+          ))}
+          {(facets.bySource?.buckets ?? []).slice(0, 5).map((b) => (
+            <button key={b.key} className={`facet src ${sourceFilter === b.key ? 'on' : ''}`} onClick={() => setSourceFilter(sourceFilter === b.key ? null : b.key)}>
+              {b.key} ({b.doc_count})
+            </button>
+          ))}
+          {q.trim().length >= 2 && (
+            <button
+              className="facet watch"
+              title="Notify me when new results appear for this search"
+              onClick={async () => {
+                await fetch('/api/search/watches', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ query: q.trim() }),
+                });
+                const { pushToast } = await import('../state/collab');
+                pushToast(`Watching “${q.trim()}” — you’ll be notified on new results`);
+              }}
+            >
+              👁 watch
+            </button>
+          )}
+        </div>
         <div className="omnibox-results">
           {groups.map(
             (g) =>
@@ -157,6 +205,9 @@ export function Omnibox() {
                     >
                       <span className="omnibox-label">{displayName(hit.iri, hit.label)}</span>
                       {hit.detail && <span className="term-meta">{hit.detail}</span>}
+                      {hit.highlight && (
+                        <span className="omnibox-snippet" dangerouslySetInnerHTML={{ __html: hit.highlight.replace(/<(?!\/?em>)[^>]*>/g, '') }} />
+                      )}
                     </div>
                   ))}
                 </div>

@@ -128,3 +128,36 @@ export async function cmdDeleteResource(
     undo: () => update(ep, `INSERT DATA { ${wrap(snapshot)} }`),
   });
 }
+
+/** Rename an IRI everywhere: subject, predicate, and object positions across
+ *  every named graph and the default graph. One undoable command. */
+export async function cmdRenameIri(ep: Endpoint, oldIri: string, newIri: string): Promise<void> {
+  const move = (a: string, b: string) =>
+    [
+      `DELETE { GRAPH ?g { <${a}> ?p ?o } } INSERT { GRAPH ?g { <${b}> ?p ?o } } WHERE { GRAPH ?g { <${a}> ?p ?o } }`,
+      `DELETE { <${a}> ?p ?o } INSERT { <${b}> ?p ?o } WHERE { <${a}> ?p ?o }`,
+      `DELETE { GRAPH ?g { ?s <${a}> ?o } } INSERT { GRAPH ?g { ?s <${b}> ?o } } WHERE { GRAPH ?g { ?s <${a}> ?o } }`,
+      `DELETE { ?s <${a}> ?o } INSERT { ?s <${b}> ?o } WHERE { ?s <${a}> ?o }`,
+      `DELETE { GRAPH ?g { ?s ?p <${a}> } } INSERT { GRAPH ?g { ?s ?p <${b}> } } WHERE { GRAPH ?g { ?s ?p <${a}> } }`,
+      `DELETE { ?s ?p <${a}> } INSERT { ?s ?p <${b}> } WHERE { ?s ?p <${a}> }`,
+    ].join(' ;\n');
+  await useHistory.getState().exec({
+    label: 'rename IRI',
+    redo: () => update(ep, move(oldIri, newIri)),
+    undo: () => update(ep, move(newIri, oldIri)),
+  });
+}
+
+const DEPRECATED = 'https://studio.local/ns#deprecated';
+
+export async function cmdSetDeprecated(ep: Endpoint, graph: string | null, iri: string, on: boolean): Promise<void> {
+  const triple = `<${iri}> <${DEPRECATED}> true .`;
+  const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+  const add = `INSERT DATA { ${wrap(triple)} }`;
+  const del = `DELETE WHERE { GRAPH ?g { <${iri}> <${DEPRECATED}> ?v } } ; DELETE WHERE { <${iri}> <${DEPRECATED}> ?v }`;
+  await useHistory.getState().exec({
+    label: on ? 'deprecate' : 'undeprecate',
+    redo: () => update(ep, on ? add : del),
+    undo: () => update(ep, on ? del : add),
+  });
+}

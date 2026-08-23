@@ -15,9 +15,10 @@ let nextPrompt = '';
 page.on('dialog', (d) => d.accept(nextPrompt));
 
 async function connect() {
-  await page.goto('http://localhost:5180');
-  await page.waitForSelector('select', { timeout: 15000 });
-  await page.selectOption('select', { label: 'Local Oxigraph (studio)' });
+  await page.goto('http://localhost:5180?workspace=model');
+  await page.waitForSelector('.workspace-switch', { timeout: 15000 });
+  // select #0 is the workspace switcher; #1 is the endpoint picker
+  await page.locator('select').nth(1).selectOption({ label: 'Local Oxigraph (studio)' });
   await page.waitForSelector('.class-list li', { timeout: 15000 });
 }
 

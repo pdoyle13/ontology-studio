@@ -1,4 +1,4 @@
-// Ontology Studio sidecar (port 7881):
+// YAOE sidecar (port 7881):
 //  - SQL datasources: attach SQLite files, introspect schema, translate the
 //    schema to an RDF ontology + SHACL shapes (Direct-Mapping style), and
 //    keep everything virtual (meta-only graph). Read-only SQL query endpoint.
@@ -16,6 +16,16 @@ import { createDriver, safeDescriptor, connectorKinds } from './drivers.mjs';
 import { readCatalog, planSources, queryClass } from './semantic/federation.mjs';
 import { createGraphQL } from './semantic/graphqlLayer.mjs';
 import { createSearchService } from './search/searchService.mjs';
+import { readRules, materialize, explain, INFERRED_GRAPH } from './semantic/rules.mjs';
+import { metaStore } from './core/meta.mjs';
+import { startPgFacade } from './bi/pgFacade.mjs';
+import { readWorkflow, getState, setState, availableTransitions, validateTransition, STATE_GRAPH } from './governance/lifecycle.mjs';
+import { addComment, listComments, COMMENTS_GRAPH } from './governance/comments.mjs';
+import { createTokenStore } from './governance/tokens.mjs';
+import { createOidcVerifier } from './governance/oidc.mjs';
+import { createRegistry } from './core/metrics.mjs';
+import { manifest as reconcileManifest, reconcileBatch } from './search/reconcile.mjs';
+import { runQualityChecks, persistSnapshot, readHistory, QUALITY_GRAPH } from './semantic/quality.mjs';
 import { discoverBusinessAreas, readAlignment } from './semantic/discover.mjs';
 import { virtualInstances, virtualDescribe, virtualSearch } from './semantic/virtual.mjs';
 import { buildSpec } from './ops/openapi.mjs';
@@ -83,16 +93,57 @@ function updateTags(body) {
   return [...tags];
 }
 
-// ---------------- identity (X-Studio-User header; dev default 'pat') ----------------
-// No authn yet — the governance MODEL is real, the login is honor-system.
-app.use(async (req, _res, next) => {
-  try {
-    req.studioUser = await resolveUser(OXIGRAPH, req.headers['x-studio-user'] || 'pat');
-  } catch {
-    req.studioUser = { name: 'pat', role: 'admin', governs: [] }; // governance graph unreachable → don't brick the app
+// ---------------- metrics ----------------
+const metrics = createRegistry();
+app.use(metrics.httpMiddleware());
+metrics.startStatsd(); // no-op unless DD_AGENT_HOST is set
+app.get('/metrics', (_req, res) => res.type('text/plain').send(metrics.promText()));
+
+// ---------------- identity ----------------
+// Resolution order: Bearer API token → OIDC JWT (when configured) →
+// X-Studio-User header. AUTH_REQUIRED=1 turns the header path off for
+// everything except reads, closing the honor-system gap for deployment.
+const tokenStore = createTokenStore(process.env.TOKENS_FILE ?? new URL('./.state/tokens.json', import.meta.url).pathname.replace(/^\/(\w:)/, '$1'));
+const oidc = createOidcVerifier();
+
+app.use(async (req, res, next) => {
+  let name = null;
+  let via = 'header';
+  const bearer = /^Bearer\s+(.+)$/i.exec(req.headers.authorization ?? '')?.[1];
+  if (bearer) {
+    const tokenUser = tokenStore.verify(bearer);
+    if (tokenUser) {
+      name = tokenUser;
+      via = 'token';
+    } else if (oidc) {
+      try {
+        name = (await oidc.verify(bearer)).subject;
+        via = 'oidc';
+      } catch {
+        metrics.inc('auth_failures_total', { via: 'bearer' });
+        return res.status(401).json({ error: 'invalid bearer credential' });
+      }
+    } else {
+      metrics.inc('auth_failures_total', { via: 'token' });
+      return res.status(401).json({ error: 'invalid API token' });
+    }
   }
+  if (!name) {
+    if (process.env.AUTH_REQUIRED === '1' && !['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+      metrics.inc('auth_failures_total', { via: 'header' });
+      return res.status(401).json({ error: 'authentication required (Bearer token or OIDC JWT)' });
+    }
+    name = req.headers['x-studio-user'] || 'pat';
+  }
+  try {
+    req.studioUser = await resolveUser(OXIGRAPH, name);
+  } catch {
+    req.studioUser = { name, role: via === 'header' ? 'admin' : 'viewer', governs: [] };
+  }
+  req.authVia = via;
   next();
 });
+
 
 const forbid = (res, user, need) =>
   res.status(403).json({
@@ -209,6 +260,23 @@ app.post('/api/cache/clear', (_req, res) => {
 });
 
 app.use(express.json({ limit: '5mb' }));
+
+// ---------------- token management (admin only) ----------------
+app.get('/api/auth/tokens', (req, res) => {
+  if (req.studioUser.role !== 'admin') return forbid(res, req.studioUser, 'token management is admin-only');
+  res.json(tokenStore.list());
+});
+app.post('/api/auth/tokens', (req, res) => {
+  if (req.studioUser.role !== 'admin') return forbid(res, req.studioUser, 'token management is admin-only');
+  const { user, label } = req.body ?? {};
+  if (!user) return bad(res, 400, 'user required');
+  res.json(tokenStore.create(String(user), String(label ?? '')));
+});
+app.delete('/api/auth/tokens/:id', (req, res) => {
+  if (req.studioUser.role !== 'admin') return forbid(res, req.studioUser, 'token management is admin-only');
+  res.json({ revoked: tokenStore.revoke(req.params.id) });
+});
+
 
 // ---------------- sources registry (driver-backed) ----------------
 /** @type {Map<string, ReturnType<typeof createDriver>>} */
@@ -450,7 +518,7 @@ cache.onInvalidate(() => searchSvc.markDirty());
 // ES/OpenSearch compatibility surface (point any ES client at <server>/es)
 app.get('/es', (_req, res) =>
   res.json({
-    name: 'ontology-studio',
+    name: 'yaoe',
     cluster_name: 'studio',
     version: { number: '8.13.0', distribution: 'opensearch', build_flavor: 'embedded' },
     tagline: 'The graph knows where everything lives',
@@ -489,9 +557,172 @@ app.get('/es/studio/_search', async (req, res) => {
 // friendly wrapper used by the omnibox
 app.get('/api/search', async (req, res) => {
   const q = String(req.query.q ?? '').trim();
-  if (q.length < 2) return res.json({ hits: [], stats: searchSvc.stats() });
+  if (q.length < 2) return res.json({ hits: [], facets: {}, total: 0, stats: searchSvc.stats() });
   try {
-    res.json({ hits: await searchSvc.quick(q), stats: searchSvc.stats() });
+    const out = await searchSvc.quick(q, {
+      kind: req.query.kind ? String(req.query.kind) : null,
+      sourceId: req.query.sourceId ? String(req.query.sourceId) : null,
+    });
+    res.json({ ...out, stats: searchSvc.stats() });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+// search watches: notified over the WS bus when a rebuild finds new results
+app.get('/api/search/watches', (_req, res) => res.json(searchSvc.listWatches()));
+app.post('/api/search/watches', (req, res) => {
+  const { query } = req.body ?? {};
+  if (!query || String(query).trim().length < 2) return bad(res, 400, 'query required');
+  const id = `w${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}`;
+  res.json(searchSvc.addWatch({ id, query: String(query).trim(), user: req.studioUser?.name ?? 'anon' }));
+});
+app.delete('/api/search/watches/:id', (req, res) => {
+  searchSvc.removeWatch(req.params.id);
+  res.status(204).end();
+});
+
+// ---- W3C Reconciliation API (OpenRefine-compatible) ----
+const reconcileHandler = async (req, res) => {
+  try {
+    let queries = req.body?.queries ?? req.query?.queries ?? null;
+    if (typeof queries === 'string') queries = JSON.parse(queries);
+    if (!queries) return res.json(reconcileManifest(`http://localhost:${PORT}`));
+    res.json(await reconcileBatch(searchSvc, queries));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+};
+app.get('/api/reconcile', reconcileHandler);
+app.post('/api/reconcile', express.urlencoded({ extended: true }), reconcileHandler);
+
+// ---- data quality: rule sweeps with persisted history ----
+app.post('/api/quality/run', async (req, res) => {
+  const user = req.studioUser;
+  if (!['steward', 'admin'].includes(user.role)) return forbid(res, user, 'quality runs need steward or admin');
+  try {
+    const results = await runQualityChecks(OXIGRAPH);
+    const at = new Date().toISOString();
+    await persistSnapshot(OXIGRAPH, results, at);
+    recordChange(OXIGRAPH, { actor: user.name, operation: 'quality-run', graphs: [QUALITY_GRAPH], detail: JSON.stringify(results) });
+    cache.invalidate([QUALITY_GRAPH]);
+    res.json({ at, results });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/quality', async (_req, res) => {
+  try {
+    res.json({ checks: await runQualityChecks(OXIGRAPH), history: await readHistory(OXIGRAPH) });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+// ---- lifecycle workflows + comments + entity history ----
+
+app.get('/api/lifecycle', async (req, res) => {
+  const iri = String(req.query.iri ?? '');
+  if (!iri) return bad(res, 400, 'iri required');
+  try {
+    const wf = await readWorkflow(OXIGRAPH, req.query.assetType ? String(req.query.assetType) : null);
+    const state = await getState(OXIGRAPH, iri);
+    res.json({
+      state: state ?? wf.initial,
+      explicit: state !== null,
+      transitions: availableTransitions(wf, state, req.studioUser.role),
+    });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/lifecycle/transition', async (req, res) => {
+  const { iri, to, assetType } = req.body ?? {};
+  if (!iri || !to) return bad(res, 400, 'iri and to required');
+  try {
+    const wf = await readWorkflow(OXIGRAPH, assetType ?? null);
+    const state = await getState(OXIGRAPH, iri);
+    const err = validateTransition(wf, state, to, req.studioUser.role);
+    if (err) return bad(res, 403, err);
+    await setState(OXIGRAPH, iri, to);
+    recordChange(OXIGRAPH, { actor: req.studioUser.name, operation: `lifecycle:${state ?? wf.initial}->${to}`, graphs: [STATE_GRAPH], detail: iri });
+    publishChange({ actor: req.studioUser.name, operation: 'lifecycle', graphs: [STATE_GRAPH], replay: { kind: 'lifecycle', iri, to } });
+    cache.invalidate([STATE_GRAPH]);
+    res.json({ iri, state: to });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/comments', async (req, res) => {
+  const iri = String(req.query.iri ?? '');
+  if (!iri) return bad(res, 400, 'iri required');
+  try {
+    res.json(await listComments(OXIGRAPH, iri));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/comments', async (req, res) => {
+  const { iri, text } = req.body ?? {};
+  if (!iri || !String(text ?? '').trim()) return bad(res, 400, 'iri and text required');
+  try {
+    const c = await addComment(OXIGRAPH, { on: iri, by: req.studioUser.name, text: String(text).trim(), at: new Date().toISOString() });
+    recordChange(OXIGRAPH, { actor: req.studioUser.name, operation: 'comment', graphs: [COMMENTS_GRAPH], detail: iri });
+    publishChange({ actor: req.studioUser.name, operation: 'comment', graphs: [COMMENTS_GRAPH], replay: { kind: 'comment', iri, text: c.text } });
+    cache.invalidate([COMMENTS_GRAPH]);
+    res.json(c);
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/entity-history', async (req, res) => {
+  const iri = String(req.query.iri ?? '');
+  if (!iri) return bad(res, 400, 'iri required');
+  try {
+    const all = await readChangelog(OXIGRAPH, 500);
+    res.json(all.filter((e) => (e.detail ?? '').includes(iri)).slice(0, 50));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+// ---- SHACL-AF rules: materialization into the inferred graph ----
+const rulesRawUpdate = async (body) => {
+  await metaStore(OXIGRAPH).updateRaw(body);
+};
+
+app.get('/api/rules', async (_req, res) => {
+  try {
+    res.json(await readRules(OXIGRAPH));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/rules/materialize', async (req, res) => {
+  const user = req.studioUser;
+  if (!canWriteDirect(user, [INFERRED_GRAPH])) return forbid(res, user, 'materialization writes the inferred graph');
+  try {
+    const result = await materialize({ oxigraph: OXIGRAPH, rawUpdate: rulesRawUpdate });
+    recordChange(OXIGRAPH, { actor: user.name, operation: 'rules-materialize', graphs: [INFERRED_GRAPH], detail: JSON.stringify(result) });
+    publishChange({ actor: user.name, operation: 'rules-materialize', graphs: [INFERRED_GRAPH], replay: { kind: 'rules-materialize' } });
+    cache.invalidate([INFERRED_GRAPH, '*']);
+    res.json(result);
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/rules/explain', async (req, res) => {
+  const { s: subj, p: pred, o: obj, oIsIri } = req.query;
+  if (!subj || !pred || obj === undefined) return bad(res, 400, 's, p, o required');
+  try {
+    res.json(await explain({ oxigraph: OXIGRAPH, s: String(subj), p: String(pred), o: String(obj), oIsIri: oIsIri !== 'false' }));
   } catch (e) {
     bad(res, 500, e.message);
   }
@@ -828,7 +1059,7 @@ const require_ = createRequire(import.meta.url);
 try {
   const swaggerDist = require_('swagger-ui-dist').absolutePath();
   app.get('/api/docs', (_req, res) => {
-    res.type('html').send(`<!doctype html><html><head><title>Ontology Studio API</title>
+    res.type('html').send(`<!doctype html><html><head><title>YAOE API</title>
 <link rel="stylesheet" href="/api/docs-assets/swagger-ui.css"><style>body{margin:0}</style></head>
 <body><div id="ui"></div>
 <script src="/api/docs-assets/swagger-ui-bundle.js"></script>
@@ -843,6 +1074,14 @@ if (process.env.SERVE_UI) {
   const dist = join(__dirname, '..', 'dist');
   app.use(express.static(dist));
   app.get(/^\/(?!api|db).*/, (_req, res) => res.sendFile(join(dist, 'index.html')));
+}
+
+// BI facade: stock Postgres drivers (Tableau/Power BI/psql) query business
+// objects as tables. Opt-in via BI_PORT.
+if (process.env.BI_PORT) {
+  const biPort = Number(process.env.BI_PORT);
+  startPgFacade({ port: biPort, federation, log: (m) => console.log(m) });
+  console.log(`bi-facade (postgres wire) on :${biPort}`);
 }
 
 const httpServer = app.listen(PORT, () =>
@@ -870,6 +1109,9 @@ function wsBroadcast(msg, except = null) {
     if (client !== except && client.readyState === 1) client.send(data);
   }
 }
+
+// watch hits ride the same bus as graph changes
+searchSvc.setWatchListener((hit) => wsBroadcast({ type: 'search-watch', ...hit }));
 
 wss.on('connection', (socket) => {
   wsBroadcast({ type: 'presence', count: wss.clients.size });

@@ -1,4 +1,14 @@
 # graph: https://studio.local/graphs/extensions
+<https://studio.local/ns#DataDomains> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#DataDomains> <http://www.w3.org/2000/01/rdf-schema#label> "Data Domain" .
+<https://studio.local/ns#assetType/data-domains> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
+<https://studio.local/ns#assetType/data-domains> <http://www.w3.org/2000/01/rdf-schema#label> "Data Domains" .
+<https://studio.local/ns#assetType/data-domains> <https://studio.local/ns#assetClass> <https://studio.local/ns#DataDomains> .
+<https://studio.local/ns#assetType/data-domains> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/ns#assetType/data-domains> <https://studio.local/ns#presentation> "list" .
+<https://studio.local/ns#importTemplate/datadomains-1102525612> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
+<https://studio.local/ns#importTemplate/datadomains-1102525612> <https://studio.local/ns#forClass> <https://studio.local/ns#DataDomains> .
+<https://studio.local/ns#importTemplate/datadomains-1102525612> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Steward Person\":\"\",\"Notes\":\"\"}" .
 <https://studio.local/shapes/ext/ConceptShape/prop/status> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#PropertyShape> .
 <https://studio.local/shapes/ext/ConceptShape/prop/status> <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#string> .
 <https://studio.local/shapes/ext/ConceptShape/prop/status> <http://www.w3.org/ns/shacl#in> _:e74c552d6b56dcac4ddae2d407019038 .

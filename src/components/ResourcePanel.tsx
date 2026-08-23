@@ -8,6 +8,7 @@ import { displayName, humanize } from '../rdf/display';
 import { parseTermInput } from '../rdf/mutations';
 import { cmdInsert, cmdDelete, cmdReplace, cmdDeleteResource } from '../rdf/commands';
 import { ShapeForm } from './ShapeForm';
+import { EntityMeta } from './EntityMeta';
 import { ShapeEditor } from './ShapeEditor';
 import { openCreateInstance, confirmDialog } from './Modal';
 import { cmdGenerateShape } from '../rdf/shapeGen';
@@ -290,6 +291,7 @@ export function ResourcePanel() {
       </div>
 
       {isNodeShape && <ShapeEditor shapeIri={d.iri} />}
+      <EntityMeta iri={d.iri} />
       <ShapeForm description={d} />
 
       <details open className="triples-details">

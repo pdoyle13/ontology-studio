@@ -64,3 +64,24 @@ describe('search: ES DSL', () => {
     expect(r.hits.hits[0]).toHaveProperty('_source.iri');
   });
 });
+
+describe('search 2.0: aggs + highlight', () => {
+  it('terms aggregation buckets by stored field', () => {
+    const r = search(idx, { query: { match: { text: 'turing' } }, aggs: { byKind: { terms: { field: 'kind' } } } });
+    const buckets = r.aggregations.byKind.buckets;
+    expect(buckets).toEqual([
+      { key: 'data', doc_count: 1 },
+      { key: 'model', doc_count: 1 },
+    ]);
+  });
+
+  it('highlight wraps matched tokens in <em>', () => {
+    const r = search(idx, { query: { multi_match: { query: 'compilers', fields: ['label^3', 'text'] } }, highlight: {} });
+    expect(r.hits.hits[0].highlight.text[0]).toContain('<em>compilers</em>');
+  });
+
+  it('no highlight key when nothing matches the raw text', () => {
+    const r = search(idx, { query: { term: { kind: 'model' } }, highlight: {} });
+    expect(r.hits.hits[0].highlight).toBeUndefined();
+  });
+});

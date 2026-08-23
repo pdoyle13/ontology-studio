@@ -50,8 +50,10 @@ describe('duckdb connector', () => {
 
 describe('registry', () => {
   it('discovers all connectors from the directory', () => {
-    const kinds = connectorKinds().map((m) => m.kind).sort();
-    expect(kinds).toEqual(['duckdb', 'mysql', 'postgres', 'snowflake', 'sqlite']);
+    const kinds = connectorKinds().map((m) => m.kind);
+    for (const k of ['sqlite', 'duckdb', 'postgres', 'mysql', 'snowflake', 'mssql', 'trino']) {
+      expect(kinds).toContain(k);
+    }
   });
 
   it('creates by kind and rejects unknown kinds', async () => {

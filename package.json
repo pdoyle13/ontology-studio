@@ -1,5 +1,5 @@
 {
-  "name": "ontology-studio",
+  "name": "yaoe",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -22,7 +22,9 @@
     "express": "^5.2.1",
     "graphql": "^17.0.2",
     "html-to-image": "^1.11.13",
+    "jose": "^6.2.10",
     "kafkajs": "^2.2.4",
+    "mssql": "^12.7.0",
     "mysql2": "^3.23.4",
     "n3": "^2.2.5",
     "pg": "^8.23.0",
@@ -45,5 +47,6 @@
     "vite": "^8.2.0",
     "vitest": "^4.1.11"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "description": "YAOE - yet another ontology editor: virtual semantic layer + knowledge-graph workbench (SHACL-first, live SQL federation)"
 }

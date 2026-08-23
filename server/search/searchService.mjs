@@ -34,6 +34,9 @@ export function createSearchService({ oxigraph, federation, drivers, remoteUrl =
         UNION
         { ?s a <${SKOS}ConceptScheme> . BIND("scheme" AS ?type)
           OPTIONAL { ?s <${SKOS}prefLabel> ?label } }
+        UNION
+        { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label ; a ?anyT . BIND("instance" AS ?type)
+          FILTER(?anyT != <http://www.w3.org/2000/01/rdf-schema#Class> && ?anyT != <http://www.w3.org/ns/shacl#NodeShape>) }
         FILTER(isIRI(?s))
       }`
     );
@@ -128,6 +131,7 @@ export function createSearchService({ oxigraph, federation, drivers, remoteUrl =
       if (remoteUrl) await pushRemote([...meta, ...data]).catch(() => {});
       dirty = false;
       lastBuild = { at: new Date().toISOString(), docs: index.size, meta: meta.length, data: data.length };
+      await checkWatches();
       return lastBuild;
     })().finally(() => {
       building = null;
@@ -159,13 +163,59 @@ export function createSearchService({ oxigraph, federation, drivers, remoteUrl =
     return search(index, body);
   }
 
-  /** Simple wrapper for the omnibox: q → grouped hits. */
-  async function quick(q, size = 24) {
+  /** Omnibox search: hits with highlights + facets, optionally filtered. */
+  async function quick(q, { size = 24, kind = null, sourceId = null } = {}) {
+    const must = [{ multi_match: { query: q, fields: ['label^3', 'text'] } }];
+    const filter = [];
+    if (kind) filter.push({ term: { kind } });
+    if (sourceId) filter.push({ term: { sourceId } });
     const result = await doSearch({
-      query: { multi_match: { query: q, fields: ['label^3', 'text'] } },
+      query: filter.length ? { bool: { must, filter } } : must[0],
       size,
+      highlight: {},
+      aggs: { byKind: { terms: { field: 'kind' } }, bySource: { terms: { field: 'sourceId' } }, byType: { terms: { field: 'type' } } },
     });
-    return (result.hits?.hits ?? []).map((h) => h._source);
+    return {
+      hits: (result.hits?.hits ?? []).map((h) => ({ ...h._source, _highlight: h.highlight?.text?.[0] ?? null })),
+      facets: result.aggregations ?? {},
+      total: result.hits?.total?.value ?? 0,
+    };
+  }
+
+  // ---- watches: saved searches that notify when NEW results appear ----
+  const watches = new Map(); // id -> {id, query, user, lastIds: Set|null}
+  let onWatchHit = null;
+  const setWatchListener = (fn) => {
+    onWatchHit = fn;
+  };
+  const addWatch = ({ id, query, user }) => {
+    watches.set(id, { id, query, user, lastIds: null });
+    return { id, query, user };
+  };
+  const removeWatch = (id) => watches.delete(id);
+  const listWatches = () => [...watches.values()].map(({ id, query, user }) => ({ id, query, user }));
+
+  async function checkWatches() {
+    for (const w of watches.values()) {
+      try {
+        const r = await doSearch({ query: { multi_match: { query: w.query, fields: ['label^3', 'text'] } }, size: 100 });
+        const ids = new Set((r.hits?.hits ?? []).map((h) => h._id));
+        if (w.lastIds !== null) {
+          const fresh = [...ids].filter((id) => !w.lastIds.has(id));
+          if (fresh.length && onWatchHit) {
+            onWatchHit({
+              watchId: w.id,
+              query: w.query,
+              user: w.user,
+              newHits: fresh.slice(0, 10).map((id) => index.docs.get(id)?.source ?? { iri: id }),
+            });
+          }
+        }
+        w.lastIds = ids;
+      } catch {
+        /* watch check never breaks a rebuild */
+      }
+    }
   }
 
   return {
@@ -175,6 +225,10 @@ export function createSearchService({ oxigraph, federation, drivers, remoteUrl =
     markDirty,
     search: doSearch,
     quick,
-    stats: () => ({ docs: index.size, lastBuild, remote: !!remoteUrl }),
+    addWatch,
+    removeWatch,
+    listWatches,
+    setWatchListener,
+    stats: () => ({ docs: index.size, lastBuild, remote: !!remoteUrl, watches: watches.size }),
   };
 }

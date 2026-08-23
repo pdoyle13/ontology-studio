@@ -63,6 +63,19 @@ predicate plus the two join-key properties — and instance joins happen live.
   virtual classes and from the graph for meta classes. The schema memo is
   invalidated by any graph change.
 
+## Graph-store backends
+
+`server/core/graphStore.mjs` abstracts the triplestore. Oxigraph is the
+default and the one exercised in CI; adapters for **GraphDB**
+(`http://host:7200/repositories/<repo>`), **Stardog**
+(`http://host:5820/<db>`), and **Neptune** (`https://host:8182`) encode each
+vendor's query/update URL layout, union-default-graph mechanism, basic auth,
+and Graph Store Protocol availability (Neptune/Stardog loads fall back to
+chunked `INSERT DATA`). Configure with `GRAPH_STORE_KIND` + `GRAPH_STORE_URL`
+(+ `GRAPH_STORE_USER`/`GRAPH_STORE_PASSWORD`). Every meta-layer read/write in
+`core/meta.mjs` routes through it; the non-Oxigraph adapters are written to
+vendor protocol docs and still need live-endpoint validation.
+
 ## Caching (see `server/cache.mjs`)
 
 | Tier | Scope | TTL | Invalidation |

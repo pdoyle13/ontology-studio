@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
-import { parseTurtle, importQuads, fetchRdfFromUrl, exportGraphTurtle, downloadText } from '../rdf/importExport';
+import { parseTurtle, importQuads, fetchRdfFromUrl, exportGraphTurtle, exportGraphJsonLd, downloadText } from '../rdf/importExport';
 import { localName } from '../rdf/prefixes';
 
 type Phase = 'idle' | 'parsing' | 'uploading' | 'done' | 'error';
@@ -109,6 +109,17 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
         <div className="modal-row">
           <button disabled={busy} onClick={onExport}>
             Download {conn.activeGraph ? localName(conn.activeGraph) : 'default graph'} as Turtle
+          </button>
+          <button
+            className="ghost"
+            onClick={async () => {
+              const ep = conn.active();
+              if (!ep) return;
+              const doc = await exportGraphJsonLd(ep, conn.activeGraph, prefixes);
+              downloadText('graph.jsonld', doc);
+            }}
+          >
+            as JSON-LD
           </button>
         </div>
 

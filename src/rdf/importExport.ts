@@ -80,6 +80,21 @@ export async function exportGraphTurtle(
   });
 }
 
+/** Export a graph as flat JSON-LD. */
+export async function exportGraphJsonLd(
+  ep: Endpoint,
+  graph: string | null,
+  prefixes: { shrink: (iri: string) => string; entries: () => Record<string, string> }
+): Promise<string> {
+  const q = graph
+    ? `CONSTRUCT { ?s ?p ?o } WHERE { GRAPH <${graph}> { ?s ?p ?o } }`
+    : `CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }`;
+  const raw = await construct(ep, q);
+  const { quads } = parseTurtle(raw);
+  const { quadsToJsonLd } = await import('./jsonld');
+  return JSON.stringify(quadsToJsonLd(quads, prefixes), null, 2);
+}
+
 export function downloadText(filename: string, text: string) {
   const blob = new Blob([text], { type: 'text/turtle;charset=utf-8' });
   const a = document.createElement('a');

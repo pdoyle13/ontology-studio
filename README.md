@@ -1,4 +1,8 @@
-# Ontology Studio
+# YAOE — yet another ontology editor
+
+In the proud lineage of YASGUI and YATE: an unassuming name for an ambitious
+tool. MIT-licensed; commercial support and integration consulting available
+from the author.
 
 A **virtual semantic layer** and knowledge-graph workbench. React + Oxigraph +
 live SQL federation. SHACL-first.

@@ -33,6 +33,8 @@ export class SearchIndex {
 
   add(id, source, textFields) {
     if (this.docs.has(id)) this.remove(id);
+    const raw = {};
+    for (const [field, value] of Object.entries(textFields)) raw[field] = Array.isArray(value) ? value.join(' ') : String(value ?? '');
     const fieldTokens = new Map();
     for (const [field, value] of Object.entries(textFields)) {
       const tokens = tokenize(Array.isArray(value) ? value.join(' ') : value);
@@ -52,7 +54,7 @@ export class SearchIndex {
         }
       }
     }
-    this.docs.set(id, { source, fieldTokens });
+    this.docs.set(id, { source, fieldTokens, raw });
   }
 
   remove(id) {
@@ -196,28 +198,76 @@ export function executeQuery(index, query) {
   return new Map();
 }
 
-/** Full _search: body → ES-shaped response. */
+/** Pure: terms aggregation over a stored source field. */
+export function termsAgg(index, ids, field, size = 20) {
+  const counts = new Map();
+  for (const id of ids) {
+    const v = index.docs.get(id)?.source?.[field];
+    if (v === undefined || v === null) continue;
+    counts.set(String(v), (counts.get(String(v)) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, size)
+    .map(([key, doc_count]) => ({ key, doc_count }));
+}
+
+/** Pure: highlight query tokens in raw text as <em> fragments. */
+export function highlight(rawText, queryText, fragLen = 90) {
+  const text = String(rawText ?? '');
+  const tokens = tokenize(queryText).filter((t) => t.length >= 2);
+  if (!text || tokens.length === 0) return null;
+  const lower = text.toLowerCase();
+  let first = -1;
+  for (const t of tokens) {
+    const i = lower.indexOf(t);
+    if (i >= 0 && (first < 0 || i < first)) first = i;
+  }
+  if (first < 0) return null;
+  const start = Math.max(0, first - Math.floor(fragLen / 3));
+  let frag = text.slice(start, start + fragLen);
+  for (const t of tokens) {
+    frag = frag.replace(new RegExp(`(${t.replace(/[.*+?^${'{'}${'}'}()|[\]\\]/g, '\\$&')})`, 'ig'), '<em>$1</em>');
+  }
+  return (start > 0 ? '…' : '') + frag + (start + fragLen < text.length ? '…' : '');
+}
+
+/** Full _search: body → ES-shaped response (query, from/size, aggs, highlight). */
 export function search(index, body = {}, { indexName = 'studio' } = {}) {
   const started = performance.now();
   const scores = executeQuery(index, body.query ?? { match_all: {} });
   const from = body.from ?? 0;
   const size = body.size ?? 10;
+  const allIds = [...scores.keys()];
   const ranked = [...scores.entries()]
     .sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))
     .slice(from, from + size);
-  return {
+  const queryText =
+    body.query?.multi_match?.query ?? body.query?.query_string?.query ?? (body.query?.match ? Object.values(body.query.match)[0]?.query ?? Object.values(body.query.match)[0] : null);
+  const wantHl = body.highlight != null;
+  const result = {
     took: Math.max(0, Math.round(performance.now() - started)),
     timed_out: false,
     _shards: { total: 1, successful: 1, skipped: 0, failed: 0 },
     hits: {
       total: { value: scores.size, relation: 'eq' },
       max_score: ranked[0]?.[1] ?? null,
-      hits: ranked.map(([id, score]) => ({
-        _index: indexName,
-        _id: id,
-        _score: score,
-        _source: index.docs.get(id)?.source ?? {},
-      })),
+      hits: ranked.map(([id, score]) => {
+        const doc = index.docs.get(id);
+        const hit = { _index: indexName, _id: id, _score: score, _source: doc?.source ?? {} };
+        if (wantHl && queryText) {
+          const frag = highlight(doc?.raw?.text ?? doc?.raw?.label ?? '', String(queryText));
+          if (frag) hit.highlight = { text: [frag] };
+        }
+        return hit;
+      }),
     },
   };
+  if (body.aggs) {
+    result.aggregations = {};
+    for (const [name, spec] of Object.entries(body.aggs)) {
+      if (spec.terms?.field) result.aggregations[name] = { buckets: termsAgg(index, allIds, spec.terms.field, spec.terms.size ?? 20) };
+    }
+  }
+  return result;
 }

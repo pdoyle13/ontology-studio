@@ -1,0 +1,6 @@
+# graph: https://studio.local/graphs/queries
+<https://studio.local/query/orders-by-status> <http://purl.org/dc/terms/title> "Orders by status" .
+<https://studio.local/query/orders-by-status> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#SavedQuery> .
+<https://studio.local/query/orders-by-status> <https://studio.local/ns#queryMode> "sql" .
+<https://studio.local/query/orders-by-status> <https://studio.local/ns#queryText> "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC" .
+<https://studio.local/query/orders-by-status> <https://studio.local/ns#sourceId> "sales_db" .

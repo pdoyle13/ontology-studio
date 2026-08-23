@@ -24,6 +24,13 @@ export const useIdentity = create<IdentityState>((set, get) => ({
   setActingUser: (actingUser) => {
     localStorage.setItem('studio.actingUser', actingUser);
     set({ actingUser });
+    // no explicit workspace chosen yet -> follow the new role's default
+    if (!localStorage.getItem('studio.workspace')) {
+      const role = get().users.find((u) => u.name === actingUser)?.role ?? 'viewer';
+      import('./workspace').then(({ useWorkspace, roleDefaultWorkspace }) =>
+        useWorkspace.getState().setWorkspace(roleDefaultWorkspace(role))
+      );
+    }
   },
   loadUsers: async () => {
     try {

@@ -1,3 +1,5 @@
+import { useWorkspace, WORKSPACES, type Workspace } from '../state/workspace';
+import { useGraph as useGraphForToast } from '../state/graph';
 import { useState } from 'react';
 import { useConnection } from '../state/connection';
 import { oxigraphEndpoint } from '../rdf/sparqlClient';
@@ -41,7 +43,20 @@ export function ConnectionBar() {
 
   return (
     <header className="connection-bar">
-      <span className="brand">Ontology Studio</span>
+      <span className="brand">YAOE</span>
+      <Toasts />
+      <select
+        className="workspace-switch"
+        title="Workspace — a lens for your role, not a separate product"
+        value={useWorkspace((s) => s.workspace)}
+        onChange={(e) => useWorkspace.getState().setWorkspace(e.target.value as Workspace)}
+      >
+        {Object.values(WORKSPACES).map((w) => (
+          <option key={w.id} value={w.id} title={w.hint}>
+            {w.label}
+          </option>
+        ))}
+      </select>
       {peers > 1 && (
         <span className="presence" title={`${peers} people are in this workspace right now`}>
           {peers} online
@@ -140,5 +155,23 @@ export function ConnectionBar() {
         </span>
       )}
     </header>
+  );
+}
+
+function Toasts() {
+  const toasts = useCollab((s) => s.toasts);
+  if (toasts.length === 0) return null;
+  return (
+    <div className="toast-stack">
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          className="toast"
+          onClick={() => t.iri && useGraphForToast.getState().selectResource(t.iri)}
+        >
+          {t.text}
+        </div>
+      ))}
+    </div>
   );
 }
