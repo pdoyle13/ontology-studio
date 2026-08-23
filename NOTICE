@@ -18,9 +18,6 @@ Trademarks
 ----------
 
 Elasticsearch is a trademark of Elasticsearch B.V. OpenSearch is a trademark
-of the OpenSearch Project / LF Projects. VendorB is a trademark of
-VendorB, Inc. VendorC is a trademark of VendorC GmbH. VendorA is a
-trademark of VendorA. These names are used only to describe wire-protocol
-compatibility or for factual feature comparison; this project is not
-affiliated with, endorsed by, or sponsored by any of these vendors, and
-contains none of their code.
+of the OpenSearch Project / LF Projects. These names are used only to
+describe wire-protocol compatibility; this project is not affiliated with,
+endorsed by, or sponsored by either, and contains none of their code.

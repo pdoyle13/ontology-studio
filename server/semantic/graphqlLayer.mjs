@@ -1,4 +1,4 @@
-// GraphQL-from-shapes (the VendorB pattern): SHACL node shapes ARE the
+// GraphQL-from-shapes: SHACL node shapes ARE the
 // GraphQL schema. Types come from sh:targetClass, fields from property shapes
 // (sh:name/sh:path/sh:datatype/sh:class/sh:maxCount). Resolution is hybrid:
 // virtual classes answer from live SQL via the KG-planned federation layer,
@@ -15,7 +15,7 @@ import {
   graphql,
   printSchema,
 } from 'graphql';
-import { sparql } from './meta.mjs';
+import { sparql } from '../core/meta.mjs';
 
 const SH = 'http://www.w3.org/ns/shacl#';
 const XSD = 'http://www.w3.org/2001/XMLSchema#';

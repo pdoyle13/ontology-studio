@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { pgTypeName, safeDescriptor } from './drivers.mjs';
-import { rowsToBlocks, STUDIO_NS } from './translate.mjs';
+import { rowsToBlocks, STUDIO_NS } from './semantic/translate.mjs';
 
 describe('pgTypeName', () => {
   it('maps postgres information_schema types to SQL-ish names', () => {

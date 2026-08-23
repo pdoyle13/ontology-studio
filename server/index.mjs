@@ -9,22 +9,22 @@ import express from 'express';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, basename } from 'node:path';
-import { runAgent, agentAvailable } from './agent.mjs';
-import { QueryCache, DiskCache, TieredCache } from './cache.mjs';
-import { emitR2rml, MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
-import { createDriver, safeDescriptor } from './drivers.mjs';
-import { readCatalog, planSources, queryClass } from './federation.mjs';
-import { createGraphQL } from './graphqlLayer.mjs';
-import { createSearchService } from './searchService.mjs';
-import { discoverBusinessAreas, readAlignment } from './discover.mjs';
-import { virtualInstances, virtualDescribe, virtualSearch } from './virtual.mjs';
-import { buildSpec } from './openapi.mjs';
+import { runAgent, agentAvailable } from './agent/agent.mjs';
+import { QueryCache, DiskCache, TieredCache } from './core/cache.mjs';
+import { emitR2rml, MAPPINGS_GRAPH, STUDIO } from './semantic/r2rml.mjs';
+import { createDriver, safeDescriptor, connectorKinds } from './drivers.mjs';
+import { readCatalog, planSources, queryClass } from './semantic/federation.mjs';
+import { createGraphQL } from './semantic/graphqlLayer.mjs';
+import { createSearchService } from './search/searchService.mjs';
+import { discoverBusinessAreas, readAlignment } from './semantic/discover.mjs';
+import { virtualInstances, virtualDescribe, virtualSearch } from './semantic/virtual.mjs';
+import { buildSpec } from './ops/openapi.mjs';
 import { createRequire } from 'node:module';
 import { WebSocketServer } from 'ws';
-import { createSnapshotter } from './graphAsCode.mjs';
-import { publishChange, busStatus } from './eventBus.mjs';
-import { createBackupEngine } from './backup.mjs';
-import { recordChange, readChangelog } from './changelog.mjs';
+import { createSnapshotter } from './ops/graphAsCode.mjs';
+import { publishChange, busStatus } from './ops/eventBus.mjs';
+import { createBackupEngine } from './ops/backup.mjs';
+import { recordChange, readChangelog } from './governance/changelog.mjs';
 import {
   resolveUser,
   canWriteDirect,
@@ -41,7 +41,7 @@ import {
   submitProposal,
   decideProposal,
   seedGovernance,
-} from './governance.mjs';
+} from './governance/governance.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -244,7 +244,7 @@ if (existsSync(SOURCES_FILE)) {
 const bad = (res, code, message) => res.status(code).json({ error: message });
 
 // ---------------- RDF translation (pure logic in translate.mjs) ----------------
-import { sqlTypeToXsd, classIri, propIri, translateSchema, isReadOnlySql } from './translate.mjs';
+import { sqlTypeToXsd, classIri, propIri, translateSchema, isReadOnlySql } from './semantic/translate.mjs';
 
 async function loadNTriples(nt, graph) {
   const url = graph ? `${OXIGRAPH}/store?graph=${encodeURIComponent(graph)}` : `${OXIGRAPH}/store?default`;
@@ -254,6 +254,8 @@ async function loadNTriples(nt, graph) {
 }
 
 // ---------------- routes ----------------
+app.get('/api/sql/kinds', (_req, res) => res.json(connectorKinds()));
+
 app.get('/api/sql/sources', async (_req, res) => {
   const out = [];
   for (const s of sources.values()) {

@@ -1,7 +1,7 @@
 # Ontology Studio — visual RDF/ontology editor
 
 **Owner:** Pat Doyle. **Stack:** React 19 + Vite + TS, @xyflow/react (canvas), n3 (RDF parsing), zustand (state), Oxigraph (SPARQL 1.1 store).
-**Design stance (Pat's):** SHACL-first. Shapes = the model + validation + data contracts (VendorB/DASH lineage: shapes drive forms). OWL is an import format, not a reasoning commitment. RDF/SPARQL native, no lock-in.
+**Design stance (Pat's):** SHACL-first. Shapes = the model + validation + data contracts (DASH lineage: shapes drive forms). OWL is an import format, not a reasoning commitment. RDF/SPARQL native, no lock-in.
 
 This file is the loop's working memory. Each /loop iteration: pick the next unchecked item, build it, verify (`npm run build`), check it off with a one-line note, commit.
 
@@ -65,7 +65,7 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [ ] Live agent test once ANTHROPIC_API_KEY is provided
 - [ ] SQL: Postgres/DuckDB connectors; VIRTUAL (query-time) mapping instead of materialization; incremental re-sync
 
-### Phase 8 — real semantic layer (VendorA features, VendorB/VendorC methodology) — 2026-08-22 afternoon loop
+### Phase 8 — real semantic layer (virtualization + governed-RDF methodology) — 2026-08-22 afternoon loop
 - [x] Caching tier: all UI SPARQL reads via server QueryCache (LRU+TTL, X-Cache headers, /api/cache/stats), write invalidation on update/store/materialize/agent-write. Verified MISS→HIT→invalidate→MISS.
 - [x] Mappings-as-RDF: translate emits standard R2RML (TriplesMap/logicalTable/subjectMap w/ PK templates/predicateObjectMap, FK IRI templates) into <https://studio.local/graphs/mappings>; materialize emits prov:Activity sync metadata. Governed, queryable, editable in-studio.
 - [x] Tests: 55 vitest tests / 6 suites (prefixes, mutations, constraints, translate, cache, r2rml); pure logic extracted to server/translate.mjs. `npm test`.
@@ -86,12 +86,12 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] Straight midpoint-anchored edges (no bezier cheating); layout engine extracted to src/layout/ package (types/metrics/algorithms/refine/anchors/engine; adapters in store+renderer). 84 tests.
 
 ### Phase 11 — docs, agent-first, collaboration, flow view, skills (2026-08-22 evening loop)
-- [x] docs/ (architecture · quickstart · coverage-VendorA-VendorB) + slim README; OpenAPI 3.1 (19 paths) at /api/openapi.json; Swagger UI at /api/docs
+- [x] docs/ (architecture · quickstart · coverage) + slim README; OpenAPI 3.1 (19 paths) at /api/openapi.json; Swagger UI at /api/docs
 - [x] Agentic-first: right panel opens on "What do you want to do?" intent chips; add_sql_source + translate_source tools — verified: one message attached support_desk.db, translated, linked tickets→customers by email, ran discovery
 - [x] WebSocket collaboration: /ws broadcast bus fed by cache invalidation (tag-aware graph-changed events), presence badge, debounced auto-refresh — verified across two browsers + the user's live tab
 - [x] Flow view (⛃): data warehouses → business objects (FIBO-area grouped, live rowcounts) → outputs/decisions (studio:Output + studio:consumes meta objects: Order Lineage, Customer 360, Financial Exposure); plural-aware FIBO matching (78 fields, 12/13 classes classified)
 - [x] Project skills: .claude/skills/{studio-stack, studio-verify, studio-demo, studio-agent}
-- Coverage audit verdicts in docs/coverage-VendorA-VendorB.md — VendorA gaps remaining: BI JDBC facade, authn/roles; VendorB gaps: governance workflows, GraphQL-from-shapes, SKOS editor, versioning
+- Coverage audit verdicts in docs/coverage.md — gaps remaining then: BI JDBC facade, authn/roles, governance workflows, GraphQL-from-shapes, SKOS editor, versioning
 
 ### Phase 12 — workflows, governance, audit, PITR (2026-08-22/23 'do it all' loop)
 - [x] Meta-layer-as-code: canonical .nt snapshots of every named graph auto-committed on write (graph/ dir) — ontology versioning via git, observed self-committing

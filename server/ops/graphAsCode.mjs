@@ -1,7 +1,7 @@
 // Meta-layer-as-code: every write debounces into a snapshot of each named
 // graph as CANONICAL (sorted) N-Triples under graph/, then auto-commits the
 // changed files. The ontology gets git history, diffs, review, and rollback —
-// VendorB-style versioning through plain version control.
+// ontology versioning through plain version control.
 
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';

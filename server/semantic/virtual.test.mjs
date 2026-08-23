@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { matchSubject, virtualSearch } from './virtual.mjs';
-import { QueryCache } from './cache.mjs';
+import { QueryCache } from '../core/cache.mjs';
 
 const CATALOG = [
   {

@@ -5,7 +5,7 @@
 // the per-source drivers. No structure is hardcoded — it all comes from RDF.
 
 import { MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
-import { sparql } from './meta.mjs';
+import { sparql } from '../core/meta.mjs';
 
 const RR = 'http://www.w3.org/ns/r2rml#';
 const PROV = 'http://www.w3.org/ns/prov#';

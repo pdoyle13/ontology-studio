@@ -1,6 +1,6 @@
 // SHACL layer: read NodeShapes/property shapes for a set of classes.
 // Shapes drive the inspector form (order, names, datatypes, cardinality) —
-// the VendorB/DASH pattern: the shape IS the model contract.
+// the DASH pattern: the shape IS the model contract.
 
 import type { Endpoint } from './sparqlClient';
 import { select } from './sparqlClient';

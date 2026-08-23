@@ -5,8 +5,8 @@
 // real Elasticsearch/OpenSearch cluster and _search is proxied there instead.
 
 import { SearchIndex, search } from './searchIndex.mjs';
-import { sparql } from './meta.mjs';
-import { readLabelProps } from './virtual.mjs';
+import { sparql } from '../core/meta.mjs';
+import { readLabelProps } from '../semantic/virtual.mjs';
 
 const SKOS = 'http://www.w3.org/2004/02/skos/core#';
 const ROW_CAP = 2000; // per virtual class

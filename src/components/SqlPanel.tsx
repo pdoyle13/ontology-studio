@@ -108,7 +108,13 @@ function SourceView({ source, onRemove }: { source: SourceInfo; onRemove: () => 
 
 export function SqlPanel() {
   const [sourcesList, setSourcesList] = useState<SourceInfo[] | null>(null);
-  const [kind, setKind] = useState<'sqlite' | 'postgres'>('sqlite');
+  const [kind, setKind] = useState('sqlite');
+  const [kinds, setKinds] = useState<{ kind: string; label: string; targetKind: string; experimental?: boolean }[]>([
+    { kind: 'sqlite', label: 'SQLite file', targetKind: 'file' },
+  ]);
+  useEffect(() => {
+    fetch('/api/sql/kinds').then((r) => r.json()).then(setKinds).catch(() => {});
+  }, []);
   const [target, setTarget] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -137,9 +143,13 @@ export function SqlPanel() {
   return (
     <div>
       <div className="value-row" style={{ marginBottom: 8 }}>
-        <select value={kind} onChange={(e) => setKind(e.target.value as 'sqlite' | 'postgres')}>
-          <option value="sqlite">SQLite file</option>
-          <option value="postgres">PostgreSQL</option>
+        <select value={kind} onChange={(e) => setKind(e.target.value)}>
+          {kinds.map((k) => (
+            <option key={k.kind} value={k.kind}>
+              {k.label}
+              {k.experimental ? ' (experimental)' : ''}
+            </option>
+          ))}
         </select>
         <input
           placeholder={kind === 'sqlite' ? 'path to .db / .sqlite file' : 'postgres://user:pass@host:5432/dbname'}

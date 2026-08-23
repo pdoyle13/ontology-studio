@@ -4,7 +4,7 @@
 // resolve HERE — live SQL against the owning databases, planned from the graph.
 
 import { buildSelect, mintSubject } from './federation.mjs';
-import { sparql } from './meta.mjs';
+import { sparql } from '../core/meta.mjs';
 
 const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
 const SH = 'http://www.w3.org/ns/shacl#';

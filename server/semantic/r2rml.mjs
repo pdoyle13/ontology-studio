@@ -1,7 +1,6 @@
 // R2RML mapping emission: the SQL→RDF mapping itself is RDF, written to a
-// governed mappings graph — VendorB methodology applied to virtualization.
+// governed mappings graph: the mapping is a first-class model artifact.
 // The mapping is inspectable, editable, and queryable in the studio like any
-// other model artifact (vs. VendorA, where the mapping is opaque product state).
 
 const RR = 'http://www.w3.org/ns/r2rml#';
 const RDF_ = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';

@@ -8,10 +8,10 @@ field-level cross-database links, FIBO business alignment. Instance data never
 leaves your databases: browsing, traversal, and cross-database questions
 resolve live, planned from the graph.
 
-**Why it's different**: VendorA-class virtualization (no-ETL, multi-engine,
-tiered caching) with VendorB-class semantics (SHACL contracts, shape-driven
-forms, governed mappings) — and because the whole meta layer is queryable RDF,
-a conversational agent can plan and answer across every attached database.
+**Why it's different**: no-ETL, multi-engine SQL virtualization with real
+semantics — SHACL contracts, shape-driven forms, governed R2RML mappings —
+and because the whole meta layer is queryable RDF, a conversational agent can
+plan and answer across every attached database.
 
 ## Highlights
 
@@ -34,7 +34,7 @@ a conversational agent can plan and answer across every attached database.
 |---|---|
 | [Quickstart](docs/quickstart.md) | run it, first five minutes |
 | [Architecture](docs/architecture.md) | the meta-only design, request paths, caching, code map |
-| [Coverage vs VendorA + VendorB](docs/coverage-VendorA-VendorB.md) | feature audit + known gaps |
+| [Capability coverage](docs/coverage.md) | feature audit + known gaps |
 | **API** | Swagger UI at `http://localhost:7881/api/docs` · spec at `/api/openapi.json` |
 | [ROADMAP](ROADMAP.md) | build log, phase by phase |
 

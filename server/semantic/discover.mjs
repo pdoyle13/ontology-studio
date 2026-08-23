@@ -3,7 +3,7 @@
 // governed alignment graph. The matcher's knowledge lives IN the graph
 // (skos:altLabel keywords on FIBO classes) — tuning it is a data edit.
 
-import { sparql } from './meta.mjs';
+import { sparql } from '../core/meta.mjs';
 export const FIBO_GRAPH = 'https://studio.local/graphs/fibo';
 export const ALIGNMENT_GRAPH = 'https://studio.local/graphs/alignment';
 const STUDIO = 'https://studio.local/ns#';

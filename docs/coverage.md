@@ -1,11 +1,14 @@
-# Feature coverage: VendorA + VendorB
+# Capability coverage
 
-Goal: cover VendorA's virtualization feature set and the core of VendorB's
-governance feature set — in one tool, on open standards.
+Audited against the feature sets of commercial SQL-virtualization
+platforms and RDF ontology-governance platforms.
 
-## vs VendorA (SQL virtual semantic layer)
+Goal: full SQL-virtualization coverage plus the core of an ontology
+governance platform — in one tool, on open standards.
 
-| VendorA capability | Studio status | Notes |
+## SQL virtualization / semantic data layer
+
+| Capability | Studio status | Notes |
 |---|---|---|
 | Ontology over SQL sources, no ETL | ✅ | schema translation → classes/properties; instances stay in SQL |
 | Virtual queries (no data movement) | ✅ | virtual instance layer + federation; live SELECTs, guarded |
@@ -13,17 +16,17 @@ governance feature set — in one tool, on open standards.
 | Data virtualization across databases | ✅ | field-level link declarations; joins resolved at query time |
 | Multi-tier caching | ✅ | memory LRU + persistent disk + SQL result tier, tag-scoped invalidation |
 | SQL access for consumers | ✅ | read-only SQL console per source; federation API |
-| Inheritance / IS-A | ✅ | `rdfs:subClassOf` (and real reasoning is available via SPARQL, unlike VendorA) |
-| Text-to-query for AI | ✅ stronger | Grok agent plans from the KG catalog — it federates, not just text-to-SQL |
-| Governed mapping | ✅ stronger | mappings are standard **R2RML in the graph** (VendorA's are opaque product state) |
+| Inheritance / IS-A | ✅ | `rdfs:subClassOf` (and richer reasoning is available via SPARQL) |
+| Text-to-query for AI | ✅ stronger | agent plans from the KG catalog — it federates, not just text-to-SQL |
+| Governed mapping | ✅ stronger | mappings are standard **R2RML in the graph** — governed and queryable, never opaque product state |
 | Column→business meaning | ✅ stronger | FIBO auto-discovery writes queryable alignments |
 | BI tool connectors (Tableau/PowerBI JDBC) | ❌ gap | would need a JDBC/ODBC facade — out of scope for now |
 | Row-level security / roles | ⚠ partial | role model (admin/steward/editor/viewer) gates writes; no row-level filters or real authn |
 | Live data grid over sources | ✅ | sortable/filterable/paged table per virtual class, KG-planned SQL shown inline |
 
-## vs VendorB EDG (RDF governance platform)
+## RDF modeling & governance
 
-| VendorB capability | Studio status | Notes |
+| Capability | Studio status | Notes |
 |---|---|---|
 | SHACL-native modeling | ✅ | shapes are the contract; shape editor with bnode-safe constraint edits |
 | Shape-driven forms (DASH) | ✅ | `sh:order`/`sh:name`/datatypes/cardinality/`sh:in`; `dash:LabelRole` labels |
@@ -38,13 +41,13 @@ governance feature set — in one tool, on open standards.
 
 ## The combined pitch
 
-VendorA virtualizes but has no real semantics (no SHACL, opaque mappings,
-IS-A-only reasoning). VendorB governs but doesn't virtualize SQL estates.
-The studio does both **because the mapping, the links, and the business
-vocabulary are themselves governed RDF** — which is also exactly what makes an
-AI agent able to plan across the whole estate.
+SQL virtualization products have no real semantics (no SHACL, opaque
+mappings, IS-A-only reasoning). Ontology governance products don't
+virtualize SQL estates. The studio does both **because the mapping, the
+links, and the business vocabulary are themselves governed RDF** — which is
+also exactly what makes an AI agent able to plan across the whole estate.
 
-## VendorC-style interaction (bonus coverage)
+## Exploration & interaction
 
 | Capability | Studio status |
 |---|---|
