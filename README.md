@@ -1,93 +1,49 @@
 # Ontology Studio
 
-A visual RDF / ontology editor. React + Oxigraph, SHACL-first.
+A **virtual semantic layer** and knowledge-graph workbench. React + Oxigraph +
+live SQL federation. SHACL-first.
 
-Browse, edit, and validate RDF the way it should work: **shapes are the model**. SHACL drives the forms, the validation, and the data contract — classes and instances get shape-driven editing (the VendorB/DASH pattern), and anything without a shape can have one generated from its data.
+The graph stores **meaning only** — ontology, SHACL shapes, R2RML mappings,
+field-level cross-database links, FIBO business alignment. Instance data never
+leaves your databases: browsing, traversal, and cross-database questions
+resolve live, planned from the graph.
 
-## Feature tour
+**Why it's different**: VendorA-class virtualization (no-ETL, multi-engine,
+tiered caching) with VendorB-class semantics (SHACL contracts, shape-driven
+forms, governed mappings) — and because the whole meta layer is queryable RDF,
+a conversational agent can plan and answer across every attached database.
 
-- **Connections** — any SPARQL 1.1 endpoint. Oxigraph preset (query/update/graph-store in one), generic endpoints with optional update URL (blank = read-only), Wikidata one-click preset. Saved in localStorage. Named-graph picker with triple counts.
-- **Browse** — class tree with instance counts, global search, resource inspector with grouped properties, incoming references, click-through navigation on every IRI. Curie rendering everywhere; namespaces are learned from the data automatically.
-- **Canvas** — select a resource to place it; double-click to expand its neighborhood; drag between nodes to create a triple (predicate prompt); right-click to remove; dagre auto-layout; type-colored nodes; minimap.
-- **Edit** — inline literal editing, add/remove values, add properties (curie + auto-typed values), create instances, delete resources (with incoming-reference handling). **Every write is undoable** (Ctrl+Z / Ctrl+Y) — the command layer records the SPARQL inverse of each operation, including full-snapshot restore for resource deletion.
-- **SHACL**
-  - *Forms*: resources whose class has a `sh:NodeShape` render a form built from the shape — `sh:order`, `sh:name`, required markers (`minCount`), capped adds (`maxCount`), datatype-typed inputs, instance dropdowns for `sh:class`.
-  - *Editor*: open a NodeShape and edit constraints inline (name/datatype/class/cardinality/order/pattern). Works on blank-node property shapes (edits address them via parent shape + `sh:path`).
-  - *Generate*: profile a class's instance data → draft a starter shape (observed datatypes, object classes, cardinalities).
-  - *Validate*: run `rdf-validate-shacl` over the active scope; violations appear in the Issues tab, as red rings on canvas nodes, and as per-field messages in forms.
-- **SPARQL drawer** — run SELECT/ASK/CONSTRUCT/UPDATE against the active connection; result tables with clickable IRIs; CONSTRUCT results can be thrown onto the canvas.
-- **Import / Export** — Turtle/N-Triples from file or URL, parsed client-side (syntax errors surface before upload), loaded in 5,000-triple chunks with progress; prefixed Turtle export of any graph.
+## Highlights
 
-## The semantic layer (VendorA-class features, RDF-native methodology)
+- **Attach** SQLite files or PostgreSQL URLs → one-click schema translation to
+  classes + SHACL shapes + standard R2RML (governed, in the graph)
+- **Browse live** — rowcounts, instance lists, and inspectors are live SQL;
+  the canvas walks cross-database links declared at the *field* level
+- **Agent** (Grok, typed tools only) — model the ontology, declare links,
+  discover FIBO business areas, and answer questions federated across sources
+- **SHACL end to end** — shape-driven forms with constrained inputs, shape
+  editor, validation overlays, shape generation from data
+- **Enterprise caching** — memory + disk tiers with tag-scoped invalidation,
+  plus a short-TTL SQL tier
+- **Layout engine** — scored auto-layout (crossings/overlaps/compactness),
+  straight midpoint-anchored edges
 
-The studio does what SQL "semantic layer" products pitch — but the VendorB/VendorC way: the model, the mapping, and the metadata are all governed RDF in the store, not opaque product state.
+## Docs
 
-- **SQL virtualization**: attach SQLite sources, translate schemas to ontology + **SHACL shapes**, materialize rows as typed, FK-linked RDF instances.
-- **The mapping is RDF**: every translation also emits standard **R2RML** (`rr:TriplesMap`, subject templates from PKs, FK IRI templates, column/datatype maps) into `https://studio.local/graphs/mappings` — inspect it, query it, edit it in the studio like any other model.
-- **Provenance & freshness**: each materialization writes a `prov:Activity` (source, table, counts, timestamp) — "when was this graph last synced?" is a SPARQL query.
-- **Caching tier**: all SPARQL reads route through the server cache (LRU + TTL, `X-Cache: HIT/MISS`); **every write invalidates** — SPARQL updates, graph-store loads, materializations, agent writes. Stats at `/api/cache/stats`.
-- **Agent**: a Claude-powered modeling copilot (SPARQL tools, SHACL-first prompt) for creating classes, shapes, and connections conversationally.
-
-## Tests
-
-```bash
-npm test        # vitest — client RDF layer + server translation/cache/R2RML
-```
-
-## Docker
-
-```bash
-docker compose up -d --build   # UI+server on http://localhost:8890, Oxigraph on the compose network
-```
-
-Volumes persist the store (`oxigraph-data`) and attached sources. Pass `ANTHROPIC_API_KEY` in the environment to enable the agent. Mount host folders read-only into the studio container to attach their SQLite files.
-
-## Run it
-
-```bash
-npm install
-npm run dev            # UI on http://localhost:5180
-```
-
-The dev server proxies `/db/*` to a local Oxigraph on port 7880:
-
-```bash
-oxigraph serve --location .oxigraph-data --bind 127.0.0.1:7880
-```
-
-Seed the demo dataset (music domain + shapes + one deliberately-invalid resource):
-
-```bash
-curl -X POST "http://localhost:7880/store?graph=https%3A%2F%2Fexample.org%2Fgraphs%2Fmusic" \
-  -H "Content-Type: text/turtle" --data-binary @seed/demo.ttl
-```
-
-Then: connect to **Local Oxigraph (studio)**, pick the `music` graph, open the **Issues** tab and hit *Run SHACL validation* — it will flag the album missing its required title and release year. Fix it in the shape-driven form; watch the issues clear.
-
-## Architecture
-
-```
-src/rdf/       pure RDF layer — no React
-  sparqlClient   SPARQL 1.1 protocol (query/update/graph-store), typed errors
-  queries        scope-aware reads: classes, instances, search, describe
-  mutations      single-triple writes, term parsing/serialization
-  commands       undoable command wrappers (each write carries its inverse)
-  shacl          shape reading (by class, by IRI), datatype→widget mapping
-  shapeGen       shape authoring: bnode-safe constraint edits, data profiling
-  importExport   n3 parse/serialize, chunked graph-store upload
-  prefixes       curie registry, namespace learning
-src/state/     zustand stores: connection, graph, canvas, history, validation
-src/components/  ConnectionBar, SidebarTabs (Classes/Shapes/Issues), GraphCanvas,
-                 ResourcePanel, ShapeForm, ShapeEditor, SparqlDrawer, ImportExport
-```
-
-Design choices worth knowing:
-
-- **No client-side store mirror.** The endpoint is the source of truth; the UI hydrates per-resource neighborhoods via SPARQL. Scales to graphs the browser can't hold.
-- **Graph-scope aware.** Every query runs against the selected named graph, or the union of default + all named graphs when none is picked.
-- **Writes are surgical.** Single-triple `DELETE DATA`/`INSERT DATA` (chained for replace), so concurrent editors don't stomp each other and undo is exact.
-- **Validation is client-side** over a CONSTRUCT of the scope — works against any endpoint, including ones you can't install anything on. (A server-side CI lane with pySHACL over exported Turtle is the natural companion.)
+| | |
+|---|---|
+| [Quickstart](docs/quickstart.md) | run it, first five minutes |
+| [Architecture](docs/architecture.md) | the meta-only design, request paths, caching, code map |
+| [Coverage vs VendorA + VendorB](docs/coverage-VendorA-VendorB.md) | feature audit + known gaps |
+| **API** | Swagger UI at `http://localhost:7881/api/docs` · spec at `/api/openapi.json` |
+| [ROADMAP](ROADMAP.md) | build log, phase by phase |
 
 ## Stack
 
-React 19 · Vite · TypeScript · zustand · @xyflow/react + dagre (canvas) · n3 (RDF I/O) · rdf-validate-shacl · Oxigraph
+React 19 · Vite · TypeScript · zustand · @xyflow/react · n3 ·
+rdf-validate-shacl · Express · node:sqlite · pg · Oxigraph · Grok (xAI)
+
+```bash
+npm install && npm test        # 97 tests
+docker compose up -d --build   # full stack on :8890
+```

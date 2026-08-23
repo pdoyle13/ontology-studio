@@ -6,3 +6,4 @@ server/sources.json
 server/.cache
 seed/retail_pos.db
 seed/delivery.db
+backups/

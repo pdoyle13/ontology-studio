@@ -49,6 +49,8 @@ export interface CanvasState {
   relayout: () => void;
   /** Root view: all classes as labeled nodes, connected by their object properties + subclass edges. */
   loadSchemaOverview: () => Promise<void>;
+  /** Flow view: data warehouses → business objects → outputs/decisions, layered left to right. */
+  loadFlowView: () => Promise<void>;
 }
 
 function makeNode(
@@ -291,6 +293,149 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     get().relayout();
   },
   lastLayout: null,
+
+  loadFlowView: async () => {
+    const conn = useConnection.getState();
+    const ep = conn.active();
+    if (!ep) return;
+    const STUDIO = 'https://studio.local/ns#';
+    const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
+
+    // layer 1+2: sources and their classes (live, from the virtual catalog)
+    let virt: { classIri: string; sourceId: string; table: string; rowCount: number; businessArea: string | null }[] = [];
+    try {
+      virt = await (await fetch('/api/virtual/classes')).json();
+    } catch { /* no virtual layer */ }
+    let kinds = new Map<string, string>();
+    try {
+      const srcs: { id: string; kind: string }[] = await (await fetch('/api/sql/sources')).json();
+      kinds = new Map(srcs.map((s) => [s.id, s.kind]));
+    } catch { /* fine */ }
+
+    // field-level links + outputs (meta layer)
+    let links: { p: string; dom: string; rng: string }[] = [];
+    let outputs: { iri: string; label: string; consumes: string[] }[] = [];
+    try {
+      const linkR = await select(
+        ep,
+        `SELECT ?p ?dom ?rng WHERE { ${scoped(
+          `?p <${STUDIO}sourceKeyProperty> ?sk ; <${RDFS}domain> ?dom ; <${RDFS}range> ?rng .`,
+          conn.activeGraph
+        )} }`
+      );
+      links = linkR.bindings.map((b) => ({ p: b.p.value, dom: b.dom.value, rng: b.rng.value }));
+      const outR = await select(
+        ep,
+        `SELECT ?o ?label ?c WHERE { ${scoped(
+          `?o a <${STUDIO}Output> . OPTIONAL { ?o <${RDFS}label> ?label } OPTIONAL { ?o <${STUDIO}consumes> ?c }`,
+          conn.activeGraph
+        )} }`
+      );
+      const byIri = new Map<string, { iri: string; label: string; consumes: string[] }>();
+      for (const b of outR.bindings) {
+        if (!byIri.has(b.o.value)) byIri.set(b.o.value, { iri: b.o.value, label: b.label?.value ?? localName(b.o.value), consumes: [] });
+        if (b.c) byIri.get(b.o.value)!.consumes.push(b.c.value);
+      }
+      outputs = [...byIri.values()];
+    } catch { /* partial flow still renders */ }
+
+    const nodes: RdfNode[] = [];
+    const edges: Edge[] = [];
+    const COL = { source: 40, cls: 460, out: 940 };
+
+    // sources column
+    const sourceIds = [...new Set(virt.map((v) => v.sourceId))].sort();
+    sourceIds.forEach((sid, i) => {
+      const id = `flow:source:${sid}`;
+      nodes.push({
+        id,
+        type: 'rdfNode',
+        position: { x: COL.source, y: 60 + i * 84 },
+        data: {
+          iri: id,
+          label: sid,
+          curie: sid,
+          types: [],
+          typeCurie: `${kinds.get(sid) ?? 'source'} · ${virt.filter((v) => v.sourceId === sid).length} tables`,
+          hue: 210,
+        },
+      });
+    });
+
+    // classes column, grouped by business area
+    const byArea = new Map<string, typeof virt>();
+    for (const v of virt) {
+      const area = v.businessArea ?? 'Unclassified';
+      if (!byArea.has(area)) byArea.set(area, []);
+      byArea.get(area)!.push(v);
+    }
+    let y = 40;
+    for (const [area, entries] of [...byArea.entries()].sort((a, b) => b[1].length - a[1].length)) {
+      for (const v of entries) {
+        nodes.push({
+          id: v.classIri,
+          type: 'rdfNode',
+          position: { x: COL.cls, y },
+          data: {
+            iri: v.classIri,
+            label: displayName(v.classIri, humanize(v.table)),
+            curie: v.classIri,
+            types: [],
+            typeCurie: `${area} · ${v.rowCount.toLocaleString()} rows`,
+            hue: hueFor(area),
+          },
+        });
+        edges.push({
+          id: `flow:${v.sourceId}->${v.classIri}`,
+          source: `flow:source:${v.sourceId}`,
+          target: v.classIri,
+          type: 'mid',
+          className: 'rdf-edge',
+          style: { strokeDasharray: '4 4', opacity: 0.5 },
+        });
+        y += 74;
+      }
+      y += 22; // gap between areas
+    }
+
+    // class ↔ class field-level links
+    for (const l of links) {
+      if (nodes.some((n) => n.id === l.dom) && nodes.some((n) => n.id === l.rng)) {
+        edges.push({
+          id: `flow:link:${l.p}`,
+          source: l.dom,
+          target: l.rng,
+          type: 'mid',
+          label: humanize(localName(l.p)),
+          className: 'rdf-edge',
+        });
+      }
+    }
+
+    // outputs column
+    outputs.forEach((o, i) => {
+      nodes.push({
+        id: o.iri,
+        type: 'rdfNode',
+        position: { x: COL.out, y: 120 + i * 180 },
+        data: { iri: o.iri, label: o.label, curie: o.iri, types: [], typeCurie: 'output / decision', hue: 32 },
+      });
+      for (const c of o.consumes) {
+        if (nodes.some((n) => n.id === c)) {
+          edges.push({
+            id: `flow:feeds:${o.iri}:${c}`,
+            source: c,
+            target: o.iri,
+            type: 'mid',
+            className: 'rdf-edge',
+            style: { opacity: 0.75 },
+          });
+        }
+      }
+    });
+
+    set({ nodes, edges });
+  },
 
   relayout: () => {
     const { nodes, edges, layoutAlgo } = get();

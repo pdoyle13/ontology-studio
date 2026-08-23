@@ -158,6 +158,13 @@ export function GraphCanvas() {
         <button className="ghost" onClick={loadSchemaOverview} title="Show all classes and how they connect">
           ⌂ Overview
         </button>
+        <button
+          className="ghost"
+          onClick={() => useCanvas.getState().loadFlowView()}
+          title="Data warehouses → business objects → outputs/decisions"
+        >
+          ⛃ Flow
+        </button>
         <select
           value={layoutAlgo}
           onChange={(e) => setLayoutAlgo(e.target.value as LayoutAlgo)}

@@ -1,0 +1,121 @@
+# graph: https://example.org/graphs/music
+<https://example.org/music#Album> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#Album> <http://www.w3.org/2000/01/rdf-schema#label> "Album" .
+<https://example.org/music#AlbumShape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .
+<https://example.org/music#AlbumShape> <http://www.w3.org/ns/shacl#property> _:b931bbc88646ccb919783c9e7b1f91fa .
+<https://example.org/music#AlbumShape> <http://www.w3.org/ns/shacl#property> _:c325088339c375f863cee5752e1c0b77 .
+<https://example.org/music#AlbumShape> <http://www.w3.org/ns/shacl#property> _:ded8bea60d003532dc44b8e81e955e9b .
+<https://example.org/music#AlbumShape> <http://www.w3.org/ns/shacl#property> _:e30595ad282f899f2346d4dcda4def34 .
+<https://example.org/music#AlbumShape> <http://www.w3.org/ns/shacl#targetClass> <https://example.org/music#Album> .
+<https://example.org/music#Artist> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#Artist> <http://www.w3.org/2000/01/rdf-schema#label> "Artist" .
+<https://example.org/music#Band> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#Band> <http://www.w3.org/2000/01/rdf-schema#label> "Band" .
+<https://example.org/music#Band> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://example.org/music#Artist> .
+<https://example.org/music#Idioteque> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Track> .
+<https://example.org/music#Idioteque> <http://www.w3.org/2000/01/rdf-schema#label> "Idioteque" .
+<https://example.org/music#Idioteque> <https://example.org/music#durationSec> "309"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://example.org/music#Idioteque> <https://example.org/music#onAlbum> <https://example.org/music#KidA> .
+<https://example.org/music#InRainbows> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Album> .
+<https://example.org/music#InRainbows> <https://example.org/music#releasedBy> <https://example.org/music#Radiohead> .
+<https://example.org/music#JonnyGreenwood> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#JonnyGreenwood> <http://www.w3.org/2000/01/rdf-schema#label> "Jonny Greenwood" .
+<https://example.org/music#JonnyGreenwood> <https://example.org/music#memberOf> <https://example.org/music#Radiohead> .
+<https://example.org/music#KarmaPolice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Track> .
+<https://example.org/music#KarmaPolice> <http://www.w3.org/2000/01/rdf-schema#label> "Karma Police" .
+<https://example.org/music#KarmaPolice> <https://example.org/music#durationSec> "264"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://example.org/music#KarmaPolice> <https://example.org/music#onAlbum> <https://example.org/music#OKComputer> .
+<https://example.org/music#KidA> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Album> .
+<https://example.org/music#KidA> <http://www.w3.org/2000/01/rdf-schema#label> "Kid A" .
+<https://example.org/music#KidA> <https://example.org/music#releaseYear> "2000"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://example.org/music#KidA> <https://example.org/music#releasedBy> <https://example.org/music#Radiohead> .
+<https://example.org/music#OKComputer> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Album> .
+<https://example.org/music#OKComputer> <http://www.w3.org/2000/01/rdf-schema#label> "OK Computer" .
+<https://example.org/music#OKComputer> <https://example.org/music#genre> "rock" .
+<https://example.org/music#OKComputer> <https://example.org/music#releaseYear> "1997"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://example.org/music#OKComputer> <https://example.org/music#releasedBy> <https://example.org/music#Radiohead> .
+<https://example.org/music#ParanoidAndroid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Track> .
+<https://example.org/music#ParanoidAndroid> <http://www.w3.org/2000/01/rdf-schema#label> "Paranoid Android" .
+<https://example.org/music#ParanoidAndroid> <https://example.org/music#durationSec> "387"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://example.org/music#ParanoidAndroid> <https://example.org/music#onAlbum> <https://example.org/music#OKComputer> .
+<https://example.org/music#Radiohead> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Band> .
+<https://example.org/music#Radiohead> <http://www.w3.org/2000/01/rdf-schema#label> "Radiohead" .
+<https://example.org/music#Reckoner> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Track> .
+<https://example.org/music#Reckoner> <http://www.w3.org/2000/01/rdf-schema#label> "Reckoner" .
+<https://example.org/music#Reckoner> <https://example.org/music#durationSec> "290"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://example.org/music#Reckoner> <https://example.org/music#onAlbum> <https://example.org/music#InRainbows> .
+<https://example.org/music#ThomYorke> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#ThomYorke> <http://www.w3.org/2000/01/rdf-schema#label> "Thom Yorke" .
+<https://example.org/music#ThomYorke> <https://example.org/music#memberOf> <https://example.org/music#Radiohead> .
+<https://example.org/music#Track> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#Track> <http://www.w3.org/2000/01/rdf-schema#label> "Track" .
+<https://example.org/music#TrackShape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .
+<https://example.org/music#TrackShape> <http://www.w3.org/ns/shacl#property> _:ace09ca7f541325d64929dc2e6b40ae3 .
+<https://example.org/music#TrackShape> <http://www.w3.org/ns/shacl#property> _:afe1ca64d7a938d21908f2a444a87e08 .
+<https://example.org/music#TrackShape> <http://www.w3.org/ns/shacl#property> _:d17569d0249850e6b3abf6aa20ba0abf .
+<https://example.org/music#TrackShape> <http://www.w3.org/ns/shacl#targetClass> <https://example.org/music#Track> .
+<https://example.org/music#durationSec> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#durationSec> <http://www.w3.org/2000/01/rdf-schema#label> "duration (s)" .
+<https://example.org/music#genre> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#genre> <http://www.w3.org/2000/01/rdf-schema#label> "genre" .
+<https://example.org/music#memberOf> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#memberOf> <http://www.w3.org/2000/01/rdf-schema#domain> <https://example.org/music#Artist> .
+<https://example.org/music#memberOf> <http://www.w3.org/2000/01/rdf-schema#label> "member of" .
+<https://example.org/music#memberOf> <http://www.w3.org/2000/01/rdf-schema#range> <https://example.org/music#Band> .
+<https://example.org/music#onAlbum> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#onAlbum> <http://www.w3.org/2000/01/rdf-schema#domain> <https://example.org/music#Track> .
+<https://example.org/music#onAlbum> <http://www.w3.org/2000/01/rdf-schema#label> "on album" .
+<https://example.org/music#onAlbum> <http://www.w3.org/2000/01/rdf-schema#range> <https://example.org/music#Album> .
+<https://example.org/music#releaseYear> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#releaseYear> <http://www.w3.org/2000/01/rdf-schema#label> "release year" .
+<https://example.org/music#releasedBy> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#releasedBy> <http://www.w3.org/2000/01/rdf-schema#domain> <https://example.org/music#Album> .
+<https://example.org/music#releasedBy> <http://www.w3.org/2000/01/rdf-schema#label> "released by" .
+<https://example.org/music#releasedBy> <http://www.w3.org/2000/01/rdf-schema#range> <https://example.org/music#Artist> .
+_:a43dfe30a853aadcc6eb00abe42190fc <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "classical" .
+_:a43dfe30a853aadcc6eb00abe42190fc <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
+_:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#class> <https://example.org/music#Album> .
+_:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#maxCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#minCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#name> "Album" .
+_:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#order> "3"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#path> <https://example.org/music#onAlbum> .
+_:afe1ca64d7a938d21908f2a444a87e08 <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#integer> .
+_:afe1ca64d7a938d21908f2a444a87e08 <http://www.w3.org/ns/shacl#name> "Duration (s)" .
+_:afe1ca64d7a938d21908f2a444a87e08 <http://www.w3.org/ns/shacl#order> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:afe1ca64d7a938d21908f2a444a87e08 <http://www.w3.org/ns/shacl#path> <https://example.org/music#durationSec> .
+_:b931bbc88646ccb919783c9e7b1f91fa <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#string> .
+_:b931bbc88646ccb919783c9e7b1f91fa <http://www.w3.org/ns/shacl#maxCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:b931bbc88646ccb919783c9e7b1f91fa <http://www.w3.org/ns/shacl#minCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:b931bbc88646ccb919783c9e7b1f91fa <http://www.w3.org/ns/shacl#name> "Title" .
+_:b931bbc88646ccb919783c9e7b1f91fa <http://www.w3.org/ns/shacl#order> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:b931bbc88646ccb919783c9e7b1f91fa <http://www.w3.org/ns/shacl#path> <http://www.w3.org/2000/01/rdf-schema#label> .
+_:bb2dd960700b01d01f10dbf47b9abad1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "rock" .
+_:bb2dd960700b01d01f10dbf47b9abad1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:ea6cd1403decd9021739874f90351375 .
+_:bba14a5c2ba6ca1f2ee4e9eb49968928 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "jazz" .
+_:bba14a5c2ba6ca1f2ee4e9eb49968928 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:a43dfe30a853aadcc6eb00abe42190fc .
+_:c325088339c375f863cee5752e1c0b77 <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#string> .
+_:c325088339c375f863cee5752e1c0b77 <http://www.w3.org/ns/shacl#in> _:bb2dd960700b01d01f10dbf47b9abad1 .
+_:c325088339c375f863cee5752e1c0b77 <http://www.w3.org/ns/shacl#maxCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:c325088339c375f863cee5752e1c0b77 <http://www.w3.org/ns/shacl#name> "Genre" .
+_:c325088339c375f863cee5752e1c0b77 <http://www.w3.org/ns/shacl#order> "4"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:c325088339c375f863cee5752e1c0b77 <http://www.w3.org/ns/shacl#path> <https://example.org/music#genre> .
+_:d17569d0249850e6b3abf6aa20ba0abf <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#string> .
+_:d17569d0249850e6b3abf6aa20ba0abf <http://www.w3.org/ns/shacl#minCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:d17569d0249850e6b3abf6aa20ba0abf <http://www.w3.org/ns/shacl#name> "Title" .
+_:d17569d0249850e6b3abf6aa20ba0abf <http://www.w3.org/ns/shacl#order> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:d17569d0249850e6b3abf6aa20ba0abf <http://www.w3.org/ns/shacl#path> <http://www.w3.org/2000/01/rdf-schema#label> .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#integer> .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#maxCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#minCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#minInclusive> "1900"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#name> "Release year" .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#order> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:ded8bea60d003532dc44b8e81e955e9b <http://www.w3.org/ns/shacl#path> <https://example.org/music#releaseYear> .
+_:e30595ad282f899f2346d4dcda4def34 <http://www.w3.org/ns/shacl#class> <https://example.org/music#Artist> .
+_:e30595ad282f899f2346d4dcda4def34 <http://www.w3.org/ns/shacl#minCount> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:e30595ad282f899f2346d4dcda4def34 <http://www.w3.org/ns/shacl#name> "Artist" .
+_:e30595ad282f899f2346d4dcda4def34 <http://www.w3.org/ns/shacl#order> "3"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:e30595ad282f899f2346d4dcda4def34 <http://www.w3.org/ns/shacl#path> <https://example.org/music#releasedBy> .
+_:ea6cd1403decd9021739874f90351375 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "electronic" .
+_:ea6cd1403decd9021739874f90351375 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:bba14a5c2ba6ca1f2ee4e9eb49968928 .

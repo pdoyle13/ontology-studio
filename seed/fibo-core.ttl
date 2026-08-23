@@ -25,7 +25,7 @@
 fibo-fnd-aap-ppl:Person a rdfs:Class ;
   rdfs:label "Person" ;
   skos:definition "An individual human being." ;
-  skos:altLabel "person", "name", "full name", "first name", "last name", "contact", "holder", "counterparty name" ;
+  skos:altLabel "person", "name", "full name", "first name", "last name", "contact", "holder", "counterparty name", "employee", "staff" ;
   studio:businessArea "Parties & People" .
 
 fibo-fnd-pty-pty:PartyInRole a rdfs:Class ;
@@ -88,7 +88,7 @@ fibo-fnd-pas-pas:Product a rdfs:Class ;
 fibo-fnd-pas-pas:Service a rdfs:Class ;
   rdfs:label "Service" ;
   skos:definition "Intangible value provided by one party to another." ;
-  skos:altLabel "service", "shipment", "delivery", "shipping" ;
+  skos:altLabel "service", "shipment", "delivery", "shipping", "ticket", "support ticket", "case" ;
   studio:businessArea "Products & Services" .
 
 # ---- Accounts ----

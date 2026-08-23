@@ -1,0 +1,90 @@
+# graph: https://studio.local/graphs/changelog
+<https://studio.local/ns#change/20260823033848730-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823033848730-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823033848730-0> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:38:48.73Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823033848730-0> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823033848730-0> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerA> a <http://www.w3.org/2000/01/rdf-schema#Class> ; <http://www.w3.org/2000/01/rdf-schema#label> \"PITR A\" . } }" .
+<https://studio.local/ns#change/20260823033848730-0> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823033848730-0> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823033913756-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823033913756-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823033913756-4> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:39:13.756Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823033913756-4> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823033913756-4> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerA> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerB> ?p ?o } }" .
+<https://studio.local/ns#change/20260823033913756-4> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823033913756-4> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034028170-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034028170-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034028170-0> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:40:28.17Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034028170-0> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034028170-0> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerA> a <http://www.w3.org/2000/01/rdf-schema#Class> ; <http://www.w3.org/2000/01/rdf-schema#label> \"PITR A\" . } }" .
+<https://studio.local/ns#change/20260823034028170-0> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823034028170-0> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034034268-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034034268-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034034268-4> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:40:34.268Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034034268-4> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034034268-4> <https://studio.local/ns#detail> "cp-2026-08-23T03-40-29-689Z until 2026-08-23T03:40:31.308Z" .
+<https://studio.local/ns#change/20260823034034268-4> <https://studio.local/ns#operation> "backup:restore" .
+<https://studio.local/ns#change/20260823034035099-5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034035099-5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034035099-5> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:40:35.099Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034035099-5> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034035099-5> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerA> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerB> ?p ?o } }" .
+<https://studio.local/ns#change/20260823034035099-5> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823034035099-5> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034241393-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034241393-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034241393-0> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:42:41.393Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034241393-0> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034241393-0> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerA> a <http://www.w3.org/2000/01/rdf-schema#Class> ; <http://www.w3.org/2000/01/rdf-schema#label> \"PITR A\" . } }" .
+<https://studio.local/ns#change/20260823034241393-0> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823034241393-0> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034250778-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034250778-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034250778-4> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:42:50.778Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034250778-4> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034250778-4> <https://studio.local/ns#detail> "cp-2026-08-23T03-42-42-913Z until 2026-08-23T03:42:44.226Z" .
+<https://studio.local/ns#change/20260823034250778-4> <https://studio.local/ns#operation> "backup:restore" .
+<https://studio.local/ns#change/20260823034251606-5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034251606-5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034251606-5> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:42:51.606Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034251606-5> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034251606-5> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerA> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#PitrMarkerB> ?p ?o } }" .
+<https://studio.local/ns#change/20260823034251606-5> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823034251606-5> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034629396-6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034629396-6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034629396-6> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:46:29.396Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034629396-6> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260823034629396-6> <https://studio.local/ns#detail> "Add ReviewDemo class" .
+<https://studio.local/ns#change/20260823034629396-6> <https://studio.local/ns#operation> "proposal:create" .
+<https://studio.local/ns#change/20260823034629396-6> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034629399-7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034629399-7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034629399-7> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:46:29.399Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034629399-7> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260823034629399-7> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#ReviewDemo> a <http://www.w3.org/2000/01/rdf-schema#Class> ; <http://www.w3.org/2000/01/rdf-schema#label> \"Review Demo\" . } }" .
+<https://studio.local/ns#change/20260823034629399-7> <https://studio.local/ns#operation> "propose:adds" .
+<https://studio.local/ns#change/20260823034629399-7> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034629410-8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034629410-8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034629410-8> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:46:29.41Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034629410-8> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260823034629410-8> <https://studio.local/ns#detail> "Add ReviewDemo class" .
+<https://studio.local/ns#change/20260823034629410-8> <https://studio.local/ns#operation> "proposal:submit" .
+<https://studio.local/ns#change/20260823034629410-8> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034629418-9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034629418-9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034629418-9> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:46:29.418Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034629418-9> <https://studio.local/ns#actor> "sam" .
+<https://studio.local/ns#change/20260823034629418-9> <https://studio.local/ns#detail> "Add ReviewDemo class (+2/−0)" .
+<https://studio.local/ns#change/20260823034629418-9> <https://studio.local/ns#operation> "proposal:merged" .
+<https://studio.local/ns#change/20260823034629418-9> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260823034629431-10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260823034629431-10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260823034629431-10> <http://www.w3.org/ns/prov#endedAtTime> "2026-08-23T03:46:29.431Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260823034629431-10> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260823034629431-10> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://studio.local/model#ReviewDemo> ?p ?o } }" .
+<https://studio.local/ns#change/20260823034629431-10> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260823034629431-10> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .

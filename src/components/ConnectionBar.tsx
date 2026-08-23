@@ -2,11 +2,17 @@ import { useState } from 'react';
 import { useConnection } from '../state/connection';
 import { oxigraphEndpoint } from '../rdf/sparqlClient';
 import { ImportExportDialog } from './ImportExport';
+import { useUi } from '../state/ui';
+import { useCollab } from '../state/collab';
+import { useIdentity } from '../state/identity';
 
 export function ConnectionBar() {
-  const [showImport, setShowImport] = useState(false);
+  const showImport = useUi((s) => s.importExportOpen);
+  const setShowImport = useUi((s) => s.setImportExportOpen);
   const { endpoints, activeId, status, statusMessage, graphs, activeGraph, connect, addEndpoint, setActiveGraph } =
     useConnection();
+  const peers = useCollab((s) => s.peers);
+  const identity = useIdentity();
   const [adding, setAdding] = useState(false);
   const [kind, setKind] = useState<'oxigraph' | 'generic'>('oxigraph');
   const [url, setUrl] = useState('http://localhost:7880');
@@ -36,6 +42,11 @@ export function ConnectionBar() {
   return (
     <header className="connection-bar">
       <span className="brand">Ontology Studio</span>
+      {peers > 1 && (
+        <span className="presence" title={`${peers} people are in this workspace right now`}>
+          {peers} online
+        </span>
+      )}
       <span className={dotClass} title={statusMessage} />
       <select
         value={activeId ?? ''}
@@ -72,6 +83,21 @@ export function ConnectionBar() {
           Import / Export
         </button>
       )}
+      <select
+        className="acting-as"
+        value={identity.actingUser}
+        onChange={(e) => {
+          identity.setActingUser(e.target.value);
+          location.reload();
+        }}
+        title="Acting as (governance identity)"
+      >
+        {(identity.users.length ? identity.users : [{ name: identity.actingUser, role: '?', governs: [] }]).map((u) => (
+          <option key={u.name} value={u.name}>
+            {u.name} ({u.role})
+          </option>
+        ))}
+      </select>
       <button className="ghost" onClick={() => setAdding(!adding)}>
         {adding ? 'Cancel' : '+ Endpoint'}
       </button>

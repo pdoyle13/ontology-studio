@@ -1,0 +1,15 @@
+#!/bin/sh
+# Pre-commit gate: unit tests must pass. (Build runs in CI; tests are fast.)
+# Skip for graph-snapshot auto-commits (data, not code).
+staged=$(git diff --cached --name-only)
+case "$staged" in
+  graph/*) only_graph=true ;;
+esac
+if [ "$only_graph" = "true" ] && ! echo "$staged" | grep -qv '^graph/'; then
+  exit 0
+fi
+echo "pre-commit: running tests…"
+npx vitest run --silent || {
+  echo "pre-commit: tests failed — commit blocked (use --no-verify only if you mean it)"
+  exit 1
+}

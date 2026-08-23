@@ -1,0 +1,200 @@
+# graph: https://studio.local/graphs/fibo
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2000/01/rdf-schema#label> "Account" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2004/02/skos/core#altLabel> "account id" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2004/02/skos/core#altLabel> "account number" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2004/02/skos/core#altLabel> "account" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2004/02/skos/core#altLabel> "accounts" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2004/02/skos/core#altLabel> "iban" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <http://www.w3.org/2004/02/skos/core#definition> "A container for records of financial activity between parties." .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/ClientsAndAccounts/Account> <https://studio.local/ns#businessArea> "Accounts & Banking" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <http://www.w3.org/2000/01/rdf-schema#label> "Financial Service" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <http://www.w3.org/2004/02/skos/core#altLabel> "credit" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <http://www.w3.org/2004/02/skos/core#altLabel> "deposit" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <http://www.w3.org/2004/02/skos/core#altLabel> "loan" .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <http://www.w3.org/2004/02/skos/core#definition> "A service provided by the financial services industry." .
+<https://spec.edmcouncil.org/fibo/ontology/FBC/ProductsAndServices/FinancialProductsAndServices/FinancialService> <https://studio.local/ns#businessArea> "Accounts & Banking" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <http://www.w3.org/2000/01/rdf-schema#label> "Currency" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <http://www.w3.org/2004/02/skos/core#altLabel> "ccy" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <http://www.w3.org/2004/02/skos/core#altLabel> "currency code" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <http://www.w3.org/2004/02/skos/core#altLabel> "currency" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <http://www.w3.org/2004/02/skos/core#definition> "A medium of exchange value defined by reference to a geopolitical or economic area." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/Currency> <https://studio.local/ns#businessArea> "Money & Accounting" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2000/01/rdf-schema#label> "Monetary Amount" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "amount" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "balance" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "claim amount" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "cost" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "fee" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "gross amount" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "net amount" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "premium" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "price" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "salary" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "total amount" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "total" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#altLabel> "value" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <http://www.w3.org/2004/02/skos/core#definition> "A number of monetary units specified in a currency." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryAmount> <https://studio.local/ns#businessArea> "Money & Accounting" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <http://www.w3.org/2000/01/rdf-schema#label> "Monetary Price" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <http://www.w3.org/2004/02/skos/core#altLabel> "list price" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <http://www.w3.org/2004/02/skos/core#altLabel> "rate" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <http://www.w3.org/2004/02/skos/core#altLabel> "unit price" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <http://www.w3.org/2004/02/skos/core#definition> "A price expressed as a monetary amount." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Accounting/CurrencyAmount/MonetaryPrice> <https://studio.local/ns#businessArea> "Money & Accounting" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2000/01/rdf-schema#label> "Person" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "contact" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "counterparty name" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "employee" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "first name" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "full name" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "holder" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "last name" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "name" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "person" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#altLabel> "staff" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <http://www.w3.org/2004/02/skos/core#definition> "An individual human being." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/AgentsAndPeople/People/Person> <https://studio.local/ns#businessArea> "Parties & People" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2000/01/rdf-schema#label> "Contract" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#altLabel> "agreement" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#altLabel> "contract" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#altLabel> "policy number" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#altLabel> "policy ref" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#altLabel> "policy" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#altLabel> "terms" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <http://www.w3.org/2004/02/skos/core#definition> "A voluntary, deliberate agreement between competent parties." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Agreements/Contracts/Contract> <https://studio.local/ns#businessArea> "Agreements & Contracts" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2000/01/rdf-schema#label> "Identifier" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "code" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "id" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "identifier" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "number" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "order number" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "order ref" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "receipt no" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "ref" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "reference" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "tracking no" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#altLabel> "tracking ref" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <http://www.w3.org/2004/02/skos/core#definition> "A sequence of characters uniquely identifying something within a context." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Arrangements/IdentifiersAndIndices/Identifier> <https://studio.local/ns#businessArea> "Identifiers" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2000/01/rdf-schema#label> "Date" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "created at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "date" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "end date" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "executed at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "filed at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "hired at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "occurred at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "opened at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "pay period" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "shipped at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "sold at" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "start date" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#altLabel> "timestamp" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <http://www.w3.org/2004/02/skos/core#definition> "A calendar day on some calendar." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/DatesAndTimes/FinancialDates/Date> <https://studio.local/ns#businessArea> "Dates & Times" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2000/01/rdf-schema#label> "Formal Organization" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "carrier" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "company" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "department" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "employer" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "organization" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "supplier" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#altLabel> "vendor" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <http://www.w3.org/2004/02/skos/core#definition> "An organization recognized by some legal jurisdiction." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Organizations/FormalOrganizations/FormalOrganization> <https://studio.local/ns#businessArea> "Parties & People" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <http://www.w3.org/2000/01/rdf-schema#label> "Party In Role" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <http://www.w3.org/2004/02/skos/core#altLabel> "agent" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <http://www.w3.org/2004/02/skos/core#altLabel> "party" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <http://www.w3.org/2004/02/skos/core#altLabel> "role" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <http://www.w3.org/2004/02/skos/core#definition> "A party playing a role in a business relationship." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Parties/Parties/PartyInRole> <https://studio.local/ns#businessArea> "Parties & People" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <http://www.w3.org/2000/01/rdf-schema#label> "Electronic Mail Address" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "e-mail" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "email" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "mail" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <http://www.w3.org/2004/02/skos/core#definition> "An address for electronic mail delivery." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/ElectronicMailAddress> <https://studio.local/ns#businessArea> "Communications" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Address" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "address" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "city" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "postal code" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "state" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "street" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#altLabel> "zip" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <http://www.w3.org/2004/02/skos/core#definition> "A postal address at which a party is located." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Addresses/PhysicalAddress> <https://studio.local/ns#businessArea> "Locations" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2000/01/rdf-schema#label> "Physical Location" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2004/02/skos/core#altLabel> "location" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2004/02/skos/core#altLabel> "region" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2004/02/skos/core#altLabel> "site" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2004/02/skos/core#altLabel> "warehouse" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2004/02/skos/core#altLabel> "warehouses" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <http://www.w3.org/2004/02/skos/core#definition> "A place in physical space." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/Places/Locations/PhysicalLocation> <https://studio.local/ns#businessArea> "Locations" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2000/01/rdf-schema#label> "Customer" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "buyer" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "client" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "customer email" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "customer id" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "customer ref" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "customer" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "customers" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#altLabel> "holder email" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <http://www.w3.org/2004/02/skos/core#definition> "A party that receives or purchases products or services." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Customer> <https://studio.local/ns#businessArea> "Parties & People" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/2000/01/rdf-schema#label> "Product" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/2004/02/skos/core#altLabel> "goods" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/2004/02/skos/core#altLabel> "item" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/2004/02/skos/core#altLabel> "product" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/2004/02/skos/core#altLabel> "sku" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <http://www.w3.org/2004/02/skos/core#definition> "Anything offered to a market to satisfy a want or need." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Product> <https://studio.local/ns#businessArea> "Products & Services" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2000/01/rdf-schema#label> "Service" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "case" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "delivery" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "service" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "shipment" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "shipping" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "support ticket" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#altLabel> "ticket" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <http://www.w3.org/2004/02/skos/core#definition> "Intangible value provided by one party to another." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Service> <https://studio.local/ns#businessArea> "Products & Services" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2000/01/rdf-schema#label> "Transaction" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "claim" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "order" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "orders" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "payment" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "payroll" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "purchase" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "sale" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "transaction" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#altLabel> "transactions" .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <http://www.w3.org/2004/02/skos/core#definition> "An agreement or exchange between parties carried out in the course of business." .
+<https://spec.edmcouncil.org/fibo/ontology/FND/ProductsAndServices/ProductsAndServices/Transaction> <https://studio.local/ns#businessArea> "Agreements & Contracts" .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/2000/01/rdf-schema#label> "Lifecycle Status" .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/2004/02/skos/core#altLabel> "event" .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/2004/02/skos/core#altLabel> "stage" .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/2004/02/skos/core#altLabel> "state" .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/2004/02/skos/core#altLabel> "status" .
+<https://studio.local/ns#LifecycleStatus> <http://www.w3.org/2004/02/skos/core#definition> "The current stage of a business object in its lifecycle." .
+<https://studio.local/ns#LifecycleStatus> <https://studio.local/ns#businessArea> "Lifecycle & Events" .

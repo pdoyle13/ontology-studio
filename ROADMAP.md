@@ -85,6 +85,14 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] VERIFIED END GOAL: Grok answered "which customers have shipped-but-undelivered orders and where are the packages now" from LIVE data across 4 engines/5 databases — 1 catalog call + 10 chained federated queries, correct answer (Alan Turing / ORD-1004 / TRK-77003 in_transit Cary NC, delivered ORD-1001 excluded), per-fact source attribution. BECAUSE of the knowledge graph.
 - [x] Straight midpoint-anchored edges (no bezier cheating); layout engine extracted to src/layout/ package (types/metrics/algorithms/refine/anchors/engine; adapters in store+renderer). 84 tests.
 
+### Phase 11 — docs, agent-first, collaboration, flow view, skills (2026-08-22 evening loop)
+- [x] docs/ (architecture · quickstart · coverage-VendorA-VendorB) + slim README; OpenAPI 3.1 (19 paths) at /api/openapi.json; Swagger UI at /api/docs
+- [x] Agentic-first: right panel opens on "What do you want to do?" intent chips; add_sql_source + translate_source tools — verified: one message attached support_desk.db, translated, linked tickets→customers by email, ran discovery
+- [x] WebSocket collaboration: /ws broadcast bus fed by cache invalidation (tag-aware graph-changed events), presence badge, debounced auto-refresh — verified across two browsers + the user's live tab
+- [x] Flow view (⛃): data warehouses → business objects (FIBO-area grouped, live rowcounts) → outputs/decisions (studio:Output + studio:consumes meta objects: Order Lineage, Customer 360, Financial Exposure); plural-aware FIBO matching (78 fields, 12/13 classes classified)
+- [x] Project skills: .claude/skills/{studio-stack, studio-verify, studio-demo, studio-agent}
+- Coverage audit verdicts in docs/coverage-VendorA-VendorB.md — VendorA gaps remaining: BI JDBC facade, authn/roles; VendorB gaps: governance workflows, GraphQL-from-shapes, SKOS editor, versioning
+
 ## Log
 (one line per iteration: date, what shipped)
 - 2026-08-22: FINAL — Playwright E2E smoke (8/8 pass, console clean: connect→browse→shape form→canvas→validation→SPARQL→shape editor). Fixed real bug it caught: SPARQL drawer wasn't graph-scoped (now sends default-graph-uri, or union-default-graph on Oxigraph when no graph picked). Loop wound down; core brief fully delivered.

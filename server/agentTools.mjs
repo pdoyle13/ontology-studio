@@ -63,8 +63,28 @@ const bool = { type: 'boolean' };
 
 /** Tool registry: JSON-schema defs + async executors. federation (optional):
  *  { readCatalog(), queryClass({classIri, columns, filters, limit}) } */
-export function buildTools({ oxigraph, graph, namespace, federation }) {
+export function buildTools({ oxigraph, graph, namespace, federation, writePolicy }) {
   const c = ctx(oxigraph, graph);
+  // governance: route writes through the policy - stage into a proposal, or
+  // refuse when the acting user lacks direct-write rights on this graph
+  if (writePolicy) {
+    const rawUpdate = c.update.bind(c);
+    c.update = async (u) => {
+      if (writePolicy.proposalId) {
+        await writePolicy.stage(u);
+        return 'STAGED into proposal ' + writePolicy.proposalId + ' (pending review - not yet applied)';
+      }
+      if (!writePolicy.canDirect) {
+        throw new Error(
+          "acting user '" + writePolicy.user + "' (" + writePolicy.role + ") may not write directly to this graph. " +
+          'Create a proposal (POST /api/proposals) and rerun with it, or ask a steward/admin.'
+        );
+      }
+      const out = await rawUpdate(u);
+      writePolicy.journal?.(u);
+      return out;
+    };
+  }
   const ns = namespace || DEFAULT_NS;
   const STUDIO_NS = 'https://studio.local/ns#';
 
@@ -346,6 +366,38 @@ export function buildTools({ oxigraph, graph, namespace, federation }) {
               targetKeyProperty: b.tk?.value ?? null,
             }));
           return JSON.stringify({ classes: catalog, links });
+        },
+      },
+      {
+        name: 'add_sql_source',
+        description:
+          'Attach a new SQL datasource to the studio: a SQLite file path or a PostgreSQL connection URL. After attaching, call translate_source to bring its schema into the graph as classes + shapes + mappings.',
+        parameters: {
+          type: 'object',
+          properties: {
+            kind: { type: 'string', enum: ['sqlite', 'postgres'] },
+            target: { type: 'string', description: 'file path (sqlite) or postgres://user:pass@host:port/db' },
+            id: { type: 'string', description: 'optional short identifier' },
+          },
+          required: ['kind', 'target'],
+        },
+        run: async ({ kind, target, id }) => {
+          const s = await federation.addSource({ kind, target, id });
+          return `attached source '${s.id}' (${s.kind}, ${s.tables} tables). Next: translate_source to model it in the graph.`;
+        },
+      },
+      {
+        name: 'translate_source',
+        description:
+          'Translate an attached datasource schema into the graph META layer: classes, properties, SHACL shapes (with label roles), and R2RML mappings. No instance data is copied — instances stay in the database and resolve live.',
+        parameters: {
+          type: 'object',
+          properties: { sourceId: str, namespace: str },
+          required: ['sourceId'],
+        },
+        run: async ({ sourceId, namespace }) => {
+          const r = await federation.translateSource({ sourceId, graph, namespace });
+          return `translated '${sourceId}': ${r.tables} tables → ${r.triples} schema triples + ${r.mappingTriples} R2RML mapping triples${graph ? ` in <${graph}>` : ''}. Classes are browsable now; consider discover_business_areas and declare_link for cross-database connections.`;
         },
       },
       {

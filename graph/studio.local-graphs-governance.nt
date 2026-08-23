@@ -1,0 +1,20 @@
+# graph: https://studio.local/graphs/governance
+<https://studio.local/ns#proposal/pmt59mdn7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt59mdn7> <http://www.w3.org/2000/01/rdf-schema#label> "Add ReviewDemo class" .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#createdAt> "2026-08-23T03:46:29.395Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#decisionNote> "looks right" .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#proposalId> "pmt59mdn7" .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#reviewer> "sam" .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#status> "merged" .
+<https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#user/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#User> .
+<https://studio.local/ns#user/pat> <http://www.w3.org/2000/01/rdf-schema#label> "pat" .
+<https://studio.local/ns#user/pat> <https://studio.local/ns#role> "admin" .
+<https://studio.local/ns#user/quinn> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#User> .
+<https://studio.local/ns#user/quinn> <http://www.w3.org/2000/01/rdf-schema#label> "quinn" .
+<https://studio.local/ns#user/quinn> <https://studio.local/ns#role> "editor" .
+<https://studio.local/ns#user/sam> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#User> .
+<https://studio.local/ns#user/sam> <http://www.w3.org/2000/01/rdf-schema#label> "sam" .
+<https://studio.local/ns#user/sam> <https://studio.local/ns#governs> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#user/sam> <https://studio.local/ns#role> "steward" .

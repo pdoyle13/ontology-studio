@@ -66,6 +66,12 @@ async function detectNamespace(oxigraph, graph) {
   return null;
 }
 
+function fallbackReply(trace) {
+  if (trace.length === 0) return '(no reply)';
+  const ok = trace.filter((t) => t.ok).map((t) => t.tool);
+  return `Done — executed: ${ok.join(', ')}. (The model returned no summary; see the tool trace.)`;
+}
+
 // ---------------- xAI (OpenAI-format) loop ----------------
 async function runXai({ cfg, messages, tools, system }) {
   const toolDefs = tools.defs.map((t) => ({
@@ -89,7 +95,8 @@ async function runXai({ cfg, messages, tools, system }) {
     convo.push(msg);
 
     if (!msg.tool_calls || msg.tool_calls.length === 0) {
-      return { reply: msg.content ?? '(no reply)', trace };
+      const reply = (msg.content ?? '').trim() || fallbackReply(trace);
+      return { reply, trace };
     }
 
     for (const call of msg.tool_calls) {
@@ -152,12 +159,12 @@ async function runAnthropic({ cfg, messages, tools, system }) {
   return { reply: '(agent hit the turn limit — check the trace for what was applied)', trace };
 }
 
-export async function runAgent({ messages, graph, oxigraph, federation }) {
+export async function runAgent({ messages, graph, oxigraph, federation, writePolicy }) {
   const cfg = providerConfig();
   if (!cfg) throw new Error('No agent API key: set GROK_API_KEY (or XAI_API_KEY / ANTHROPIC_API_KEY) on the studio server');
 
   const namespace = (await detectNamespace(oxigraph, graph)) ?? undefined;
-  const tools = buildTools({ oxigraph, graph, namespace, federation });
+  const tools = buildTools({ oxigraph, graph, namespace, federation, writePolicy });
   const system = [
     SYSTEM,
     graph ? `Active named graph: <${graph}> — all tool writes are scoped to it automatically.` : 'No named graph selected — tools write to the default graph.',

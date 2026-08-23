@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { ConnectionBar } from './components/ConnectionBar';
 import { AgentPanel } from './components/AgentPanel';
+import { useUi } from './state/ui';
 import { useHistory } from './state/history';
 import { useGraph } from './state/graph';
 import { SidebarTabs } from './components/SidebarTabs';
@@ -8,11 +9,19 @@ import { ResourcePanel } from './components/ResourcePanel';
 import { GraphCanvas } from './components/GraphCanvas';
 import { SparqlDrawer } from './components/SparqlDrawer';
 import { useConnection } from './state/connection';
+import { startCollab } from './state/collab';
+import { startIdentity } from './state/identity';
 import './App.css';
 
 export default function App() {
   const status = useConnection((s) => s.status);
-  const [rightTab, setRightTab] = useState<'inspector' | 'agent'>('inspector');
+  const rightTab = useUi((s) => s.rightTab);
+  const setRightTab = useUi((s) => s.setRightTab);
+
+  useEffect(() => {
+    startIdentity();
+    startCollab();
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

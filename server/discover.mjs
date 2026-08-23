@@ -62,6 +62,7 @@ export const tokenize = (name) =>
 export function matchField(name, index) {
   const phrase = tokenize(name);
   const words = new Set(phrase.split(' '));
+  for (const w of [...words]) if (w.endsWith('s') && w.length > 3) words.add(w.slice(0, -1)); // plural -> singular
   let best = null;
   for (const concept of index) {
     let score = 0;

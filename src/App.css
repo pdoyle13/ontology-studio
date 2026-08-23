@@ -443,3 +443,41 @@ button.micro.add-field:hover { color: var(--accent); }
   border-radius: var(--radius);
   opacity: 0.85;
 }
+
+/* ---- agent welcome / intent chips ---- */
+.agent-welcome { padding: 8px 2px; }
+.welcome-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; letter-spacing: -0.01em; }
+.intent-chips { display: flex; flex-direction: column; gap: 6px; }
+.intent-chip {
+  text-align: left;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  padding: 7px 11px;
+  font-size: 12.5px;
+}
+.intent-chip:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---- presence ---- */
+.presence {
+  font: 10.5px var(--mono);
+  color: var(--ok);
+  border: 1px solid var(--ok);
+  border-radius: var(--radius);
+  padding: 0 7px;
+  opacity: 0.9;
+}
+
+/* ---- governance / proposals ---- */
+.acting-as { font-family: var(--mono); font-size: 11px; }
+.proposal-detail { margin-top: 6px; }
+.proposal-diff {
+  font: 10.5px/1.5 var(--mono);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  padding: 6px;
+  max-height: 220px;
+  overflow: auto;
+  word-break: break-all;
+}
+.diff-add { color: var(--ok); }
+.diff-del { color: var(--err); }
