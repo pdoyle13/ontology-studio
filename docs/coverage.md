@@ -18,7 +18,8 @@ governance feature set — in one tool, on open standards.
 | Governed mapping | ✅ stronger | mappings are standard **R2RML in the graph** (VendorA's are opaque product state) |
 | Column→business meaning | ✅ stronger | FIBO auto-discovery writes queryable alignments |
 | BI tool connectors (Tableau/PowerBI JDBC) | ❌ gap | would need a JDBC/ODBC facade — out of scope for now |
-| Row-level security / roles | ❌ gap | no authn/authz yet |
+| Row-level security / roles | ⚠ partial | role model (admin/steward/editor/viewer) gates writes; no row-level filters or real authn |
+| Live data grid over sources | ✅ | sortable/filterable/paged table per virtual class, KG-planned SQL shown inline |
 
 ## vs VendorB EDG (RDF governance platform)
 
@@ -29,10 +30,10 @@ governance feature set — in one tool, on open standards.
 | Validation | ✅ | client-side rdf-validate-shacl; violations on forms + canvas + Issues tab |
 | Ontology authoring UI | ✅ | classes, properties, instances (meta), undo/redo on every write |
 | Generate model from data | ✅ | shape generation from instance profiles; schema translation from SQL |
-| Taxonomies (SKOS) | ⚠ partial | SKOS prefixes/labels supported; no dedicated taxonomy editor |
-| Governance workflows (roles, approvals, versioning) | ❌ gap | no workflow engine; git-style graph versioning would be the studio-native answer |
-| Reference/master data management | ⚠ partial | instances-as-meta editing exists; no stewardship workflows |
-| GraphQL from shapes | ❌ gap | natural next step given shapes are first-class |
+| Taxonomies (SKOS) | ✅ | Taxonomy tab: scheme picker, broader/narrower tree, drag re-parent, drop-to-promote, rename — all undoable |
+| Governance workflows (roles, approvals, versioning) | ✅ | proposals with staged diffs, steward-of-target review, merge/reject audit trail; graph-as-code snapshots + Kafka journal + checkpoint PITR |
+| Reference/master data management | ⚠ partial | stewardship via `studio:governs` + proposal review; no match/merge tooling |
+| GraphQL from shapes | ✅ | `/api/graphql` + SDL: types from NodeShapes; virtual classes resolve via live SQL, meta classes from the graph |
 | Import/export (Turtle, N-Triples) | ✅ | file + URL import, prefixed export; JSON-LD/RDF-XML still open |
 
 ## The combined pitch
@@ -43,5 +44,15 @@ The studio does both **because the mapping, the links, and the business
 vocabulary are themselves governed RDF** — which is also exactly what makes an
 AI agent able to plan across the whole estate.
 
-Known gaps worth building next: BI connector facade, authn/roles,
-GraphQL-from-shapes, SKOS taxonomy view, graph versioning.
+## VendorC-style interaction (bonus coverage)
+
+| Capability | Studio status |
+|---|---|
+| Unified keyword search (omnibox) | ✅ Ctrl+K over model terms + live rows in every database |
+| Saved queries | ✅ named SPARQL/SQL snippets persisted in `graphs/queries` |
+| Canvas exploration | ✅ drag-drop, context menus, drag-to-relate, box-select, Delete-to-hide, PNG export |
+| Collaborative editing | ✅ WebSocket graph-change broadcasts + presence |
+| Conversational entry point | ✅ agent-first panel with typed tools incl. `graphql_query` |
+
+Known gaps worth building next: BI connector facade (JDBC/ODBC), real authn,
+row-level security, SKOS match/merge stewardship, JSON-LD / RDF-XML export.

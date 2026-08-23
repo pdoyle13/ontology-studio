@@ -159,12 +159,12 @@ async function runAnthropic({ cfg, messages, tools, system }) {
   return { reply: '(agent hit the turn limit — check the trace for what was applied)', trace };
 }
 
-export async function runAgent({ messages, graph, oxigraph, federation, writePolicy }) {
+export async function runAgent({ messages, graph, oxigraph, federation, writePolicy, graphqlExec }) {
   const cfg = providerConfig();
   if (!cfg) throw new Error('No agent API key: set GROK_API_KEY (or XAI_API_KEY / ANTHROPIC_API_KEY) on the studio server');
 
   const namespace = (await detectNamespace(oxigraph, graph)) ?? undefined;
-  const tools = buildTools({ oxigraph, graph, namespace, federation, writePolicy });
+  const tools = buildTools({ oxigraph, graph, namespace, federation, writePolicy, graphqlExec });
   const system = [
     SYSTEM,
     graph ? `Active named graph: <${graph}> — all tool writes are scoped to it automatically.` : 'No named graph selected — tools write to the default graph.',

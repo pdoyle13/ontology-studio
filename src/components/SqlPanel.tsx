@@ -23,33 +23,12 @@ function TableRow({ source, table, ns }: { source: string; table: TableInfo; ns:
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
 
-  const materialize = async () => {
-    setBusy(true);
-    setMsg('');
-    try {
-      const r = await api<{ rows: number; triples: number }>(`/api/sql/sources/${source}/materialize`, {
-        method: 'POST',
-        body: JSON.stringify({ table: table.name, graph: conn.activeGraph, namespace: ns }),
-      });
-      setMsg(`${r.rows.toLocaleString()} rows → ${r.triples.toLocaleString()} triples`);
-      await conn.refreshGraphs();
-      await loadClasses();
-    } catch (e) {
-      setMsg((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
   return (
     <li className="sql-table">
       <div className="class-row" onClick={() => setOpen(!open)}>
         <span className="twisty">{open ? '▾' : '▸'}</span>
         <span className="class-name">{table.name}</span>
         <span className="count">{table.rowCount.toLocaleString()}</span>
-        <button className="micro" disabled={busy} title="Materialize rows to RDF" onClick={(e) => { e.stopPropagation(); materialize(); }}>
-          {busy ? '…' : '→RDF'}
-        </button>
       </div>
       {msg && <div className="term-meta" style={{ marginLeft: 18 }}>{msg}</div>}
       {open && (

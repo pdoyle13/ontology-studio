@@ -36,6 +36,8 @@ predicate plus the two join-key properties — and instance joins happen live.
 | Alignment | Oxigraph (`graphs/alignment`) | `studio:businessConcept` per field — written by auto-discovery |
 | Links | active graph | field-level connections: predicate + `studio:sourceKeyProperty`/`targetKeyProperty` |
 | Instances | **SQL sources** | fetched live via the virtual layer / federation |
+| Taxonomies | active graph | SKOS schemes/concepts edited in the Taxonomy tab |
+| Saved queries | Oxigraph (`graphs/queries`) | named SPARQL/SQL snippets (journaled like all graphs) |
 
 ## Request paths
 
@@ -48,8 +50,12 @@ predicate plus the two join-key properties — and instance joins happen live.
   database → guarded SQL (column/op whitelists, escaped literals, capped).
 - **Agent** — Grok with typed tools only: schema/catalog reads, ontology
   authoring (classes/shapes/instances in the *meta* sense), `declare_link`,
-  `query_source_data`, `discover_business_areas`. It never writes raw SPARQL
-  updates and never inserts instance data into the graph.
+  `query_source_data`, `graphql_query`, `discover_business_areas`. It never
+  writes raw SPARQL updates and never inserts instance data into the graph.
+- **GraphQL** — `POST /api/graphql` (`GET /api/graphql/sdl` for the SDL).
+  SHACL node shapes generate the schema; resolvers answer from live SQL for
+  virtual classes and from the graph for meta classes. The schema memo is
+  invalidated by any graph change.
 
 ## Caching (see `server/cache.mjs`)
 
@@ -71,8 +77,10 @@ src/rdf/        client RDF layer (sparql client, queries, mutations, commands,
 src/state/      zustand stores: connection, graph, canvas, history, validation
 src/layout/     pure layout engine (algorithms, metrics, refine, anchors)
 src/components/ ConnectionBar, SidebarTabs, ClassTree, GraphCanvas, ResourcePanel,
-                ShapeForm, ShapeEditor, SparqlDrawer, SqlPanel, AgentPanel, …
-server/         index (routes+cache wiring), drivers, translate, r2rml,
-                federation, virtual, discover, cache, agent, agentTools
+                ShapeForm, ShapeEditor, SparqlDrawer, SqlPanel, AgentPanel,
+                DataGrid, Omnibox, TaxonomyPanel, ProposalsPanel, …
+server/         index (routes+cache wiring), meta (shared sparql), drivers,
+                translate, r2rml, federation, virtual, discover, cache,
+                graphqlLayer, governance, eventBus, backup, agent, agentTools
 seed/           demo data: music ontology, FIBO core, sqlite databases
 ```

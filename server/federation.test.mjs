@@ -32,6 +32,18 @@ describe('buildSelect', () => {
     expect(() => buildSelect(ENTRY, { columns: ['nope'] })).toThrow(/no known columns/);
   });
 
+  it('sorts and pages with guarded columns', () => {
+    const sql = buildSelect(ENTRY, { orderBy: { column: 'status', dir: 'desc' }, limit: 50, offset: 100 });
+    expect(sql).toContain('ORDER BY "status" DESC');
+    expect(sql).toContain('LIMIT 50 OFFSET 100');
+    expect(() => buildSelect(ENTRY, { orderBy: { column: 'evil' } })).toThrow(/unknown sort column/);
+  });
+
+  it('emits portable case-insensitive ILIKE', () => {
+    const sql = buildSelect(ENTRY, { filters: [{ column: 'status', op: 'ILIKE', value: '%Turing%' }] });
+    expect(sql).toContain(`LOWER("status") LIKE '%turing%'`);
+  });
+
   it('caps the limit', () => {
     expect(buildSelect(ENTRY, { limit: 99999 })).toContain('LIMIT 1000');
     expect(buildSelect(ENTRY, {})).toContain('LIMIT 200');

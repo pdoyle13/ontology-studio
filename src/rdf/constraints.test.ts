@@ -16,6 +16,8 @@ const ps = (over: Partial<PropertyShapeInfo>): PropertyShapeInfo => ({
   minInclusive: null,
   maxInclusive: null,
   pattern: null,
+  singleLine: null,
+  maxLength: null,
   inValues: null,
   ...over,
 });
@@ -73,5 +75,27 @@ describe('validateAgainstShape', () => {
     const shape = ps({ inValues: [{ value: 'rock', isIri: false }, { value: 'jazz', isIri: false }] });
     expect(validateAgainstShape(shape, 'rock')).toBeNull();
     expect(validateAgainstShape(shape, 'polka')).toMatch(/one of/);
+  });
+});
+
+describe('widgets round 2', () => {
+  const LANG = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString';
+
+  it('rdf:langString renders the lang-text widget', () => {
+    expect(widgetFor(ps({ datatype: LANG }))).toBe('langtext');
+  });
+
+  it('dash:singleLine false renders a textarea', () => {
+    expect(widgetFor(ps({ singleLine: false }))).toBe('textarea');
+    expect(widgetFor(ps({ singleLine: true }))).toBe('text');
+  });
+
+  it('sh:class still wins over singleLine', () => {
+    expect(widgetFor(ps({ singleLine: false, classIri: 'http://ex.org/C' }))).toBe('iri');
+  });
+
+  it('enforces sh:maxLength', () => {
+    expect(validateAgainstShape(ps({ maxLength: 5 }), 'abcdef')).toMatch(/at most 5/);
+    expect(validateAgainstShape(ps({ maxLength: 5 }), 'abcde')).toBeNull();
   });
 });

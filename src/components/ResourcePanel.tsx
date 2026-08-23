@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useWrite } from '../hooks/useWrite';
+import { useUi } from '../state/ui';
 import { useGraph } from '../state/graph';
-import { useConnection } from '../state/connection';
 import type { TermValue } from '../rdf/queries';
 import { localName } from '../rdf/prefixes';
 import { displayName, humanize } from '../rdf/display';
 import { parseTermInput } from '../rdf/mutations';
-import { cmdInsert, cmdDelete, cmdReplace, cmdCreateResource, cmdDeleteResource } from '../rdf/commands';
+import { cmdInsert, cmdDelete, cmdReplace, cmdDeleteResource } from '../rdf/commands';
 import { ShapeForm } from './ShapeForm';
 import { ShapeEditor } from './ShapeEditor';
+import { openCreateInstance, confirmDialog } from './Modal';
 import { cmdGenerateShape } from '../rdf/shapeGen';
 
 function ObjectTerm({ t }: { t: TermValue }) {
@@ -31,27 +33,7 @@ function ObjectTerm({ t }: { t: TermValue }) {
   );
 }
 
-function useWrite() {
-  const conn = useConnection();
-  const { refreshSelected } = useGraph();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const run = async (fn: () => Promise<void>) => {
-    const ep = conn.active();
-    if (!ep) return;
-    setBusy(true);
-    setError(null);
-    try {
-      await fn();
-      await refreshSelected();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-  return { run, busy, error, ep: conn.active(), graph: conn.activeGraph };
-}
+
 
 /** One value row: view mode with hover edit/delete, or inline edit mode. */
 function ValueRow({ subject, predicate, object }: { subject: string; predicate: string; object: TermValue }) {
@@ -167,6 +149,14 @@ function AddProperty({ subject }: { subject: string }) {
   const { run, ep, graph } = useWrite();
   const { prefixes } = useGraph();
   const [open, setOpen] = useState(false);
+  // hover "+" on a canvas node lands here with the intent flag set
+  const intent = useUi((st) => st.addPropertyIntent);
+  useEffect(() => {
+    if (intent) {
+      setOpen(true);
+      useUi.getState().setAddPropertyIntent(false);
+    }
+  }, [intent]);
   const [pred, setPred] = useState('');
   const [val, setVal] = useState('');
 
@@ -228,28 +218,18 @@ export function ResourcePanel() {
     grouped.get(s.predicate)!.push(s.object);
   }
 
-  const newInstance = () => {
-    if (!ep) return;
-    const ns = d.iri.replace(/[^#/]+$/, '');
-    const name = window.prompt(`New instance of ${prefixes.shrink(d.iri)} — local name:`);
-    if (!name) return;
-    const iri = ns + name.trim().replace(/\s+/g, '');
-    const label = window.prompt('Label (optional):') ?? undefined;
-    run(async () => {
-      await cmdCreateResource(ep, graph, iri, d.iri, label || undefined);
-      await loadClasses();
-      await selectResource(iri);
-    });
-  };
+  const newInstance = () => openCreateInstance(d.iri);
 
-  const removeResource = () => {
+  const removeResource = async () => {
     if (!ep) return;
     const refs = d.incomingTotal;
-    const msg =
+    const ok = await confirmDialog(
+      'Delete resource',
       refs > 0
-        ? `Delete ${prefixes.shrink(d.iri)} AND ${refs} incoming reference(s)?`
-        : `Delete ${prefixes.shrink(d.iri)}?`;
-    if (!window.confirm(msg)) return;
+        ? `Delete ${prefixes.shrink(d.iri)} and its ${refs} incoming reference(s)? Undo (Ctrl+Z) can restore it.`
+        : `Delete ${prefixes.shrink(d.iri)}? Undo (Ctrl+Z) can restore it.`
+    );
+    if (!ok) return;
     run(async () => {
       await cmdDeleteResource(ep, graph, d.iri, refs > 0);
       await loadClasses();

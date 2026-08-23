@@ -63,7 +63,7 @@ const bool = { type: 'boolean' };
 
 /** Tool registry: JSON-schema defs + async executors. federation (optional):
  *  { readCatalog(), queryClass({classIri, columns, filters, limit}) } */
-export function buildTools({ oxigraph, graph, namespace, federation, writePolicy }) {
+export function buildTools({ oxigraph, graph, namespace, federation, writePolicy, graphqlExec }) {
   const c = ctx(oxigraph, graph);
   // governance: route writes through the policy - stage into a proposal, or
   // refuse when the acting user lacks direct-write rights on this graph
@@ -333,6 +333,23 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
       },
     },
   ];
+
+  if (graphqlExec) {
+    defs.push({
+      name: 'graphql_query',
+      description:
+        'GRAPHQL OVER THE WHOLE ESTATE: execute a GraphQL query against the shape-derived schema (fetch the SDL first via {query:"{ __schema { queryType { fields { name } } } }"} introspection or ask for a specific type). Virtual classes resolve from live SQL, meta classes from the graph. Best for shaped multi-entity reads in one call; use query_source_data for filtered SQL.',
+      parameters: {
+        type: 'object',
+        properties: { query: str, variables: { type: 'object' } },
+        required: ['query'],
+      },
+      run: async ({ query, variables }) => {
+        const r = await graphqlExec(query, variables);
+        return JSON.stringify(r).slice(0, 20000);
+      },
+    });
+  }
 
   if (federation) {
     defs.push(

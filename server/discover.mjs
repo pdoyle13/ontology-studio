@@ -3,21 +3,13 @@
 // governed alignment graph. The matcher's knowledge lives IN the graph
 // (skos:altLabel keywords on FIBO classes) — tuning it is a data edit.
 
+import { sparql } from './meta.mjs';
 export const FIBO_GRAPH = 'https://studio.local/graphs/fibo';
 export const ALIGNMENT_GRAPH = 'https://studio.local/graphs/alignment';
 const STUDIO = 'https://studio.local/ns#';
 const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
 const SKOS = 'http://www.w3.org/2004/02/skos/core#';
 
-async function sparql(oxigraph, query) {
-  const res = await fetch(`${oxigraph}/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
-    body: query,
-  });
-  if (!res.ok) throw new Error(`fibo query ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  return (await res.json()).results.bindings;
-}
 
 async function update(oxigraph, u) {
   const res = await fetch(`${oxigraph}/update`, {

@@ -93,6 +93,16 @@ This file is the loop's working memory. Each /loop iteration: pick the next unch
 - [x] Project skills: .claude/skills/{studio-stack, studio-verify, studio-demo, studio-agent}
 - Coverage audit verdicts in docs/coverage-VendorA-VendorB.md — VendorA gaps remaining: BI JDBC facade, authn/roles; VendorB gaps: governance workflows, GraphQL-from-shapes, SKOS editor, versioning
 
+### Phase 12 — workflows, governance, audit, PITR (2026-08-22/23 'do it all' loop)
+- [x] Meta-layer-as-code: canonical .nt snapshots of every named graph auto-committed on write (graph/ dir) — ontology versioning via git, observed self-committing
+- [x] Governance in-graph: users/roles (admin/steward/editor/viewer), data stewards via studio:governs; permission gates on /db/update, /db/store, agent tools; X-Studio-User identity (dev default pat); seeded pat/sam/quinn; canWrite/canPropose/canReview unit-tested
+- [x] Review workflow: proposals (staged adds/dels graphs) draft→submitted→merged/rejected; steward-of-target approval; E2E 10/10 (editor blocked, staged invisible until merge, self-approve denied, audit complete); UI: acting-as picker, Reviews tab w/ +/− diff and role-gated actions, agent propose mode
+- [x] Audit: changelog graph (actor/op/graphs/detail/time) on every write + /api/governance/changelog
+- [x] Kafka change journal (studio.changes, container studio-kafka :19092): replayable events w/ full mutation payloads; graceful when down
+- [x] Backup/PITR: checkpoints (graph dumps + journal offsets) + point-in-time restore (checkpoint + replay up to T) — E2E: A+B restored, post-until C excluded
+- [x] Process: .githooks/pre-commit (tests gate, self-demonstrated), .github/workflows/ci.yml (fires when a remote exists), compose kafka service
+- Remote still needs: create GitHub repo + git remote add + push (no gh CLI on this machine)
+
 ## Log
 (one line per iteration: date, what shipped)
 - 2026-08-22: FINAL — Playwright E2E smoke (8/8 pass, console clean: connect→browse→shape form→canvas→validation→SPARQL→shape editor). Fixed real bug it caught: SPARQL drawer wasn't graph-scoped (now sends default-graph-uri, or union-default-graph on Oxigraph when no graph picked). Loop wound down; core brief fully delivered.

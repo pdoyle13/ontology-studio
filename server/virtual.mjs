@@ -4,23 +4,13 @@
 // resolve HERE — live SQL against the owning databases, planned from the graph.
 
 import { buildSelect, mintSubject } from './federation.mjs';
+import { sparql } from './meta.mjs';
 
 const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
 const SH = 'http://www.w3.org/ns/shacl#';
 const DASH = 'http://datashapes.org/dash#';
 const STUDIO = 'https://studio.local/ns#';
 
-async function sparql(oxigraph, query) {
-  const url = new URL(`${oxigraph}/query`);
-  url.searchParams.set('union-default-graph', ''); // meta layer spans named graphs
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
-    body: query,
-  });
-  if (!res.ok) throw new Error(`meta query ${res.status}`);
-  return (await res.json()).results.bindings;
-}
 
 /** Field-level link declarations: [{property, from, to, sourceKeyProperty, targetKeyProperty}]. */
 export async function readLinkSpecs(oxigraph) {
@@ -86,6 +76,32 @@ export async function virtualInstances({ oxigraph, catalog, drivers, classIri, s
     iri: mintSubject(entry, r),
     label: labelCol && r[labelCol] != null ? String(r[labelCol]) : null,
   }));
+}
+
+/** Search live rows across every source: label-column LIKE per class, fanned in parallel. */
+export async function virtualSearch({ oxigraph, catalog, drivers, text, perClass = 3, total = 30, labelProps = null }) {
+  labelProps = labelProps ?? (await readLabelProps(oxigraph));
+  const jobs = catalog.map(async (entry) => {
+    const driver = drivers.get(entry.sourceId);
+    const labelCol = labelColumn(entry, labelProps);
+    if (!driver || !labelCol) return [];
+    try {
+      const sql = buildSelect(entry, {
+        filters: [{ column: labelCol, op: 'ILIKE', value: `%${text}%` }],
+        limit: perClass,
+      });
+      const rows = await driver.query(sql);
+      return rows.map((r) => ({
+        iri: mintSubject(entry, r),
+        label: r[labelCol] != null ? String(r[labelCol]) : null,
+        classIri: entry.classIri,
+        sourceId: entry.sourceId,
+      }));
+    } catch {
+      return [];
+    }
+  });
+  return (await Promise.all(jobs)).flat().slice(0, total);
 }
 
 /**

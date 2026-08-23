@@ -6,6 +6,7 @@ import { useValidation } from '../state/validation';
 import { listNodeShapes } from '../rdf/shacl';
 import { SqlPanel } from './SqlPanel';
 import { ProposalsPanel } from './ProposalsPanel';
+import { TaxonomyPanel } from './TaxonomyPanel';
 
 function ShapesList() {
   const conn = useConnection();
@@ -76,9 +77,9 @@ function IssuesList() {
   );
 }
 
-type Tab = 'classes' | 'shapes' | 'issues' | 'sql' | 'reviews';
+type Tab = 'classes' | 'shapes' | 'taxonomy' | 'issues' | 'sql' | 'reviews';
 
-const TAB_LABELS: Record<Tab, string> = { classes: 'Classes', shapes: 'Shapes', issues: 'Issues', sql: 'SQL', reviews: 'Reviews' };
+const TAB_LABELS: Record<Tab, string> = { classes: 'Classes', shapes: 'Shapes', taxonomy: 'Taxonomy', issues: 'Issues', sql: 'SQL', reviews: 'Reviews' };
 
 export function SidebarTabs() {
   const [tab, setTab] = useState<Tab>('classes');
@@ -96,6 +97,7 @@ export function SidebarTabs() {
       <div className="tab-body">
         {tab === 'classes' && <ClassTree />}
         {tab === 'shapes' && <ShapesList />}
+        {tab === 'taxonomy' && <TaxonomyPanel />}
         {tab === 'issues' && <IssuesList />}
         {tab === 'sql' && <SqlPanel />}
         {tab === 'reviews' && <ProposalsPanel />}

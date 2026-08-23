@@ -60,3 +60,22 @@ curl -s -X POST http://localhost:7881/api/virtual/describe -H "Content-Type: app
   scratchpad with the Write tool and run `python file.py` instead.
 - The graph must stay META-ONLY: any test asserting instance triples in
   Oxigraph is asserting a regression.
+
+## Canvas click gotcha (hard-learned)
+After Overview/fitView, several nodes sit off-screen or under the connection bar / toolbar overlays. `locator('.react-flow__node').nth(i).click()` then hits the overlay and selection silently fails. Always pick a hittable node first:
+```js
+const hittable = await page.evaluate(() => {
+  const out = [];
+  document.querySelectorAll('.react-flow__node').forEach((el) => {
+    const r = el.getBoundingClientRect();
+    const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
+    if (el.contains(document.elementFromPoint(cx, cy))) out.push({ cx, cy });
+  });
+  return out;
+});
+await page.mouse.click(hittable[0].cx, hittable[0].cy);
+```
+Selection keys: click = select, Shift+drag = box select, Ctrl+click = multi, Delete/Backspace = hide from canvas (view-only; graph deletion is context-menu only).
+
+## Full regression sweep
+`e2e/regression.mjs` covers the whole feature surface (omnibox, grid, canvas selection/PNG, taxonomy, saved queries, forms round 2, tree paging, GraphQL). Copy it into the playwright dir and run; exits non-zero on any FAIL.

@@ -4,6 +4,7 @@ import { useGraph } from '../state/graph';
 import { Parser } from 'n3';
 import { select, ask, construct, update, type SelectResult } from '../rdf/sparqlClient';
 import { useCanvas } from '../state/canvas';
+import { listSavedQueries, saveQuery, deleteSavedQuery, type SavedQuery } from '../rdf/savedQueries';
 
 type ResultView =
   | { kind: 'select'; result: SelectResult }
@@ -29,6 +30,54 @@ export function SparqlDrawer() {
   const [usePrefixes, setUsePrefixes] = useState(true);
   const [running, setRunning] = useState(false);
   const [view, setView] = useState<ResultView>(null);
+  const [saved, setSaved] = useState<SavedQuery[]>([]);
+  const [loadedIri, setLoadedIri] = useState('');
+
+  const refreshSaved = () => {
+    const ep = conn.active();
+    if (!ep) return;
+    listSavedQueries(ep).then(setSaved).catch(() => setSaved([]));
+  };
+  useEffect(() => {
+    if (open && conn.status === 'connected') refreshSaved();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, conn.activeId]);
+
+  const loadSaved = (iri: string) => {
+    setLoadedIri(iri);
+    const q = saved.find((x) => x.iri === iri);
+    if (!q) return;
+    setMode(q.mode);
+    if (q.mode === 'sparql') setQuery(q.text);
+    else {
+      setSqlText(q.text);
+      if (q.sourceId) setSqlSource(q.sourceId);
+    }
+  };
+
+  const doSave = async () => {
+    const ep = conn.active();
+    if (!ep) return;
+    const existing = saved.find((x) => x.iri === loadedIri);
+    const title = window.prompt('Save query as:', existing?.title ?? '');
+    if (!title?.trim()) return;
+    const iri = await saveQuery(ep, {
+      title: title.trim(),
+      mode,
+      text: mode === 'sparql' ? query : sqlText,
+      sourceId: mode === 'sql' ? sqlSource || null : null,
+    });
+    setLoadedIri(iri);
+    refreshSaved();
+  };
+
+  const doDeleteSaved = async () => {
+    const ep = conn.active();
+    if (!ep || !loadedIri) return;
+    await deleteSavedQuery(ep, loadedIri);
+    setLoadedIri('');
+    refreshSaved();
+  };
 
   useEffect(() => {
     if (mode !== 'sql') return;
@@ -114,6 +163,27 @@ export function SparqlDrawer() {
                   <option key={s.id} value={s.id}>{s.id}</option>
                 ))}
               </select>
+            )}
+            <select
+              className="saved-picker"
+              value={loadedIri}
+              onChange={(e) => loadSaved(e.target.value)}
+              title="Saved queries"
+            >
+              <option value="">saved queries…</option>
+              {saved.map((q) => (
+                <option key={q.iri} value={q.iri}>
+                  {q.title} ({q.mode})
+                </option>
+              ))}
+            </select>
+            <button className="ghost" onClick={doSave} title="Save the current query">
+              ⤓ Save
+            </button>
+            {loadedIri && (
+              <button className="ghost" onClick={doDeleteSaved} title="Delete this saved query">
+                ✕
+              </button>
             )}
             <button
               onClick={mode === 'sparql' ? run : runSql}

@@ -73,6 +73,32 @@ export async function cmdCreateResource(
   });
 }
 
+/** Create an instance with initial property values as ONE undoable command. */
+export async function cmdCreateInstanceFull(
+  ep: Endpoint,
+  graph: string | null,
+  iri: string,
+  typeIri: string,
+  label: string | undefined,
+  props: { predicate: string; value: string; isIri: boolean; datatype?: string }[]
+): Promise<void> {
+  const triples: string[] = [`<${iri}> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <${typeIri}> .`];
+  if (label) triples.push(`<${iri}> <http://www.w3.org/2000/01/rdf-schema#label> ${serializeTerm({ type: 'literal', value: label })} .`);
+  for (const p of props) {
+    const term: TermValue = p.isIri
+      ? { type: 'uri', value: p.value }
+      : { type: 'literal', value: p.value, datatype: p.datatype };
+    triples.push(`<${iri}> <${p.predicate}> ${serializeTerm(term)} .`);
+  }
+  const block = triples.join('\n');
+  const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+  await useHistory.getState().exec({
+    label: 'create instance',
+    redo: () => update(ep, `INSERT DATA { ${wrap(block)} }`),
+    undo: () => update(ep, `DELETE DATA { ${wrap(block)} }`),
+  });
+}
+
 /** Delete a resource with full snapshot for undo (outgoing + incoming, bounded by describe limits). */
 export async function cmdDeleteResource(
   ep: Endpoint,

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -16,8 +16,16 @@ import {
   Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { getNodesBounds, getViewportForBounds } from '@xyflow/react';
+import { toPng } from 'html-to-image';
 import { useCanvas, type RdfNode, type RdfNodeData } from '../state/canvas';
 import { LAYOUTS, bestAnchorPair, type LayoutAlgo } from '../layout';
+import { useContextMenu } from './ContextMenu';
+import { RelationPicker, rememberPredicate } from './RelationPicker';
+import { confirmDialog, openCreateInstance } from './Modal';
+import { openDataGrid } from './DataGrid';
+import { cmdDelete, cmdDeleteResource } from '../rdf/commands';
+import { useConnection as useConn2 } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import { useHistory } from '../state/history';
@@ -28,12 +36,34 @@ import type { Connection } from '@xyflow/react';
 function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
   const hasViolation = useValidation((s) => s.violations.some((v) => v.focusNode === data.iri));
   const border = data.hue !== null ? `hsl(${data.hue} 38% 52%)` : 'var(--border-strong)';
+  const quick = (fn: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    fn();
+  };
   return (
     <div
       className={`rdf-node ${selected ? 'selected' : ''} ${hasViolation ? 'violation' : ''}`}
       style={{ borderLeftColor: hasViolation ? 'var(--err)' : border }}
     >
       <Handle type="target" position={Position.Left} className="rdf-handle" />
+      <div className="node-quick-actions">
+        <button className="quick" title="Expand neighbors" onClick={quick(() => useCanvas.getState().expandNode(data.iri))}>
+          ⇅
+        </button>
+        <button
+          className="quick"
+          title="Add property"
+          onClick={quick(() => {
+            useGraph.getState().selectResource(data.iri);
+            import('../state/ui').then(({ useUi }) => useUi.getState().setAddPropertyIntent(true));
+          })}
+        >
+          +
+        </button>
+        <button className="quick" title="Hide from canvas" onClick={quick(() => useCanvas.getState().removeNode(data.iri))}>
+          ✕
+        </button>
+      </div>
       <div className="rdf-node-label">{data.label}</div>
       {data.typeCurie && (
         <div className="rdf-node-type" style={{ color: border }}>
@@ -88,34 +118,74 @@ export function GraphCanvas() {
   const { nodes, edges, onNodesChange, expandNode, removeNode, clear, relayout, expanding, addEdgeLocal, loadSchemaOverview, layoutAlgo, setLayoutAlgo } = useCanvas();
   const selectResource = useGraph((s) => s.selectResource);
   const refreshSelected = useGraph((s) => s.refreshSelected);
-  const prefixes = useGraph((s) => s.prefixes);
+
   const { undoStack, redoStack, undo, redo } = useHistory();
 
   const handleNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      onNodesChange(applyNodeChanges(changes, nodes as RdfNode[]) as RdfNode[]);
+      // Delete/Backspace emits 'remove' — hide from canvas (with edge cleanup),
+      // never a graph mutation; explicit deletion lives in the context menu.
+      const removals = changes.filter((c) => c.type === 'remove');
+      const rest = changes.filter((c) => c.type !== 'remove');
+      removals.forEach((c) => removeNode(c.id));
+      if (rest.length) onNodesChange(applyNodeChanges(rest, useCanvas.getState().nodes as RdfNode[]) as RdfNode[]);
     },
-    [nodes, onNodesChange]
+    [onNodesChange, removeNode]
   );
 
-  const handleConnect = useCallback(
-    (c: Connection) => {
-      if (!c.source || !c.target || c.source === c.target) return;
+  // drag-to-create relation: park the pending connection, show the inline picker
+  const [pendingRel, setPendingRel] = useState<{ source: string; target: string; at: { x: number; y: number } } | null>(null);
+
+  const handleConnect = useCallback((c: Connection) => {
+    if (!c.source || !c.target || c.source === c.target) return;
+    setPendingRel({ source: c.source, target: c.target, at: { x: lastPointer.current.x, y: lastPointer.current.y } });
+  }, []);
+
+  const commitRelation = useCallback(
+    (predicate: string) => {
+      if (!pendingRel) return;
       const conn = useConnection.getState();
       const ep = conn.active();
       if (!ep) return;
-      const input = window.prompt('Predicate for this edge (curie or IRI):', 'rdfs:seeAlso');
-      if (!input) return;
-      const p = prefixes.expand(input.trim());
-      cmdInsert(ep, conn.activeGraph, c.source, p, { type: 'uri', value: c.target }, 'create edge')
+      const { source, target } = pendingRel;
+      setPendingRel(null);
+      rememberPredicate(predicate);
+      cmdInsert(ep, conn.activeGraph, source, predicate, { type: 'uri', value: target }, 'create edge')
         .then(() => {
-          addEdgeLocal(c.source!, p, c.target!);
+          addEdgeLocal(source, predicate, target);
           refreshSelected();
         })
         .catch((e) => window.alert(`Edge creation failed: ${(e as Error).message}`));
     },
-    [prefixes, addEdgeLocal, refreshSelected]
+    [pendingRel, addEdgeLocal, refreshSelected]
   );
+
+  const lastPointer = useRef({ x: 300, y: 300 });
+
+  const exportPng = useCallback(() => {
+    const el = document.querySelector('.react-flow__viewport') as HTMLElement | null;
+    if (!el || nodes.length === 0) return;
+    const bounds = getNodesBounds(nodes as RdfNode[]);
+    const width = Math.min(3200, Math.max(800, Math.ceil(bounds.width) + 120));
+    const height = Math.min(3200, Math.max(600, Math.ceil(bounds.height) + 120));
+    const vp = getViewportForBounds(bounds, width, height, 0.2, 2.5, 0.06);
+    toPng(el, {
+      width,
+      height,
+      backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg') || '#16181d',
+      style: {
+        width: `${width}px`,
+        height: `${height}px`,
+        transform: `translate(${vp.x}px, ${vp.y}px) scale(${vp.zoom})`,
+      },
+      filter: (node) => !(node as HTMLElement).classList?.contains('node-quick-actions'),
+    }).then((url) => {
+      const a = document.createElement('a');
+      a.download = 'ontology-canvas.png';
+      a.href = url;
+      a.click();
+    });
+  }, [nodes]);
 
   const doUndo = () => undo().then(() => refreshSelected());
   const doRedo = () => redo().then(() => refreshSelected());
@@ -147,6 +217,9 @@ export function GraphCanvas() {
         }
       }}
       onDrop={handleDrop}
+      onMouseMove={(e) => {
+        lastPointer.current = { x: e.clientX, y: e.clientY };
+      }}
     >
       <div className="canvas-toolbar">
         <button className="ghost" onClick={doUndo} disabled={undoStack.length === 0} title="Undo (Ctrl+Z)">
@@ -177,6 +250,9 @@ export function GraphCanvas() {
         <button className="ghost" onClick={relayout} disabled={nodes.length === 0}>
           Re-layout
         </button>
+        <button className="ghost" onClick={exportPng} disabled={nodes.length === 0} title="Export the canvas as PNG">
+          ⇓ PNG
+        </button>
         <button className="ghost" onClick={clear} disabled={nodes.length === 0}>
           Clear
         </button>
@@ -196,7 +272,71 @@ export function GraphCanvas() {
         onNodeDoubleClick={(_, n) => expandNode(n.id)}
         onNodeContextMenu={(e, n) => {
           e.preventDefault();
-          removeNode(n.id);
+          const data = n.data as RdfNodeData;
+          const isVirtual = n.id.startsWith('https://studio.local/sql/') && /#[\w-]+\//.test(n.id);
+          useContextMenu.getState().show(e.clientX, e.clientY, [
+            { label: '⇅ Expand neighbors', onClick: () => expandNode(n.id) },
+            { label: '▤ Open in inspector', onClick: () => selectResource(n.id) },
+            { label: '✄ Hide from canvas', onClick: () => removeNode(n.id) },
+            { label: '⧉ Copy IRI', onClick: () => navigator.clipboard?.writeText(data.iri) },
+            { separator: true, label: '' },
+            ...(data.types.includes('http://www.w3.org/2000/01/rdf-schema#Class')
+              ? [
+                  { label: '+ New instance…', onClick: () => openCreateInstance(n.id) },
+                  { label: '⊞ Browse data (grid)', onClick: () => openDataGrid(n.id) },
+                ]
+              : []),
+            {
+              label: '✕ Delete resource…',
+              danger: true,
+              disabled: isVirtual,
+              onClick: async () => {
+                const conn = useConn2.getState();
+                const ep = conn.active();
+                if (!ep) return;
+                if (!(await confirmDialog('Delete resource', `Delete ${data.label} and its incoming references? Undo can restore it.`))) return;
+                cmdDeleteResource(ep, conn.activeGraph, n.id, true).then(() => {
+                  removeNode(n.id);
+                  refreshSelected();
+                });
+              },
+            },
+          ]);
+        }}
+        onEdgeContextMenu={(e, edge) => {
+          e.preventDefault();
+          const parts = edge.id.split('|');
+          if (parts.length !== 3 || edge.id.startsWith('flow:')) return;
+          const [s, p, o] = parts;
+          useContextMenu.getState().show(e.clientX, e.clientY, [
+            { label: '▤ Open predicate in inspector', onClick: () => selectResource(p) },
+            { label: '⧉ Copy statement', onClick: () => navigator.clipboard?.writeText(`<${s}> <${p}> <${o}> .`) },
+            { separator: true, label: '' },
+            {
+              label: `✕ Remove this ${String(edge.label ?? 'link')} value`,
+              danger: true,
+              onClick: () => {
+                const conn = useConn2.getState();
+                const ep = conn.active();
+                if (!ep) return;
+                cmdDelete(ep, conn.activeGraph, s, p, { type: 'uri', value: o }).then(() => {
+                  useCanvas.setState({ edges: useCanvas.getState().edges.filter((x) => x.id !== edge.id) });
+                  refreshSelected();
+                });
+              },
+            },
+          ]);
+        }}
+        onPaneContextMenu={(e) => {
+          e.preventDefault();
+          const me = e as React.MouseEvent;
+          useContextMenu.getState().show(me.clientX, me.clientY, [
+            { label: '⌂ Schema overview', onClick: () => loadSchemaOverview() },
+            { label: '⛃ Flow view', onClick: () => useCanvas.getState().loadFlowView() },
+            { label: '⟳ Re-layout', onClick: () => relayout() },
+            { separator: true, label: '' },
+            { label: '✕ Clear canvas', onClick: () => clear() },
+          ]);
         }}
         onInit={(instance) => {
           flowRef.current = instance;
@@ -206,11 +346,24 @@ export function GraphCanvas() {
         colorMode="dark"
         defaultEdgeOptions={{ type: 'mid' }}
         connectionLineType={ConnectionLineType.Straight}
+        connectionRadius={80}
+        selectionKeyCode="Shift"
+        multiSelectionKeyCode={['Control', 'Meta']}
+        deleteKeyCode={['Delete', 'Backspace']}
       >
         <Background gap={22} color="#23262d" />
         <Controls showInteractive={false} />
         <MiniMap pannable zoomable className="rdf-minimap" />
       </ReactFlow>
+      {pendingRel && (
+        <RelationPicker
+          at={{ x: Math.min(pendingRel.at.x, window.innerWidth - 320), y: Math.min(pendingRel.at.y, window.innerHeight - 280) }}
+          sourceLabel={(nodes.find((n) => n.id === pendingRel.source)?.data.label as string) ?? pendingRel.source}
+          targetLabel={(nodes.find((n) => n.id === pendingRel.target)?.data.label as string) ?? pendingRel.target}
+          onPick={commitRelation}
+          onCancel={() => setPendingRel(null)}
+        />
+      )}
     </div>
   );
 }

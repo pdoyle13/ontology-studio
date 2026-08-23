@@ -1,7 +1,7 @@
 // Ontology Studio sidecar (port 7881):
 //  - SQL datasources: attach SQLite files, introspect schema, translate the
 //    schema to an RDF ontology + SHACL shapes (Direct-Mapping style), and
-//    materialize rows into Oxigraph. Read-only SQL query endpoint.
+//    keep everything virtual (meta-only graph). Read-only SQL query endpoint.
 //  - Agent: Claude-powered modeling copilot with SPARQL tools (see agent.mjs).
 // Requires: node --experimental-sqlite
 
@@ -11,11 +11,12 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, basename } from 'node:path';
 import { runAgent, agentAvailable } from './agent.mjs';
 import { QueryCache, DiskCache, TieredCache } from './cache.mjs';
-import { emitR2rml, emitSyncProvenance, MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
+import { emitR2rml, MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
 import { createDriver, safeDescriptor } from './drivers.mjs';
 import { readCatalog, planSources, queryClass } from './federation.mjs';
+import { createGraphQL } from './graphqlLayer.mjs';
 import { discoverBusinessAreas, readAlignment } from './discover.mjs';
-import { virtualInstances, virtualDescribe } from './virtual.mjs';
+import { virtualInstances, virtualDescribe, virtualSearch } from './virtual.mjs';
 import { buildSpec } from './openapi.mjs';
 import { createRequire } from 'node:module';
 import { WebSocketServer } from 'ws';
@@ -242,7 +243,7 @@ if (existsSync(SOURCES_FILE)) {
 const bad = (res, code, message) => res.status(code).json({ error: message });
 
 // ---------------- RDF translation (pure logic in translate.mjs) ----------------
-import { sqlTypeToXsd, classIri, propIri, translateSchema, rowsToBlocks, isReadOnlySql } from './translate.mjs';
+import { sqlTypeToXsd, classIri, propIri, translateSchema, isReadOnlySql } from './translate.mjs';
 
 async function loadNTriples(nt, graph) {
   const url = graph ? `${OXIGRAPH}/store?graph=${encodeURIComponent(graph)}` : `${OXIGRAPH}/store?default`;
@@ -338,57 +339,6 @@ app.post('/api/sql/sources/:id/translate', async (req, res) => {
   }
 });
 
-app.post('/api/sql/sources/:id/materialize', async (req, res) => {
-  const s = sources.get(req.params.id);
-  if (!s) return bad(res, 404, 'no such source');
-  const { table, graph, namespace, limit } = req.body ?? {};
-  if (!table) return bad(res, 400, 'table required');
-  const ns = (namespace || `https://studio.local/sql/${s.id}#`).trim();
-  const max = Number(limit) > 0 ? Number(limit) : Infinity;
-  try {
-    const info = (await s.introspect()).find((x) => x.name === table);
-    if (!info) return bad(res, 404, `no such table: ${table}`);
-    const sourceIri = `${STUDIO}source/${s.id.replace(/[^\w-]/g, '_')}`;
-    const PAGE = 10000;
-    let offset = 0;
-    let rows = 0;
-    let triples = 0;
-    let batch = [];
-    outer: for (;;) {
-      const page = await s.page(table, PAGE, offset);
-      if (page.length === 0) break;
-      offset += page.length;
-      for (const block of rowsToBlocks(page, info, ns, { sourceIri })) {
-        batch.push(block);
-        rows++;
-        triples += block.split('\n').length;
-        if (batch.length >= 2000) {
-          await loadNTriples(batch.join('\n'), graph || null);
-          batch = [];
-        }
-        if (rows >= max) break outer;
-      }
-    }
-    if (batch.length) await loadNTriples(batch.join('\n'), graph || null);
-    // queryable freshness metadata: prov:Activity in the mappings graph
-    await loadNTriples(
-      emitSyncProvenance({
-        sourceId: s.id,
-        table,
-        dataGraph: graph || `${OXIGRAPH}/`,
-        rows,
-        triples,
-        nowIso: new Date().toISOString(),
-      }),
-      MAPPINGS_GRAPH
-    );
-    cache.invalidate();
-    res.json({ ok: true, table, rows, triples, namespace: ns });
-  } catch (e) {
-    bad(res, 500, e.message);
-  }
-});
-
 app.post('/api/sql/sources/:id/query', async (req, res) => {
   const s = sources.get(req.params.id);
   if (!s) return bad(res, 404, 'no such source');
@@ -440,7 +390,7 @@ const federation = {
   queryClass: async (args) => {
     const catalog = await cachedCatalog();
     // short-TTL SQL result cache, tagged by owning source
-    const key = JSON.stringify([args.classIri, args.columns ?? null, args.filters ?? null, args.limit ?? null]);
+    const key = JSON.stringify([args.classIri, args.columns ?? null, args.filters ?? null, args.limit ?? null, args.orderBy ?? null, args.offset ?? null]);
     const hit = sqlCache.get('fed', key);
     if (hit) return JSON.parse(hit.body);
     const result = await queryClass({ oxigraph: OXIGRAPH, drivers: sources, catalog, ...args });
@@ -490,6 +440,35 @@ async function rowCounts() {
 }
 cache.onInvalidate(() => { rowCountsMemo = null; });
 
+// ---- GraphQL from shapes: SHACL node shapes ARE the schema ----
+let gqlMemo = null;
+async function gqlInstance() {
+  if (gqlMemo) return gqlMemo;
+  gqlMemo = await createGraphQL({ oxigraph: OXIGRAPH, federation });
+  return gqlMemo;
+}
+cache.onInvalidate(() => { gqlMemo = null; });
+
+app.get('/api/graphql/sdl', async (_req, res) => {
+  try {
+    const g = await gqlInstance();
+    res.type('text/plain').send(g.sdl);
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/graphql', async (req, res) => {
+  const { query, variables } = req.body ?? {};
+  if (!query) return bad(res, 400, 'query required');
+  try {
+    const g = await gqlInstance();
+    res.json(await g.execute(query, variables));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
 app.get('/api/virtual/classes', async (_req, res) => {
   try {
     const [catalog, counts] = await Promise.all([cachedCatalog(), rowCounts()]);
@@ -520,6 +499,22 @@ app.post('/api/virtual/instances', async (req, res) => {
     const entry = catalog.find((c) => c.classIri === classIri);
     sqlCache.set('virt', key, { status: 200, contentType: 'application/json', body: JSON.stringify(rows) }, [entry?.sourceId ?? '*']);
     res.json(rows);
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/virtual/search', async (req, res) => {
+  const q = String(req.query.q ?? '').trim();
+  if (q.length < 2) return res.json([]);
+  try {
+    const catalog = await cachedCatalog();
+    const key = JSON.stringify(['vs', q]);
+    const hit = sqlCache.get('virt', key);
+    if (hit) return res.json(JSON.parse(hit.body));
+    const out = await virtualSearch({ oxigraph: OXIGRAPH, catalog, drivers: sources, text: q });
+    sqlCache.set('virt', key, { status: 200, contentType: 'application/json', body: JSON.stringify(out) }, ['*']);
+    res.json(out);
   } catch (e) {
     bad(res, 500, e.message);
   }
@@ -569,10 +564,10 @@ app.post('/api/federate/plan', async (req, res) => {
 });
 
 app.post('/api/federate/query', async (req, res) => {
-  const { classIri, columns, filters, limit } = req.body ?? {};
+  const { classIri, columns, filters, limit, orderBy, offset } = req.body ?? {};
   if (!classIri) return bad(res, 400, 'classIri required');
   try {
-    res.json(await federation.queryClass({ classIri, columns, filters, limit }));
+    res.json(await federation.queryClass({ classIri, columns, filters, limit, orderBy, offset }));
   } catch (e) {
     bad(res, 400, e.message);
   }
@@ -743,7 +738,14 @@ app.post('/api/agent', async (req, res) => {
       journal: (updateBody) =>
         publishChange({ actor: `${user.name} (agent)`, operation: 'agent:update', graphs: [graph].filter(Boolean), replay: { kind: 'sparql-update', body: updateBody } }),
     };
-    const result = await runAgent({ messages, graph: graph || null, oxigraph: OXIGRAPH, federation, writePolicy });
+    const result = await runAgent({
+      messages,
+      graph: graph || null,
+      oxigraph: OXIGRAPH,
+      federation,
+      writePolicy,
+      graphqlExec: async (q, vars) => (await gqlInstance()).execute(q, vars),
+    });
     const wrote = result.trace?.some((t) => t.ok && !['get_schema_overview', 'get_resource', 'sparql_query', 'get_data_catalog', 'query_source_data'].includes(t.tool));
     if (wrote) {
       recordChange(OXIGRAPH, {

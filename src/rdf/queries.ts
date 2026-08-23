@@ -100,7 +100,7 @@ export async function fetchInstances(
   const q = `
 SELECT DISTINCT ?inst (SAMPLE(?l) AS ?lbl2) WHERE {
   ${scoped(
-    `?inst a <${classIri}> .
+    `?inst a/<${RDFS_LABEL.replace('label', 'subClassOf')}>* <${classIri}> .
      ${labelPattern('?inst', 'l', 'a')}`,
     graph
   )}

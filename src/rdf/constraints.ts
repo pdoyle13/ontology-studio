@@ -4,11 +4,15 @@
 import type { PropertyShapeInfo } from './shacl';
 import { datatypeToKind } from './shacl';
 
-export type Widget = 'text' | 'number' | 'date' | 'datetime' | 'boolean' | 'enum' | 'iri';
+export type Widget = 'text' | 'textarea' | 'langtext' | 'number' | 'date' | 'datetime' | 'boolean' | 'enum' | 'iri';
+
+const LANG_STRING = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString';
 
 export function widgetFor(ps: PropertyShapeInfo): Widget {
   if (ps.inValues && ps.inValues.length > 0) return 'enum';
   if (ps.classIri) return 'iri';
+  if (ps.datatype === LANG_STRING) return 'langtext';
+  if (ps.singleLine === false) return 'textarea';
   switch (datatypeToKind(ps.datatype)) {
     case 'integer':
     case 'decimal':
@@ -50,6 +54,8 @@ export function validateAgainstShape(ps: PropertyShapeInfo, raw: string): string
       /* invalid regex in shape — don't block the user */
     }
   }
+
+  if (ps.maxLength !== null && v.length > ps.maxLength) return `must be at most ${ps.maxLength} characters`;
 
   if (ps.inValues && ps.inValues.length > 0 && !ps.inValues.some((iv) => iv.value === v))
     return `must be one of: ${ps.inValues.map((iv) => iv.value).join(', ')}`;

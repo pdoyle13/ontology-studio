@@ -59,7 +59,16 @@ export function createSnapshotter({ oxigraph, repoDir, autoCommit = true, log = 
       }
       if (changed.length && autoCommit) {
         try {
-          execFileSync('git', ['add', ...changed], { cwd: repoDir });
+          // another commit may hold index.lock (manual commits race the snapshotter)
+          for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+              execFileSync('git', ['add', ...changed], { cwd: repoDir });
+              break;
+            } catch (err) {
+              if (attempt === 2 || !String(err.message).includes('index.lock')) throw err;
+              await new Promise((r) => setTimeout(r, 700));
+            }
+          }
           const staged = execFileSync('git', ['diff', '--cached', '--name-only'], { cwd: repoDir }).toString().trim();
           if (staged) {
             execFileSync(

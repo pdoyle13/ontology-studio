@@ -3,6 +3,8 @@ import { useGraph } from '../state/graph';
 import { useConnection } from '../state/connection';
 import { fetchInstances, searchResources, type InstanceInfo } from '../rdf/queries';
 import { displayName } from '../rdf/display';
+import { openDataGrid } from './DataGrid';
+import { virtualClasses } from '../rdf/virtualApi';
 
 /** Drag source: carries the resource IRI to the canvas drop handler. */
 export const dragIri = (e: React.DragEvent, iri: string) => {
@@ -10,16 +12,20 @@ export const dragIri = (e: React.DragEvent, iri: string) => {
   e.dataTransfer.effectAllowed = 'copy';
 };
 
+const TREE_PAGE = 50;
+
 function InstanceList({ classIri }: { classIri: string }) {
   const conn = useConnection();
   const { selected, selectResource } = useGraph();
   const [instances, setInstances] = useState<InstanceInfo[] | null>(null);
+  const [shown, setShown] = useState(TREE_PAGE);
 
   useEffect(() => {
     const ep = conn.active();
     if (!ep) return;
     let cancelled = false;
-    fetchInstances(ep, conn.activeGraph, classIri).then((r) => {
+    setShown(TREE_PAGE);
+    fetchInstances(ep, conn.activeGraph, classIri, '', 1000).then((r) => {
       if (!cancelled) setInstances(r);
     });
     return () => {
@@ -31,7 +37,7 @@ function InstanceList({ classIri }: { classIri: string }) {
   if (!instances) return <div className="tree-loading">loading…</div>;
   return (
     <ul className="instance-list">
-      {instances.map((i) => (
+      {instances.slice(0, shown).map((i) => (
         <li
           key={i.iri}
           className={selected === i.iri ? 'selected' : ''}
@@ -44,6 +50,13 @@ function InstanceList({ classIri }: { classIri: string }) {
         </li>
       ))}
       {instances.length === 0 && <li className="tree-loading">no instances</li>}
+      {instances.length > shown && (
+        <li className="tree-loading">
+          <button className="micro" onClick={() => setShown((n) => n + TREE_PAGE)}>
+            + {Math.min(TREE_PAGE, instances.length - shown)} more ({instances.length - shown} hidden)
+          </button>
+        </li>
+      )}
     </ul>
   );
 }
@@ -51,6 +64,10 @@ function InstanceList({ classIri }: { classIri: string }) {
 export function ClassTree() {
   const conn = useConnection();
   const { classes, classesLoading, selectResource, selected, loadClasses } = useGraph();
+  const [virtualSet, setVirtualSet] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    virtualClasses().then((v) => setVirtualSet(new Set(v.map((x) => x.classIri)))).catch(() => {});
+  }, [conn.activeId, conn.activeGraph]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<InstanceInfo[] | null>(null);
@@ -129,6 +146,18 @@ export function ClassTree() {
                   >
                     {displayName(c.iri, c.label)}
                   </span>
+                  {virtualSet.has(c.iri) && (
+                    <button
+                      className="micro"
+                      title="Browse live data (grid)"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDataGrid(c.iri);
+                      }}
+                    >
+                      ⊞
+                    </button>
+                  )}
                   <span className="count">{c.instances}</span>
                 </div>
                 {open && <InstanceList classIri={c.iri} />}

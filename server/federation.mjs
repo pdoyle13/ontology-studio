@@ -5,19 +5,11 @@
 // the per-source drivers. No structure is hardcoded — it all comes from RDF.
 
 import { MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
+import { sparql } from './meta.mjs';
 
 const RR = 'http://www.w3.org/ns/r2rml#';
 const PROV = 'http://www.w3.org/ns/prov#';
 
-async function sparql(oxigraph, query) {
-  const res = await fetch(`${oxigraph}/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
-    body: query,
-  });
-  if (!res.ok) throw new Error(`catalog query ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  return (await res.json()).results.bindings;
-}
 
 /**
  * Read the data catalog out of the mappings graph.
@@ -79,14 +71,14 @@ export function planSources(catalog, classIris) {
   return [...bySource.entries()].map(([sourceId, targets]) => ({ sourceId, targets }));
 }
 
-const OPS = new Set(['=', '!=', '>', '<', '>=', '<=', 'LIKE']);
+const OPS = new Set(['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE']);
 const sqlLit = (v) => (typeof v === 'number' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
 
 /**
  * Build a guarded SELECT for one catalog entry.
  * columns: subset of mapped columns (default all). filters: [{column, op, value}].
  */
-export function buildSelect(entry, { columns, filters, limit } = {}) {
+export function buildSelect(entry, { columns, filters, limit, orderBy, offset } = {}) {
   const known = new Set([...entry.columns.map((c) => c.column), ...entry.refs.map((r) => r.column).filter(Boolean)]);
   const cols =
     columns && columns.length
@@ -98,11 +90,20 @@ export function buildSelect(entry, { columns, filters, limit } = {}) {
       if (!known.has(f.column)) throw new Error(`unknown column ${f.column} on ${entry.table}`);
       const op = String(f.op ?? '=').toUpperCase();
       if (!OPS.has(op)) throw new Error(`unsupported operator ${f.op}`);
+      // portable case-insensitive match: engines disagree on LIKE case rules
+      if (op === 'ILIKE') return `LOWER("${f.column}") LIKE ${sqlLit(String(f.value).toLowerCase())}`;
       return `"${f.column}" ${op} ${sqlLit(f.value)}`;
     })
     .join(' AND ');
+  let order = '';
+  if (orderBy?.column) {
+    if (!known.has(orderBy.column)) throw new Error(`unknown sort column ${orderBy.column}`);
+    const dir = String(orderBy.dir ?? 'asc').toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+    order = ` ORDER BY "${orderBy.column}" ${dir}`;
+  }
   const n = Math.min(Number(limit) > 0 ? Number(limit) : 200, 1000);
-  return `SELECT ${cols.map((c) => `"${c}"`).join(', ')} FROM "${entry.table}"${where ? ` WHERE ${where}` : ''} LIMIT ${n}`;
+  const off = Number(offset) > 0 ? ` OFFSET ${Math.floor(Number(offset))}` : '';
+  return `SELECT ${cols.map((c) => `"${c}"`).join(', ')} FROM "${entry.table}"${where ? ` WHERE ${where}` : ''}${order} LIMIT ${n}${off}`;
 }
 
 /** Mint the subject IRI for a row using the R2RML subject template. */
@@ -114,7 +115,7 @@ export function mintSubject(entry, row) {
  * Federated fetch: resolve the class in the catalog, pick the owning database,
  * run live SQL there. Returns rows + full provenance of where they came from.
  */
-export async function queryClass({ oxigraph, drivers, classIri, columns, filters, limit, catalog: presupplied }) {
+export async function queryClass({ oxigraph, drivers, classIri, columns, filters, limit, orderBy, offset, catalog: presupplied }) {
   const catalog = presupplied ?? (await readCatalog(oxigraph, new Set(drivers.keys())));
   const entry = catalog.find((c) => c.classIri === classIri);
   if (!entry) {
@@ -123,7 +124,7 @@ export async function queryClass({ oxigraph, drivers, classIri, columns, filters
   }
   const driver = drivers.get(entry.sourceId);
   if (!driver) throw new Error(`source ${entry.sourceId} is not attached`);
-  const sql = buildSelect(entry, { columns, filters, limit });
+  const sql = buildSelect(entry, { columns, filters, limit, orderBy, offset });
   const rows = await driver.query(sql);
   return {
     classIri,

@@ -1,0 +1,18 @@
+# graph: https://studio.local/graphs/demo
+<https://example.org/music#Poet> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#Poet> <http://www.w3.org/2000/01/rdf-schema#label> "Poet" .
+<https://example.org/music#PoetShape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .
+<https://example.org/music#PoetShape> <http://www.w3.org/ns/shacl#property> _:da854f9db158f04b544f1fe85339bc87 .
+<https://example.org/music#PoetShape> <http://www.w3.org/ns/shacl#property> _:f4f1636162dba9aa5188d31cb83a97fd .
+<https://example.org/music#PoetShape> <http://www.w3.org/ns/shacl#targetClass> <https://example.org/music#Poet> .
+<https://example.org/music#rilke> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Poet> .
+_:da854f9db158f04b544f1fe85339bc87 <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/1999/02/22-rdf-syntax-ns#langString> .
+_:da854f9db158f04b544f1fe85339bc87 <http://www.w3.org/ns/shacl#description> "Motto in its original language." .
+_:da854f9db158f04b544f1fe85339bc87 <http://www.w3.org/ns/shacl#name> "Motto" .
+_:da854f9db158f04b544f1fe85339bc87 <http://www.w3.org/ns/shacl#order> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:da854f9db158f04b544f1fe85339bc87 <http://www.w3.org/ns/shacl#path> <https://example.org/music#motto> .
+_:f4f1636162dba9aa5188d31cb83a97fd <http://datashapes.org/dash#singleLine> "false"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+_:f4f1636162dba9aa5188d31cb83a97fd <http://www.w3.org/ns/shacl#description> "Free-form biography, several paragraphs." .
+_:f4f1636162dba9aa5188d31cb83a97fd <http://www.w3.org/ns/shacl#name> "Bio" .
+_:f4f1636162dba9aa5188d31cb83a97fd <http://www.w3.org/ns/shacl#order> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:f4f1636162dba9aa5188d31cb83a97fd <http://www.w3.org/ns/shacl#path> <https://example.org/music#bio> .

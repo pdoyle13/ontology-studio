@@ -105,6 +105,17 @@ export function buildSpec() {
           responses: { 200: jsonRes({ type: 'object', properties: { columns: { type: 'array', items: { type: 'string' } }, rows: { type: 'array', items: { type: 'object' } }, truncated: { type: 'boolean' } } }), 400: jsonRes(ref('Error'), 'Not read-only / SQL error') },
         },
       },
+    '/api/graphql': {
+      post: {
+        summary: 'Execute a GraphQL query over the shape-derived schema',
+        description: 'SHACL node shapes generate the GraphQL types; virtual classes resolve from live SQL, meta classes from the graph.',
+        requestBody: { content: { 'application/json': { schema: { type: 'object', properties: { query: { type: 'string' }, variables: { type: 'object' } }, required: ['query'] } } } },
+        responses: { 200: { description: 'GraphQL execution result' } },
+      },
+    },
+    '/api/graphql/sdl': {
+      get: { summary: 'GraphQL SDL generated from SHACL shapes', responses: { 200: { description: 'SDL text' } } },
+    },
       '/api/virtual/classes': {
         get: {
           tags: ['virtual'],

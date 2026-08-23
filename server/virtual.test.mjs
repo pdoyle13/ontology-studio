@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchSubject } from './virtual.mjs';
+import { matchSubject, virtualSearch } from './virtual.mjs';
 import { QueryCache } from './cache.mjs';
 
 const CATALOG = [
@@ -80,5 +80,45 @@ describe('tag-scoped invalidation', () => {
     c.set('u', 'a', entry, ['graph:A']);
     c.invalidate(['graph:A']);
     expect(seen).toEqual(['graph:A']);
+  });
+});
+
+describe('virtualSearch', () => {
+  const catalog = [
+    {
+      ...CATALOG[0],
+      columns: [
+        { column: 'id', property: 'p:id', datatype: null },
+        { column: 'order_number', property: 'https://p/on', datatype: null },
+      ],
+    },
+    { ...CATALOG[1] }, // no label column -> skipped
+  ];
+  const labelProps = new Set(['https://p/on']);
+
+  it('fans label-column LIKE queries across sources and mints IRIs', async () => {
+    const seen = [];
+    const drivers = new Map([
+      ['sales_db', { query: async (sql) => { seen.push(sql); return [{ id: 9, order_number: 'ORD-1009' }]; } }],
+      ['crm_db', { query: async () => { throw new Error('should not be queried'); } }],
+    ]);
+    const out = await virtualSearch({ catalog, drivers, text: '1009', labelProps });
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toContain("LIKE '%1009%'");
+    expect(out).toEqual([
+      { iri: 'https://studio.local/sql/sales_db#orders/9', label: 'ORD-1009', classIri: catalog[0].classIri, sourceId: 'sales_db' },
+    ]);
+  });
+
+  it('swallows per-source failures instead of failing the whole search', async () => {
+    const lp = new Set(['https://p/on', 'p:cid']);
+    const cat2 = [catalog[0], { ...CATALOG[1], columns: [{ column: 'id', property: 'p:cid', datatype: null }] }];
+    const drivers = new Map([
+      ['sales_db', { query: async () => [{ id: 1, order_number: 'ORD-1001' }] }],
+      ['crm_db', { query: async () => { throw new Error('db down'); } }],
+    ]);
+    const out = await virtualSearch({ catalog: cat2, drivers, text: '100', labelProps: lp });
+    expect(out).toHaveLength(1);
+    expect(out[0].sourceId).toBe('sales_db');
   });
 });

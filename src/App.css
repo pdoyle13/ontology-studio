@@ -333,7 +333,17 @@ button.micro.add-field:hover { color: var(--accent); }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.rdf-handle { opacity: 0; }
+.rdf-handle {
+  opacity: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border: 1px solid var(--bg);
+  transition: opacity 0.12s;
+}
+.rdf-node:hover .rdf-handle,
+.react-flow__handle-connecting,
+.react-flow__connection ~ * .rdf-handle { opacity: 0.9; }
 .rdf-minimap { background: var(--bg-panel) !important; }
 .react-flow__edge-path { stroke: #55503f; }
 .edge-label {
@@ -481,3 +491,182 @@ button.micro.add-field:hover { color: var(--accent); }
 }
 .diff-add { color: var(--ok); }
 .diff-del { color: var(--err); }
+
+/* ---- context menu ---- */
+.context-menu {
+  position: fixed;
+  z-index: 100;
+  min-width: 200px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.menu-item {
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  border-radius: var(--radius);
+}
+.menu-item:hover:not(:disabled) { background: var(--accent-wash); color: var(--accent); }
+.menu-item.danger-text:hover:not(:disabled) { color: var(--err); background: rgba(207, 102, 83, 0.1); }
+.menu-sep { height: 1px; background: var(--border); margin: 4px 6px; }
+
+/* ---- relation picker ---- */
+.relation-picker {
+  position: fixed;
+  z-index: 100;
+  width: 300px;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  padding: 8px;
+}
+.relation-picker input { width: 100%; }
+
+/* ---- node hover quick actions ---- */
+.node-quick-actions {
+  position: absolute;
+  top: -22px;
+  right: 0;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  pointer-events: none;
+}
+.rdf-node:hover .node-quick-actions { opacity: 1; pointer-events: auto; }
+button.quick {
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 1.6;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+}
+button.quick:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---- data grid ---- */
+.data-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-inset);
+}
+.grid-head { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
+.grid-scroll { flex: 1; overflow: auto; padding: 0 12px; }
+.grid-row { cursor: pointer; }
+.grid-row:hover td { background: var(--accent-wash); }
+.result-table th.sortable { cursor: pointer; user-select: none; }
+.result-table th.sortable:hover { color: var(--accent); }
+.grid-filter { width: 100%; font-size: 10.5px; padding: 1px 5px; font-family: var(--mono); }
+.grid-foot { display: flex; align-items: center; gap: 12px; padding: 6px 12px; border-top: 1px solid var(--border); background: var(--bg-panel); }
+.grid-sql { margin-left: auto; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* omnibox */
+.omnibox-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(1px);
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+.omnibox {
+  width: min(620px, 92vw);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+}
+.omnibox-input {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  outline: none;
+}
+.omnibox-results {
+  overflow-y: auto;
+}
+.omnibox-group {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 14px 3px;
+}
+.omnibox-hit {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+.omnibox-hit.active {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.omnibox-label {
+  font-size: 13px;
+}
+.omnibox-empty {
+  padding: 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* skos taxonomy */
+.taxonomy-panel { display: flex; flex-direction: column; gap: 6px; }
+.skos-toolbar { display: flex; gap: 6px; }
+.skos-root {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 4px 8px; border: 1px dashed var(--border); border-radius: 2px;
+}
+.skos-tree, .skos-children { list-style: none; margin: 0; padding: 0; }
+.skos-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 3px 6px; font-size: 12.5px; cursor: pointer; border-radius: 2px;
+}
+.skos-row:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.skos-row.selected { background: color-mix(in srgb, var(--accent) 16%, transparent); }
+.skos-row .skos-actions { visibility: hidden; display: flex; gap: 2px; }
+.skos-row:hover .skos-actions { visibility: visible; }
+.skos-row.drop-target, .skos-root.drop-target {
+  outline: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* form widgets round 2 */
+.field-help { font-size: 11px; color: var(--muted); margin: -2px 0 3px; line-height: 1.35; }
+.field-textarea {
+  width: 100%; font: inherit; font-size: 12.5px; resize: vertical;
+  background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 2px; padding: 5px 7px;
+}
+.lang-input { width: 44px; flex: none; }
+.lang-chip {
+  font-size: 10px; color: var(--muted); margin-left: 4px;
+  border: 1px solid var(--border); border-radius: 2px; padding: 0 3px;
+}
+
+/* edge hover emphasis */
+.react-flow__edge:hover .rdf-edge-path { stroke: var(--accent) !important; stroke-width: 2px; }
+.react-flow__edge:hover + .react-flow__edgelabel-renderer .edge-label,
+.edge-label:hover { color: var(--accent); border-color: var(--accent); }
+.react-flow__edge.selected .rdf-edge-path { stroke: var(--accent) !important; stroke-width: 2px; }

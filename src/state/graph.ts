@@ -51,6 +51,8 @@ export const useGraph = create<GraphState>((set, get) => ({
       set({ selected: null, description: null });
       return;
     }
+    // selecting something is an intent to inspect it
+    import('./ui').then(({ useUi }) => useUi.getState().setRightTab('inspector'));
     const conn = useConnection.getState();
     const ep = conn.active();
     if (!ep) return;

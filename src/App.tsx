@@ -8,6 +8,10 @@ import { SidebarTabs } from './components/SidebarTabs';
 import { ResourcePanel } from './components/ResourcePanel';
 import { GraphCanvas } from './components/GraphCanvas';
 import { SparqlDrawer } from './components/SparqlDrawer';
+import { ContextMenu } from './components/ContextMenu';
+import { Modals } from './components/Modal';
+import { DataGrid } from './components/DataGrid';
+import { Omnibox } from './components/Omnibox';
 import { useConnection } from './state/connection';
 import { startCollab } from './state/collab';
 import { startIdentity } from './state/identity';
@@ -48,7 +52,10 @@ export default function App() {
         </aside>
         <main className="canvas-area">
           {status === 'connected' ? (
-            <GraphCanvas />
+            <>
+              <GraphCanvas />
+              <DataGrid />
+            </>
           ) : (
             <div className="placeholder center">Ontology Studio — connect to Oxigraph to begin</div>
           )}
@@ -66,6 +73,9 @@ export default function App() {
         </aside>
       </div>
       <SparqlDrawer />
+      <ContextMenu />
+      <Modals />
+      <Omnibox />
     </div>
   );
 }

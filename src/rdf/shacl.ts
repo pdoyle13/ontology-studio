@@ -21,6 +21,8 @@ export interface PropertyShapeInfo {
   maxInclusive: string | null;
   pattern: string | null;
   inValues: { value: string; isIri: boolean }[] | null; // sh:in enumeration
+  singleLine: boolean | null; // dash:singleLine — false renders a textarea
+  maxLength: number | null;
 }
 
 export interface NodeShapeInfo {
@@ -30,6 +32,7 @@ export interface NodeShapeInfo {
 }
 
 const SH = 'http://www.w3.org/ns/shacl#';
+const DASH = 'http://datashapes.org/dash#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
 /** Fetch sh:in enumerations for the property shapes of the given node shapes.
@@ -80,7 +83,7 @@ export async function fetchShapesForClasses(
   if (classIris.length === 0) return [];
   const values = classIris.map((c) => `<${c}>`).join(' ');
   const q = `
-SELECT ?shape ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern WHERE {
+SELECT ?shape ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern ?singleLine ?maxLen WHERE {
   VALUES ?target { ${values} }
   ${scoped(
     `?shape <${SH}targetClass> ?target .
@@ -96,7 +99,9 @@ SELECT ?shape ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?
      OPTIONAL { ?ps <${SH}order> ?order }
      OPTIONAL { ?ps <${SH}minInclusive> ?minInc }
      OPTIONAL { ?ps <${SH}maxInclusive> ?maxInc }
-     OPTIONAL { ?ps <${SH}pattern> ?pattern }`,
+     OPTIONAL { ?ps <${SH}pattern> ?pattern }
+     OPTIONAL { ?ps <${DASH}singleLine> ?singleLine }
+     OPTIONAL { ?ps <${SH}maxLength> ?maxLen }`,
     graph
   )}
   FILTER(isIRI(?path))
@@ -129,6 +134,8 @@ ORDER BY ?shape ?order`;
       minInclusive: b.minInc?.value ?? null,
       maxInclusive: b.maxInc?.value ?? null,
       pattern: b.pattern?.value ?? null,
+      singleLine: b.singleLine ? b.singleLine.value === 'true' : null,
+      maxLength: b.maxLen ? Number(b.maxLen.value) : null,
       inValues: null,
     });
   }
@@ -147,7 +154,7 @@ export async function fetchShape(
   shapeIri: string
 ): Promise<NodeShapeInfo | null> {
   const q = `
-SELECT ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern WHERE {
+SELECT ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern ?singleLine ?maxLen WHERE {
   ${scoped(
     `OPTIONAL { <${shapeIri}> <${SH}targetClass> ?target }
      <${shapeIri}> <${SH}property> ?ps .
@@ -162,7 +169,9 @@ SELECT ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCoun
      OPTIONAL { ?ps <${SH}order> ?order }
      OPTIONAL { ?ps <${SH}minInclusive> ?minInc }
      OPTIONAL { ?ps <${SH}maxInclusive> ?maxInc }
-     OPTIONAL { ?ps <${SH}pattern> ?pattern }`,
+     OPTIONAL { ?ps <${SH}pattern> ?pattern }
+     OPTIONAL { ?ps <${DASH}singleLine> ?singleLine }
+     OPTIONAL { ?ps <${SH}maxLength> ?maxLen }`,
     graph
   )}
   FILTER(isIRI(?path))
@@ -195,6 +204,8 @@ ORDER BY ?order`;
       minInclusive: b.minInc?.value ?? null,
       maxInclusive: b.maxInc?.value ?? null,
       pattern: b.pattern?.value ?? null,
+      singleLine: b.singleLine ? b.singleLine.value === 'true' : null,
+      maxLength: b.maxLen ? Number(b.maxLen.value) : null,
       inValues: null,
     });
   }

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useGraph } from '../state/graph';
+import { useWrite } from '../hooks/useWrite';
 import { useConnection } from '../state/connection';
 import type { ResourceDescription, TermValue } from '../rdf/queries';
 import { fetchShapesForClasses, datatypeToKind, type NodeShapeInfo, type PropertyShapeInfo } from '../rdf/shacl';
@@ -13,33 +14,23 @@ import { cmdInsert, cmdDelete, cmdReplace } from '../rdf/commands';
 import { useValidation } from '../state/validation';
 import { widgetFor, validateAgainstShape } from '../rdf/constraints';
 
-function useWrite() {
-  const conn = useConnection();
-  const { refreshSelected } = useGraph();
-  const [error, setError] = useState<string | null>(null);
-  const run = async (fn: () => Promise<void>) => {
-    setError(null);
-    try {
-      await fn();
-      await refreshSelected();
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
-  return { run, error, ep: conn.active(), graph: conn.activeGraph };
-}
+
 
 /** Constraint-aware literal input: right widget for the datatype, live validation. */
 function ConstrainedInput({
   ps,
   text,
   setText,
+  lang,
+  setLang,
   onSave,
   onCancel,
 }: {
   ps: PropertyShapeInfo;
   text: string;
   setText: (s: string) => void;
+  lang?: string;
+  setLang?: (s: string) => void;
   onSave: () => void;
   onCancel: () => void;
 }) {
@@ -70,6 +61,18 @@ function ConstrainedInput({
           <option value="true">true</option>
           <option value="false">false</option>
         </select>
+      ) : widget === 'textarea' ? (
+        <textarea
+          autoFocus
+          className={`field-textarea ${error ? 'input-invalid' : ''}`}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !error) onSave();
+            if (e.key === 'Escape') onCancel();
+          }}
+          rows={4}
+        />
       ) : (
         <input
           autoFocus
@@ -82,6 +85,16 @@ function ConstrainedInput({
           onKeyDown={keys}
           className={error ? 'input-invalid' : ''}
           style={{ width: '100%' }}
+        />
+      )}
+      {widget === 'langtext' && setLang && (
+        <input
+          className="lang-input"
+          placeholder="lang"
+          title="Language tag (BCP 47), e.g. en, de, fr-CA"
+          value={lang ?? ''}
+          onChange={(e) => setLang(e.target.value.trim())}
+          onKeyDown={keys}
         />
       )}
       <span className="row-actions always">
@@ -108,16 +121,22 @@ function FieldValue({
   const { selectResource } = useGraph();
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState('');
+  const [lang, setLang] = useState('');
 
   if (editing && value.type === 'literal') {
     const save = () => {
       if (!ep || validateAgainstShape(ps, text)) return;
-      run(() => cmdReplace(ep, graph, subject, ps.path, value, { ...value, value: text.trim() }));
+      const next: TermValue = { ...value, value: text.trim() };
+      if (widgetFor(ps) === 'langtext' || value.lang) {
+        next.lang = lang || undefined;
+        delete next.datatype;
+      }
+      run(() => cmdReplace(ep, graph, subject, ps.path, value, next));
       setEditing(false);
     };
     return (
       <div className="value-row">
-        <ConstrainedInput ps={ps} text={text} setText={setText} onSave={save} onCancel={() => setEditing(false)} />
+        <ConstrainedInput ps={ps} text={text} setText={setText} lang={lang} setLang={setLang} onSave={save} onCancel={() => setEditing(false)} />
       </div>
     );
   }
@@ -143,10 +162,21 @@ function FieldValue({
           {displayName(value.value, value.label)}
         </a>
       ) : (
-        <span className="term-literal">{value.value}</span>
+        <span className="term-literal">
+          {value.value}
+          {value.lang && <span className="lang-chip">@{value.lang}</span>}
+        </span>
       )}
       <span className="row-actions">
-        <button className="micro" title="Edit" onClick={() => { setText(value.type === 'literal' ? value.value : ''); setEditing(true); }}>✎</button>
+        <button
+          className="micro"
+          title="Edit"
+          onClick={() => {
+            setText(value.type === 'literal' ? value.value : '');
+            setLang(value.lang ?? '');
+            setEditing(true);
+          }}
+        >✎</button>
         <button
           className="micro danger"
           title="Remove"
@@ -164,6 +194,7 @@ function FieldAdd({ subject, ps }: { subject: string; ps: PropertyShapeInfo }) {
   const { prefixes } = useGraph();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
+  const [lang, setLang] = useState('');
 
   if (!open) {
     return (
@@ -193,13 +224,17 @@ function FieldAdd({ subject, ps }: { subject: string; ps: PropertyShapeInfo }) {
 
   const save = () => {
     if (!text.trim() || validateAgainstShape(ps, text)) return;
+    if (widgetFor(ps) === 'langtext') {
+      saveTerm({ type: 'literal', value: text.trim(), lang: lang || undefined });
+      return;
+    }
     const term = parseTermInput(text, datatypeToKind(ps.datatype), (s) => prefixes.expand(s));
     if (ps.datatype && term.type === 'literal') term.datatype = ps.datatype;
     saveTerm(term);
   };
   return (
     <div className="value-row">
-      <ConstrainedInput ps={ps} text={text} setText={setText} onSave={save} onCancel={() => setOpen(false)} />
+      <ConstrainedInput ps={ps} text={text} setText={setText} lang={lang} setLang={setLang} onSave={save} onCancel={() => setOpen(false)} />
     </div>
   );
 }
@@ -254,12 +289,13 @@ export function ShapeForm({ description }: { description: ResourceDescription })
                 key={`${shape.iri}|${ps.path}`}
                 className={`shape-field ${missing || fieldViolations.length > 0 ? 'missing' : ''}`}
               >
-                <div className="field-name" title={ps.description ?? ps.path}>
+                <div className="field-name" title={ps.path}>
                   {ps.name ?? prefixes.shrink(ps.path)}
                   {required && <span className="req" title="required (sh:minCount ≥ 1)">*</span>}
                   {ps.datatype && <span className="term-meta"> {prefixes.shrink(ps.datatype)}</span>}
                   {ps.classIri && <span className="term-meta"> → {prefixes.shrink(ps.classIri)}</span>}
                 </div>
+                {ps.description && <div className="field-help">{ps.description}</div>}
                 {vals.map((v, i) =>
                   readOnly ? (
                     <div key={i} className="value-row">
