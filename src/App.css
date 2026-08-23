@@ -670,3 +670,17 @@ button.quick:hover { color: var(--accent); border-color: var(--accent); }
 .react-flow__edge:hover + .react-flow__edgelabel-renderer .edge-label,
 .edge-label:hover { color: var(--accent); border-color: var(--accent); }
 .react-flow__edge.selected .rdf-edge-path { stroke: var(--accent) !important; stroke-width: 2px; }
+
+/* taxonomy extensions */
+.ext-section { margin-bottom: 14px; }
+.ext-list { list-style: none; margin: 4px 0 8px; padding: 0; }
+.ext-row { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--border); }
+.ext-name { font-size: 12.5px; }
+.ext-row .term-meta { margin-left: auto; }
+.ext-form { display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--border); padding: 8px; border-radius: 2px; }
+
+/* csv import */
+.csv-input { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; margin-top: 6px; width: 100%; }
+.csv-preview td, .csv-preview th { white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.csv-bad td:first-child { color: var(--err); }
+.csv-ok td:first-child { color: var(--ok); }

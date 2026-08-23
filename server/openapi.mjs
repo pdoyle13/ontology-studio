@@ -105,6 +105,21 @@ export function buildSpec() {
           responses: { 200: jsonRes({ type: 'object', properties: { columns: { type: 'array', items: { type: 'string' } }, rows: { type: 'array', items: { type: 'object' } }, truncated: { type: 'boolean' } } }), 400: jsonRes(ref('Error'), 'Not read-only / SQL error') },
         },
       },
+    '/api/search': {
+      get: {
+        summary: 'Full-text search over the whole estate (model terms + live rows)',
+        description: 'Embedded BM25 index, ES/OpenSearch wire-compatible endpoints under /es (cluster info, _search with query DSL, _cat/indices, _refresh). Set SEARCH_URL to proxy to a real Elasticsearch/OpenSearch cluster.',
+        parameters: [{ name: 'q', in: 'query', schema: { type: 'string' } }],
+        responses: { 200: { description: 'Ranked hits with kind/model|data grouping metadata' } },
+      },
+    },
+    '/es/studio/_search': {
+      post: {
+        summary: 'Elasticsearch/OpenSearch-compatible _search',
+        description: 'Supports match, multi_match, query_string, term, prefix, bool (must/should/filter/must_not), match_all, from/size.',
+        responses: { 200: { description: 'Standard ES search response envelope' } },
+      },
+    },
     '/api/graphql': {
       post: {
         summary: 'Execute a GraphQL query over the shape-derived schema',

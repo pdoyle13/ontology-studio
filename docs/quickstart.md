@@ -48,3 +48,30 @@ Spec: `GET /api/openapi.json`. Cache stats: `GET /api/cache/stats`.
 ```bash
 npm test               # vitest — client RDF layer, layout engine, server logic
 ```
+
+
+## Deployment
+
+**Docker (any host):**
+
+```bash
+docker compose up -d          # kafka + oxigraph + studio; UI+API on :8890
+```
+
+Configuration comes from the environment (or a `.env` next to the compose file):
+`GROK_API_KEY` / `ANTHROPIC_API_KEY` (agent), `AGENT_MODEL`, `SEARCH_URL`
+(point at a real Elasticsearch/OpenSearch cluster; blank = embedded index).
+The image bundles the demo seed (`/app/seed`); attach your own SQLite files by
+mounting them and adding the source through the UI or API.
+
+**Prebuilt image:** every push to `main` publishes
+`ghcr.io/<owner>/ontology-studio:latest` (`.github/workflows/docker.yml`), so a
+server never needs the repo — just the compose file and
+`STUDIO_IMAGE=ghcr.io/<owner>/ontology-studio:latest docker compose up -d --no-build`.
+
+**GitHub Codespaces:** the repo ships a devcontainer — "Code → Create
+codespace" boots oxigraph + kafka in-container and starts the dev servers;
+ports 5180/7881 are forwarded automatically.
+
+**GitHub Pages** hosts static files only, so it cannot run the stack (Node
+server, triplestore, SQL engines). Use GHCR + any Docker host, or Codespaces.

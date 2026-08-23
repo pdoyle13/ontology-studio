@@ -12,6 +12,9 @@ import { ContextMenu } from './components/ContextMenu';
 import { Modals } from './components/Modal';
 import { DataGrid } from './components/DataGrid';
 import { Omnibox } from './components/Omnibox';
+import { AssetDialog } from './components/AssetDialog';
+import { ExtensionsDialog } from './components/ExtensionsDialog';
+import { CsvImportDialog } from './components/CsvImportDialog';
 import { useConnection } from './state/connection';
 import { startCollab } from './state/collab';
 import { startIdentity } from './state/identity';
@@ -76,6 +79,9 @@ export default function App() {
       <ContextMenu />
       <Modals />
       <Omnibox />
+      <AssetDialog />
+      <ExtensionsDialog />
+      <CsvImportDialog />
     </div>
   );
 }

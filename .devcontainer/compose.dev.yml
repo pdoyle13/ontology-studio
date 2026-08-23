@@ -1,0 +1,14 @@
+# Dev override (Codespaces / local dev): expose oxigraph + kafka to the host
+# so `npm run dev` outside docker can reach them. Kafka gets an EXTERNAL
+# listener on 19092 (the eventBus default).
+services:
+  oxigraph:
+    ports:
+      - "7878:7878"
+  kafka:
+    environment:
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+    ports:
+      - "19092:19092"

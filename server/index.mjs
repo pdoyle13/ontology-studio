@@ -15,6 +15,7 @@ import { emitR2rml, MAPPINGS_GRAPH, STUDIO } from './r2rml.mjs';
 import { createDriver, safeDescriptor } from './drivers.mjs';
 import { readCatalog, planSources, queryClass } from './federation.mjs';
 import { createGraphQL } from './graphqlLayer.mjs';
+import { createSearchService } from './searchService.mjs';
 import { discoverBusinessAreas, readAlignment } from './discover.mjs';
 import { virtualInstances, virtualDescribe, virtualSearch } from './virtual.mjs';
 import { buildSpec } from './openapi.mjs';
@@ -439,6 +440,60 @@ async function rowCounts() {
   return value;
 }
 cache.onInvalidate(() => { rowCountsMemo = null; });
+
+// ---- Search: embedded BM25 index over the whole estate, ES/OpenSearch wire-compatible ----
+const searchSvc = createSearchService({ oxigraph: OXIGRAPH, federation, drivers: sources });
+cache.onInvalidate(() => searchSvc.markDirty());
+
+// ES/OpenSearch compatibility surface (point any ES client at <server>/es)
+app.get('/es', (_req, res) =>
+  res.json({
+    name: 'ontology-studio',
+    cluster_name: 'studio',
+    version: { number: '8.13.0', distribution: 'opensearch', build_flavor: 'embedded' },
+    tagline: 'The graph knows where everything lives',
+  })
+);
+app.get('/es/_cat/indices', async (_req, res) => {
+  await searchSvc.ensure();
+  const s = searchSvc.stats();
+  res.type('text/plain').send(`green open studio - 1 0 ${s.docs} 0 - -\n`);
+});
+app.post('/es/_refresh', async (_req, res) => {
+  try {
+    res.json({ ok: true, ...(await searchSvc.rebuild()) });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+const esSearch = async (req, res) => {
+  try {
+    res.json(await searchSvc.search(req.body ?? {}));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+};
+app.post('/es/_search', esSearch);
+app.post('/es/studio/_search', esSearch);
+app.get('/es/studio/_search', async (req, res) => {
+  try {
+    const q = String(req.query.q ?? '');
+    res.json(await searchSvc.search({ query: { multi_match: { query: q, fields: ['label^3', 'text'] } }, size: Number(req.query.size ?? 10) }));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+// friendly wrapper used by the omnibox
+app.get('/api/search', async (req, res) => {
+  const q = String(req.query.q ?? '').trim();
+  if (q.length < 2) return res.json({ hits: [], stats: searchSvc.stats() });
+  try {
+    res.json({ hits: await searchSvc.quick(q), stats: searchSvc.stats() });
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
 
 // ---- GraphQL from shapes: SHACL node shapes ARE the schema ----
 let gqlMemo = null;

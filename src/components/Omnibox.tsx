@@ -62,21 +62,36 @@ export function Omnibox() {
     const t = setTimeout(async () => {
       setBusy(true);
       try {
-        const [meta, data] = await Promise.all([
-          searchResources(ep, conn.activeGraph, text, 12).catch(() => []),
-          fetch(`/api/virtual/search?q=${encodeURIComponent(text)}`)
-            .then((r) => (r.ok ? r.json() : []))
-            .catch(() => []) as Promise<{ iri: string; label: string | null; classIri: string; sourceId: string }[]>,
-        ]);
-        const merged: Hit[] = [
-          ...meta.map((m) => ({ iri: m.iri, label: m.label, group: 'model' as const })),
-          ...data.map((d) => ({
-            iri: d.iri,
-            label: d.label,
-            group: 'data' as const,
-            detail: `${displayName(d.classIri)} · ${d.sourceId}`,
-          })),
-        ];
+        interface SearchHit {
+          iri: string;
+          label: string | null;
+          kind: 'model' | 'data';
+          type?: string;
+          classIri?: string;
+          sourceId?: string;
+        }
+        // one call to the search service (BM25 over model terms + live rows);
+        // SPARQL fallback keeps the box working if the index is unavailable
+        let hitsRaw: SearchHit[] = [];
+        try {
+          const r = await fetch(`/api/search?q=${encodeURIComponent(text)}`);
+          if (r.ok) hitsRaw = (await r.json()).hits;
+        } catch {
+          /* fall through */
+        }
+        if (hitsRaw.length === 0) {
+          const meta = await searchResources(ep, conn.activeGraph, text, 12).catch(() => []);
+          hitsRaw = meta.map((m) => ({ iri: m.iri, label: m.label, kind: 'model' as const }));
+        }
+        const merged: Hit[] = hitsRaw.map((h) => ({
+          iri: h.iri,
+          label: h.label,
+          group: h.kind === 'data' ? ('data' as const) : ('model' as const),
+          detail:
+            h.kind === 'data' && h.classIri
+              ? `${displayName(h.classIri)} · ${h.sourceId ?? ''}`
+              : h.type,
+        }));
         setHits(merged);
         setActive(0);
       } finally {

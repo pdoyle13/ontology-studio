@@ -1,0 +1,26 @@
+Ontology Studio
+Copyright 2026 Patrick Doyle
+
+Licensed under the MIT License (see LICENSE).
+
+Third-party content
+-------------------
+
+seed/fibo-core.ttl contains a small curated subset of class definitions from
+the Financial Industry Business Ontology (FIBO), Copyright the EDM Council,
+Inc., licensed under the MIT License (https://spec.edmcouncil.org/fibo/).
+The subset preserves the original spec.edmcouncil.org IRIs; the keyword
+annotations (skos:altLabel matcher terms) are additions by this project.
+
+The IBM Plex typeface family is used under the SIL Open Font License 1.1.
+
+Trademarks
+----------
+
+Elasticsearch is a trademark of Elasticsearch B.V. OpenSearch is a trademark
+of the OpenSearch Project / LF Projects. VendorB is a trademark of
+VendorB, Inc. VendorC is a trademark of VendorC GmbH. VendorA is a
+trademark of VendorA. These names are used only to describe wire-protocol
+compatibility or for factual feature comparison; this project is not
+affiliated with, endorsed by, or sponsored by any of these vendors, and
+contains none of their code.

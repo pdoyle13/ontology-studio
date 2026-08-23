@@ -9,8 +9,6 @@ import {
   listSchemes,
   fetchConcepts,
   buildTaxonomyTree,
-  cmdCreateScheme,
-  cmdCreateConcept,
   cmdReparentConcept,
   cmdRenameConcept,
   type SchemeInfo,
@@ -18,13 +16,12 @@ import {
   type ConceptNode,
 } from '../rdf/skos';
 import { displayName } from '../rdf/display';
+import { openAssetDialog } from './AssetDialog';
+import { openExtensions } from './ExtensionsDialog';
+import { openCsvImport } from './CsvImportDialog';
 import { dragIri } from './ClassTree';
 
 const CONCEPT_MIME = 'application/x-studio-concept';
-
-function slug(label: string): string {
-  return label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'concept';
-}
 
 function ConceptTreeNode({
   node,
@@ -67,20 +64,15 @@ function ConceptTreeNode({
     [conn, node.iri, rows, scheme, onChanged]
   );
 
-  const addChild = useCallback(async () => {
-    const ep = conn.active();
-    if (!ep) return;
-    const label = window.prompt(`New narrower concept under “${displayName(node.iri, node.label)}”:`);
-    if (!label?.trim()) return;
-    const ns = scheme.replace(/[#/][^#/]*$/, '/');
-    await cmdCreateConcept(ep, conn.activeGraph, {
-      iri: `${ns}${slug(label)}`,
-      label: label.trim(),
+  const addChild = useCallback(() => {
+    openAssetDialog({
+      asset: 'concept',
+      title: `New concept under “${displayName(node.iri, node.label)}”`,
       scheme,
       broader: node.iri,
+      onDone: onChanged,
     });
-    onChanged();
-  }, [conn, node, scheme, onChanged]);
+  }, [node, scheme, onChanged]);
 
   const rename = useCallback(async () => {
     const ep = conn.active();
@@ -175,30 +167,21 @@ export function TaxonomyPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, conn.activeId, conn.activeGraph, nonce]);
 
-  const newScheme = useCallback(async () => {
-    const ep = conn.active();
-    if (!ep) return;
-    const label = window.prompt('New concept scheme name:');
-    if (!label?.trim()) return;
-    const iri = `https://studio.local/taxonomy/${slug(label)}`;
-    await cmdCreateScheme(ep, conn.activeGraph, iri, label.trim());
-    setActive(iri);
-    refresh();
-  }, [conn, refresh]);
-
-  const addTop = useCallback(async () => {
-    const ep = conn.active();
-    if (!ep || !active) return;
-    const label = window.prompt('New top concept:');
-    if (!label?.trim()) return;
-    await cmdCreateConcept(ep, conn.activeGraph, {
-      iri: `${active.replace(/[#/]$/, '')}/${slug(label)}`,
-      label: label.trim(),
-      scheme: active,
-      broader: null,
+  const newScheme = useCallback(() => {
+    openAssetDialog({
+      asset: 'scheme',
+      title: 'New concept scheme',
+      onDone: (iri) => {
+        setActive(iri);
+        refresh();
+      },
     });
-    refresh();
-  }, [conn, active, refresh]);
+  }, [refresh]);
+
+  const addTop = useCallback(() => {
+    if (!active) return;
+    openAssetDialog({ asset: 'concept', title: 'New top concept', scheme: active, onDone: refresh });
+  }, [active, refresh]);
 
   const dropToTop = useCallback(
     async (droppedIri: string) => {
@@ -234,6 +217,15 @@ export function TaxonomyPanel() {
           ))}
         </select>
         <button className="ghost" onClick={newScheme} title="Create a concept scheme">＋ Scheme</button>
+        <button className="ghost" onClick={openExtensions} title="Configure custom fields for concepts and schemes">⚙</button>
+        <button
+          className="ghost"
+          disabled={!active}
+          onClick={() => active && openCsvImport(active, refresh)}
+          title="Bulk import concepts from a CSV spreadsheet"
+        >
+          ⇪ CSV
+        </button>
       </div>
       {active && (
         <>

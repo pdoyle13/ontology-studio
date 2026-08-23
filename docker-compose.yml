@@ -24,14 +24,24 @@ services:
 
   studio:
     build: .
+    image: ${STUDIO_IMAGE:-ontology-studio:local}
     depends_on:
       - oxigraph
     environment:
       OXIGRAPH_URL: http://oxigraph:7878
       KAFKA_BROKERS: kafka:9092
+      GROK_API_KEY: ${GROK_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      AGENT_MODEL: ${AGENT_MODEL:-claude-sonnet-5}
+      AGENT_MODEL: ${AGENT_MODEL:-grok-4}
+      SEARCH_URL: ${SEARCH_URL:-}
       CACHE_TTL_MS: ${CACHE_TTL_MS:-60000}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7881/es"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     volumes:
       - studio-sources:/app/server-state
       # mount host folders read-only to attach their SQLite files, e.g.:

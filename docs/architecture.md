@@ -52,6 +52,12 @@ predicate plus the two join-key properties — and instance joins happen live.
   authoring (classes/shapes/instances in the *meta* sense), `declare_link`,
   `query_source_data`, `graphql_query`, `discover_business_areas`. It never
   writes raw SPARQL updates and never inserts instance data into the graph.
+- **Search** — embedded BM25 inverted index over the whole estate (model
+  terms + live rows via the catalog, LabelRole labels), rebuilt debounced on
+  graph invalidation. Wire-compatible ES/OpenSearch surface under `/es`
+  (cluster info, `_search` query DSL, `_cat/indices`, `_refresh`); set
+  `SEARCH_URL` to bulk-push and proxy to a real cluster instead. The omnibox
+  reads `/api/search`.
 - **GraphQL** — `POST /api/graphql` (`GET /api/graphql/sdl` for the SDL).
   SHACL node shapes generate the schema; resolvers answer from live SQL for
   virtual classes and from the graph for meta classes. The schema memo is

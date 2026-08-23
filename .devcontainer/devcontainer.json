@@ -1,0 +1,23 @@
+{
+  "name": "Ontology Studio",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [5180, 7881, 8890],
+  "portsAttributes": {
+    "5180": { "label": "Studio UI (dev)" },
+    "8890": { "label": "Studio (docker, UI+API)" },
+    "7881": { "label": "Studio API (dev)" }
+  },
+  "postCreateCommand": "npm ci",
+  "postStartCommand": "docker compose up -d oxigraph kafka && (OXIGRAPH_URL=http://localhost:7878 npm run dev &)",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint"]
+    }
+  },
+  "remoteEnv": {
+    "OXIGRAPH_URL": "http://localhost:7878"
+  }
+}
