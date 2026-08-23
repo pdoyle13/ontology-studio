@@ -85,8 +85,14 @@ src/layout/     pure layout engine (algorithms, metrics, refine, anchors)
 src/components/ ConnectionBar, SidebarTabs, ClassTree, GraphCanvas, ResourcePanel,
                 ShapeForm, ShapeEditor, SparqlDrawer, SqlPanel, AgentPanel,
                 DataGrid, Omnibox, TaxonomyPanel, ProposalsPanel, …
-server/         index (routes+cache wiring), meta (shared sparql), drivers,
-                translate, r2rml, federation, virtual, discover, cache,
-                graphqlLayer, governance, eventBus, backup, agent, agentTools
+server/
+  index.mjs     routes + wiring (the only place endpoints live)
+  connectors/   pluggable SQL drivers (registry auto-discovers drop-in modules)
+  core/         meta (shared sparql), cache tiers
+  semantic/     translate, r2rml, federation, virtual, discover, graphqlLayer
+  search/       searchIndex (BM25 + ES DSL), searchService (estate crawler)
+  governance/   governance (roles/proposals), changelog
+  agent/        agent loop, typed tools
+  ops/          eventBus (Kafka), backup (PITR), graphAsCode, openapi
 seed/           demo data: music ontology, FIBO core, sqlite databases
 ```

@@ -7,3 +7,4 @@ server/.cache
 seed/retail_pos.db
 seed/delivery.db
 backups/
+planning/

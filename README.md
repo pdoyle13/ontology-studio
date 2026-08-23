@@ -28,6 +28,27 @@ plan and answer across every attached database.
 - **Layout engine** — scored auto-layout (crossings/overlaps/compactness),
   straight midpoint-anchored edges
 
+## Setup
+
+**Prerequisites**: Node 22+, Docker (for Oxigraph + Kafka), git.
+
+```bash
+git clone <this repo> && cd ontology-studio
+npm ci
+docker compose -f docker-compose.yml -f .devcontainer/compose.dev.yml up -d oxigraph kafka
+cp .env.example .env        # add GROK_API_KEY (or ANTHROPIC_API_KEY) for the agent
+npm run dev                 # UI on :5180, API on :7881
+```
+
+Open http://localhost:5180, pick the endpoint, and load the demo:
+the SQL tab attaches `seed/*.db` files; "Translate" turns any attached
+database into classes + shapes + R2RML in one click.
+
+**Production**: `docker compose up -d` (everything in containers, UI+API on
+:8890) or pull the GHCR image — see docs/quickstart.md → Deployment.
+
+**Tests**: `npm test` (vitest; the pre-commit hook runs them too).
+
 ## Docs
 
 | | |
@@ -36,6 +57,9 @@ plan and answer across every attached database.
 | [Architecture](docs/architecture.md) | the meta-only design, request paths, caching, code map |
 | [Capability coverage](docs/coverage.md) | feature audit + known gaps |
 | **API** | Swagger UI at `http://localhost:7881/api/docs` · spec at `/api/openapi.json` |
+| [Workspaces & asset types](docs/workspaces.md) | per-persona entry points; dynamic asset-type framework |
+| [Personas](docs/personas/) | per-workspace guides: modeler, steward, explorer, developer, admin |
+| [Parity plan](docs/parity-plan.md) | the phased path to full platform coverage |
 | [ROADMAP](ROADMAP.md) | build log, phase by phase |
 
 ## Stack
