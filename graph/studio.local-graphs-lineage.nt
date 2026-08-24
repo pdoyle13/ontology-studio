@@ -843,3 +843,6 @@
 <https://studio.local/sql/wms_db#warehouses_location> <http://www.w3.org/2000/01/rdf-schema#domain> <https://studio.local/sql/wms_db#warehouses> .
 <https://studio.local/sql/wms_db#warehouses_location> <http://www.w3.org/2000/01/rdf-schema#label> "Location" .
 <https://studio.local/sql/wms_db#warehouses_location> <http://www.w3.org/2000/01/rdf-schema#range> <http://www.w3.org/2001/XMLSchema#string> .
+<https://x/propTmt7ciqpg3583> <https://x/p> "staged" .
+<https://x/propTmt7csz7h6809> <https://x/p> "staged" .
+<https://x/propTmt7d25m24277> <https://x/p> "staged" .

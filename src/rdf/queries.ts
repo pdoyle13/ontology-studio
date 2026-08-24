@@ -46,6 +46,39 @@ export interface ClassInfo {
   superClass: string | null;
 }
 
+// System machinery that must not clutter the Classes tree. Each of these has
+// its own home surface (Taxonomy, Shapes, Assets>Mappings, Reviews, audit
+// log, dashboards) - user-minted classes are never matched.
+const SYSTEM_NS_PREFIXES = [
+  'http://www.w3.org/2004/02/skos/core#',
+  'http://www.w3.org/ns/shacl#',
+  'http://www.w3.org/ns/r2rml#',
+  'http://www.w3.org/ns/prov#',
+  'http://datashapes.org/dash#',
+  'http://www.w3.org/2002/07/owl#',
+  'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+  'http://www.w3.org/2000/01/rdf-schema#',
+];
+const SYSTEM_CLASS_IRIS = new Set(
+  [
+    'Change',
+    'User',
+    'Proposal',
+    'Comment',
+    'AssetType',
+    'ImportTemplate',
+    'SavedQuery',
+    'Dashboard',
+    'Widget',
+    'QualityRun',
+    'SqlSource',
+  ].map((n) => `https://studio.local/ns#${n}`)
+);
+
+export function isSystemClass(iri: string): boolean {
+  return SYSTEM_NS_PREFIXES.some((ns) => iri.startsWith(ns)) || SYSTEM_CLASS_IRIS.has(iri);
+}
+
 export async function fetchClasses(ep: Endpoint, graph: string | null): Promise<ClassInfo[]> {
   const q = `
 SELECT ?cls (SAMPLE(?lbl) AS ?label) (SAMPLE(?sup) AS ?superClass) (COUNT(DISTINCT ?inst) AS ?n) WHERE {
@@ -63,7 +96,7 @@ SELECT ?cls (SAMPLE(?lbl) AS ?label) (SAMPLE(?sup) AS ?superClass) (COUNT(DISTIN
 GROUP BY ?cls ORDER BY DESC(?n) LIMIT 500`;
   const r = await select(ep, q);
   const classes = r.bindings
-    .filter((b) => b.cls)
+    .filter((b) => b.cls && !isSystemClass(b.cls.value))
     .map((b) => ({
       iri: b.cls.value,
       label: b.label?.value ?? null,

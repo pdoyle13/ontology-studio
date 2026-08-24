@@ -2,3 +2,7 @@
 <https://example.org/music#InRainbows> <https://studio.local/vocab/asset-kind> "recording" .
 <https://example.org/music#KidA> <https://studio.local/vocab/asset-kind> "recording" .
 <https://example.org/music#OKComputer> <https://studio.local/vocab/asset-kind> "recording" .
+<https://example.org/music#ri1Tmt7c8lvf7462> <https://studio.local/vocab/rkTmt7c8lvf7462> "flagged" .
+<https://example.org/music#ri1Tmt7caj3p2648> <https://studio.local/vocab/rkTmt7caj3p2648> "flagged" .
+<https://example.org/music#ri2Tmt7c8lvf7462> <https://studio.local/vocab/rkTmt7c8lvf7462> "flagged" .
+<https://example.org/music#ri2Tmt7caj3p2648> <https://studio.local/vocab/rkTmt7caj3p2648> "flagged" .

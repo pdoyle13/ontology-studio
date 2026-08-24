@@ -363,9 +363,14 @@ app.get('/api/sql/sources/:id/schema', async (req, res) => {
 });
 
 /** Translate one source's schema into the meta layer (shared by route + agent tool). */
-async function doTranslate(s, graph, namespace) {
+async function doTranslate(s, graph, namespace, tables = null) {
   const ns = (namespace || `https://studio.local/sql/${s.id}#`).trim();
-  const schema = await s.introspect();
+  // tables: optional subset for selective onboarding of large databases
+  let schema = await s.introspect();
+  if (Array.isArray(tables) && tables.length) {
+    const want = new Set(tables);
+    schema = schema.filter((t) => want.has(t.name));
+  }
   const nt = translateSchema(schema, ns);
   await loadNTriples(nt, graph || null);
   // the mapping itself is governed RDF: R2RML TriplesMaps in the mappings graph
@@ -404,7 +409,7 @@ app.post('/api/sql/sources/:id/translate', async (req, res) => {
   if (!s) return bad(res, 404, 'no such source');
   const { graph, namespace } = req.body ?? {};
   try {
-    res.json(await doTranslate(s, graph, namespace));
+    res.json(await doTranslate(s, graph, namespace, req.body?.tables ?? null));
   } catch (e) {
     bad(res, 500, e.message);
   }

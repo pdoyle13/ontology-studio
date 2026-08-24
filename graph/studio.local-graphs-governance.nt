@@ -8,6 +8,65 @@
 <https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#reviewer> "sam" .
 <https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#status> "merged" .
 <https://studio.local/ns#proposal/pmt59mdn7> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7ch325> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7ch325> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7ch2cl3400" .
+<https://studio.local/ns#proposal/pmt7ch325> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7ch325> <https://studio.local/ns#createdAt> "2026-08-24T14:41:53.597Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7ch325> <https://studio.local/ns#proposalId> "pmt7ch325" .
+<https://studio.local/ns#proposal/pmt7ch325> <https://studio.local/ns#status> "draft" .
+<https://studio.local/ns#proposal/pmt7ch325> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7chb6g> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7chb6g> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7chb659842" .
+<https://studio.local/ns#proposal/pmt7chb6g> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7chb6g> <https://studio.local/ns#createdAt> "2026-08-24T14:42:04.12Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7chb6g> <https://studio.local/ns#proposalId> "pmt7chb6g" .
+<https://studio.local/ns#proposal/pmt7chb6g> <https://studio.local/ns#status> "draft" .
+<https://studio.local/ns#proposal/pmt7chb6g> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7chmte> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7chmte> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7chm521386" .
+<https://studio.local/ns#proposal/pmt7chmte> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7chmte> <https://studio.local/ns#createdAt> "2026-08-24T14:42:19.202Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7chmte> <https://studio.local/ns#proposalId> "pmt7chmte" .
+<https://studio.local/ns#proposal/pmt7chmte> <https://studio.local/ns#status> "submitted" .
+<https://studio.local/ns#proposal/pmt7chmte> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7cht0v> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7cht0v> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7cht0k6058" .
+<https://studio.local/ns#proposal/pmt7cht0v> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7cht0v> <https://studio.local/ns#createdAt> "2026-08-24T14:42:27.247Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7cht0v> <https://studio.local/ns#proposalId> "pmt7cht0v" .
+<https://studio.local/ns#proposal/pmt7cht0v> <https://studio.local/ns#status> "submitted" .
+<https://studio.local/ns#proposal/pmt7cht0v> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7ci4bi> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7ci4bi> <http://www.w3.org/2000/01/rdf-schema#label> "probe" .
+<https://studio.local/ns#proposal/pmt7ci4bi> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7ci4bi> <https://studio.local/ns#createdAt> "2026-08-24T14:42:41.886Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7ci4bi> <https://studio.local/ns#proposalId> "pmt7ci4bi" .
+<https://studio.local/ns#proposal/pmt7ci4bi> <https://studio.local/ns#status> "submitted" .
+<https://studio.local/ns#proposal/pmt7ci4bi> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7cirdo> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7cirdo> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7ciqpg3583" .
+<https://studio.local/ns#proposal/pmt7cirdo> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7cirdo> <https://studio.local/ns#createdAt> "2026-08-24T14:43:11.772Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7cirdo> <https://studio.local/ns#proposalId> "pmt7cirdo" .
+<https://studio.local/ns#proposal/pmt7cirdo> <https://studio.local/ns#reviewer> "sam" .
+<https://studio.local/ns#proposal/pmt7cirdo> <https://studio.local/ns#status> "merged" .
+<https://studio.local/ns#proposal/pmt7cirdo> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7cszgt> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7cszgt> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7csz7h6809" .
+<https://studio.local/ns#proposal/pmt7cszgt> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7cszgt> <https://studio.local/ns#createdAt> "2026-08-24T14:51:08.813Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7cszgt> <https://studio.local/ns#proposalId> "pmt7cszgt" .
+<https://studio.local/ns#proposal/pmt7cszgt> <https://studio.local/ns#reviewer> "sam" .
+<https://studio.local/ns#proposal/pmt7cszgt> <https://studio.local/ns#status> "merged" .
+<https://studio.local/ns#proposal/pmt7cszgt> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmt7d25un> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmt7d25un> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmt7d25m24277" .
+<https://studio.local/ns#proposal/pmt7d25un> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmt7d25un> <https://studio.local/ns#createdAt> "2026-08-24T14:58:16.991Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmt7d25un> <https://studio.local/ns#proposalId> "pmt7d25un" .
+<https://studio.local/ns#proposal/pmt7d25un> <https://studio.local/ns#reviewer> "sam" .
+<https://studio.local/ns#proposal/pmt7d25un> <https://studio.local/ns#status> "merged" .
+<https://studio.local/ns#proposal/pmt7d25un> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
 <https://studio.local/ns#user/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#User> .
 <https://studio.local/ns#user/pat> <http://www.w3.org/2000/01/rdf-schema#label> "pat" .
 <https://studio.local/ns#user/pat> <https://studio.local/ns#role> "admin" .

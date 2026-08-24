@@ -2,12 +2,15 @@
 // a computed diff (undoable). Live parse status; RDF 1.2 quoted-triple
 // documents apply as a journaled full replace instead.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { create } from 'zustand';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { exportGraphTurtle } from '../rdf/importExport';
 import { computeSourceDiff, cmdApplySourceDiff, cmdReplaceGraphSource, type SourceDiff } from '../rdf/sourceEdit';
+import { createTurtleEditor, type CompletionTerm } from './cmTurtle';
+import type { EditorView } from '@codemirror/view';
+import { displayName } from '../rdf/display';
 
 interface SrcState {
   open: boolean;
@@ -24,6 +27,37 @@ export function SourceEditor() {
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const hostRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const { classes } = useGraph();
+
+  // graph-aware completions: classes (and their prefixed forms) from the store
+  const graphTerms = (): CompletionTerm[] => {
+    const { prefixes: pfx } = useGraph.getState();
+    return classes.flatMap((c) => {
+      const short = pfx.shrink(c.iri);
+      return [
+        { label: short !== c.iri ? short : `<${c.iri}>`, detail: displayName(c.iri, c.label), type: 'class' as const },
+      ];
+    });
+  };
+
+  // mount CodeMirror once the source has loaded
+  useEffect(() => {
+    if (!open || loading || !hostRef.current) return;
+    viewRef.current?.destroy();
+    viewRef.current = createTurtleEditor({
+      parent: hostRef.current,
+      doc: original,
+      onChange: setText,
+      graphTerms,
+    });
+    return () => {
+      viewRef.current?.destroy();
+      viewRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, loading, original]);
 
   useEffect(() => {
     if (!open) return;
@@ -103,13 +137,8 @@ export function SourceEditor() {
         </span>
       </div>
       {error && <div className="err-text" style={{ padding: '4px 10px' }}>{error}</div>}
-      <textarea
-        className="source-text"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        spellCheck={false}
-        disabled={loading}
-      />
+      {loading && <div className="tree-loading" style={{ padding: 12 }}>loading source…</div>}
+      <div ref={hostRef} className="source-cm" />
     </div>
   );
 }

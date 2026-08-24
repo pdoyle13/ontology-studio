@@ -149,7 +149,7 @@ function AssetDialogInner() {
 
   return (
     <div className="modal-overlay" onClick={close}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ maxHeight: '85vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-title">{title}</div>
         {broader && (
           <div className="term-meta" style={{ marginBottom: 8 }}>

@@ -40,7 +40,7 @@ function ConfirmModal() {
     useConfirm.setState({ open: false, resolve: null });
   };
   return (
-    <div className="modal-overlay" onClick={() => done(false)}>
+    <div className="modal-overlay" style={{ zIndex: 200 }} onClick={() => done(false)}>
       <div className="modal" style={{ width: 420 }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-title">{title}</div>
         <div style={{ marginBottom: 14 }}>{message}</div>
@@ -140,7 +140,7 @@ function CreateInstanceDialog() {
 
   return (
     <div className="modal-overlay" onClick={close}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ maxHeight: '85vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-title">New {displayName(classIri)}</div>
         <label className="field-label">Local name *</label>
         <input autoFocus value={name} onChange={(e) => setName(e.target.value)} placeholder="MyNewThing" style={{ width: '100%' }} />

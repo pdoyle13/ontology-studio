@@ -31,3 +31,33 @@
 <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/orders-by-status-2> .
 <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/top-status-count-1> .
 <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/top-status-count-3> .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <http://www.w3.org/2000/01/rdf-schema#label> "Bars Tmt7c62kw7017" .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#component> "bar" .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#position> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#query> <https://studio.local/query/dashq-tmt7c62kw7017> .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#xField> "status" .
+<https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#yField> "n" .
+<https://studio.local/dashboard/page-tmt7c62kw7017> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
+<https://studio.local/dashboard/page-tmt7c62kw7017> <http://www.w3.org/2000/01/rdf-schema#label> "Page Tmt7c62kw7017" .
+<https://studio.local/dashboard/page-tmt7c62kw7017> <https://studio.local/ns#widget> <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <http://www.w3.org/2000/01/rdf-schema#label> "Bars Tmt7cr2fd420" .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <https://studio.local/ns#component> "bar" .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <https://studio.local/ns#position> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <https://studio.local/ns#query> <https://studio.local/query/dashq-tmt7cr2fd420> .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <https://studio.local/ns#xField> "status" .
+<https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> <https://studio.local/ns#yField> "n" .
+<https://studio.local/dashboard/page-tmt7cr2fd420> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
+<https://studio.local/dashboard/page-tmt7cr2fd420> <http://www.w3.org/2000/01/rdf-schema#label> "Page Tmt7cr2fd420" .
+<https://studio.local/dashboard/page-tmt7cr2fd420> <https://studio.local/ns#widget> <https://studio.local/dashboard/page-tmt7cr2fd420/widget/bars-tmt7cr2fd420-0> .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <http://www.w3.org/2000/01/rdf-schema#label> "Bars Tmt7d1jzs7906" .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <https://studio.local/ns#component> "bar" .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <https://studio.local/ns#position> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <https://studio.local/ns#query> <https://studio.local/query/dashq-tmt7d1jzs7906> .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <https://studio.local/ns#xField> "status" .
+<https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> <https://studio.local/ns#yField> "n" .
+<https://studio.local/dashboard/page-tmt7d1jzs7906> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
+<https://studio.local/dashboard/page-tmt7d1jzs7906> <http://www.w3.org/2000/01/rdf-schema#label> "Page Tmt7d1jzs7906" .
+<https://studio.local/dashboard/page-tmt7d1jzs7906> <https://studio.local/ns#widget> <https://studio.local/dashboard/page-tmt7d1jzs7906/widget/bars-tmt7d1jzs7906-0> .

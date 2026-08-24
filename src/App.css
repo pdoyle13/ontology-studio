@@ -769,3 +769,8 @@ button.quick:hover { color: var(--accent); border-color: var(--accent); }
   padding: 10px 14px;
 }
 .source-editor { display: flex; flex-direction: column; }
+
+/* codemirror source editor */
+.source-cm { flex: 1; overflow: hidden; }
+.source-cm .cm-editor { height: 100%; }
+.source-cm .cm-scroller { overflow: auto; }

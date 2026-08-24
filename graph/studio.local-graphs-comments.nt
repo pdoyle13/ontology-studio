@@ -19,3 +19,28 @@
 <https://studio.local/graphs/comments/c-mt63bep6-9463> <https://studio.local/ns#by> "sam" .
 <https://studio.local/graphs/comments/c-mt63bep6-9463> <https://studio.local/ns#on> <https://studio.local/taxonomy/product-areas/storage> .
 <https://studio.local/graphs/comments/c-mt63bep6-9463> <https://studio.local/ns#text> "token-authenticated comment" .
+<https://studio.local/graphs/comments/c-mt7alktl-8651> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt7alktl-8651> <https://studio.local/ns#at> "2026-08-24T13:49:24.009Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt7alktl-8651> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt7alktl-8651> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt7alktl-8651> <https://studio.local/ns#text> "note Tmt7alhy93792" .
+<https://studio.local/graphs/comments/c-mt7b1zml-7473> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt7b1zml-7473> <https://studio.local/ns#at> "2026-08-24T14:02:09.693Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt7b1zml-7473> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt7b1zml-7473> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt7b1zml-7473> <https://studio.local/ns#text> "note Tmt7b1wnw579" .
+<https://studio.local/graphs/comments/c-mt7bym8f-551> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt7bym8f-551> <https://studio.local/ns#at> "2026-08-24T14:27:31.983Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt7bym8f-551> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt7bym8f-551> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt7bym8f-551> <https://studio.local/ns#text> "note Tmt7byj8b4366" .
+<https://studio.local/graphs/comments/c-mt7cncj0-3077> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt7cncj0-3077> <https://studio.local/ns#at> "2026-08-24T14:46:45.804Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt7cncj0-3077> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt7cncj0-3077> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt7cncj0-3077> <https://studio.local/ns#text> "note Tmt7cn9jg6622" .
+<https://studio.local/graphs/comments/c-mt7d0edj-6925> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt7d0edj-6925> <https://studio.local/ns#at> "2026-08-24T14:56:54.727Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt7d0edj-6925> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt7d0edj-6925> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt7d0edj-6925> <https://studio.local/ns#text> "note Tmt7d0bdj5560" .

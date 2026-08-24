@@ -9,14 +9,21 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/legacy-modes": "^6.5.3",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.9",
     "@duckdb/node-api": "^1.5.5-r.4",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@types/n3": "^1.26.1",
     "@xyflow/react": "^12.11.3",
+    "codemirror": "^6.0.2",
     "d3-force": "^3.0.0",
     "dagre": "^0.8.5",
     "express": "^5.2.1",
@@ -36,6 +43,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/d3-force": "^3.0.10",
     "@types/dagre": "^0.7.54",
     "@types/node": "^24.13.3",
