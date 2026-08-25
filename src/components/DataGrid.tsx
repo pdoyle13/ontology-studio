@@ -30,7 +30,10 @@ export function DataGrid() {
   const [meta, setMeta] = useState<{ source: string; kind: string; table: string; sql: string } | null>(null);
   const [sort, setSort] = useState<{ column: string; dir: 'asc' | 'desc' } | null>(null);
   const [filter, setFilter] = useState<{ column: string; text: string } | null>(null);
-  const [filterDraft, setFilterDraft] = useState('');
+  // per-column draft text — the input must echo what the user types even
+  // before the filter is applied (a single shared draft keyed off the APPLIED
+  // filter rendered every box empty while typing)
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [offset, setOffset] = useState(0);
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -80,7 +83,7 @@ export function DataGrid() {
     useDataGrid.setState({ classIri: null });
     setSort(null);
     setFilter(null);
-    setFilterDraft('');
+    setDrafts({});
   };
   const columns = rows.length ? Object.keys(rows[0]).filter((c) => c !== '__iri') : [];
 
@@ -98,7 +101,7 @@ export function DataGrid() {
           {filter && (
             <span className="term-meta">
               {humanize(filter.column)} contains “{filter.text}”{' '}
-              <button className="micro" onClick={() => setFilter(null)}>✕</button>
+              <button className="micro" onClick={() => { setFilter(null); setDrafts((d) => ({ ...d, [filter.column]: '' })); }}>✕</button>
             </span>
           )}
           <button className="ghost" onClick={close}>Close</button>
@@ -121,13 +124,14 @@ export function DataGrid() {
                   <input
                     className="grid-filter"
                     placeholder="filter…"
-                    value={filter?.column === c ? filterDraft : ''}
-                    onChange={(e) => {
-                      setFilterDraft(e.target.value);
-                      if (filter?.column !== c) setFilter(null);
-                    }}
+                    value={drafts[c] ?? ''}
+                    onChange={(e) => setDrafts((d) => ({ ...d, [c]: e.target.value }))}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') setFilter(filterDraft ? { column: c, text: filterDraft } : null);
+                      if (e.key === 'Enter') setFilter(drafts[c] ? { column: c, text: drafts[c] } : null);
+                      if (e.key === 'Escape') {
+                        setDrafts((d) => ({ ...d, [c]: '' }));
+                        if (filter?.column === c) setFilter(null);
+                      }
                     }}
                   />
                 </th>

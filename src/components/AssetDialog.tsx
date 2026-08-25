@@ -3,6 +3,7 @@
 // graph — the dialog renders whatever the shapes say, nothing hardcoded.
 
 import { useEffect, useState } from 'react';
+import { CodelistSelect } from './CodelistSelect';
 import { create } from 'zustand';
 import { useConnection } from '../state/connection';
 import type { PropertyShapeInfo } from '../rdf/shacl';
@@ -169,7 +170,9 @@ function AssetDialogInner() {
                 {!f.path.startsWith(SKOS) && <span className="term-meta"> custom</span>}
               </label>
               {f.description && <div className="field-help">{f.description}</div>}
-              {w === 'enum' && f.inValues ? (
+              {f.codelist ? (
+                <CodelistSelect scheme={f.codelist} value={values[f.path] ?? ''} onChange={set} />
+              ) : w === 'enum' && f.inValues ? (
                 <select value={values[f.path] ?? ''} onChange={(e) => set(e.target.value)} style={{ width: '100%' }}>
                   <option value="">—</option>
                   {f.inValues.map((iv) => (

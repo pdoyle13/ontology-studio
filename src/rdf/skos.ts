@@ -20,12 +20,14 @@ export interface ConceptRow {
   iri: string;
   label: string | null;
   broader: string | null;
+  deprecated: boolean;
 }
 
 export interface ConceptNode {
   iri: string;
   label: string | null;
   children: ConceptNode[];
+  deprecated?: boolean;
 }
 
 export async function listSchemes(ep: Endpoint, graph: string | null): Promise<SchemeInfo[]> {
@@ -47,11 +49,12 @@ GROUP BY ?s ORDER BY ?s`;
 
 export async function fetchConcepts(ep: Endpoint, graph: string | null, scheme: string): Promise<ConceptRow[]> {
   const q = `
-SELECT ?c (SAMPLE(?l) AS ?lbl) (SAMPLE(?b) AS ?br) WHERE {
+SELECT ?c (SAMPLE(?l) AS ?lbl) (SAMPLE(?b) AS ?br) (SAMPLE(?dep) AS ?deprecated) WHERE {
   ${scoped(
     `?c <${SKOS}inScheme> <${scheme}> .
      OPTIONAL { ?c <${SKOS}prefLabel> ?l }
-     OPTIONAL { ?c <${SKOS}broader> ?b }`,
+     OPTIONAL { ?c <${SKOS}broader> ?b }
+     OPTIONAL { ?c <http://www.w3.org/2002/07/owl#deprecated> ?dep }`,
     graph
   )}
 }
@@ -59,13 +62,48 @@ GROUP BY ?c ORDER BY ?lbl`;
   const r = await select(ep, q);
   return r.bindings
     .filter((b) => b.c)
-    .map((b) => ({ iri: b.c.value, label: b.lbl?.value ?? null, broader: b.br?.value ?? null }));
+    .map((b) => ({
+      iri: b.c.value,
+      label: b.lbl?.value ?? null,
+      broader: b.br?.value ?? null,
+      deprecated: b.deprecated?.value === 'true',
+    }));
+}
+
+/** Deprecate/reactivate a code: deprecated codes stay valid data but leave
+ *  every codelist pick-list. */
+export async function cmdSetDeprecated(ep: Endpoint, graph: string | null, iri: string, deprecated: boolean): Promise<void> {
+  const OWL_DEP = 'http://www.w3.org/2002/07/owl#deprecated';
+  const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+  const set = `DELETE WHERE { ${wrap(`<${iri}> <${OWL_DEP}> ?v`)} } ; INSERT DATA { ${wrap(`<${iri}> <${OWL_DEP}> ${deprecated} `)} }`;
+  const unset = `DELETE WHERE { ${wrap(`<${iri}> <${OWL_DEP}> ?v`)} } ; INSERT DATA { ${wrap(`<${iri}> <${OWL_DEP}> ${!deprecated} `)} }`;
+  await useHistory.getState().exec({
+    label: deprecated ? 'deprecate code' : 'reactivate code',
+    redo: () => update(ep, set),
+    undo: () => update(ep, unset),
+  });
+}
+
+/** Active (non-deprecated) codes of a scheme — the live option list for
+ *  codelist fields. */
+export async function fetchActiveCodes(ep: Endpoint, scheme: string): Promise<{ iri: string; label: string }[]> {
+  const q = `
+SELECT ?c (SAMPLE(?l) AS ?lbl) WHERE {
+  { ?c <${SKOS}inScheme> <${scheme}> . OPTIONAL { ?c <${SKOS}prefLabel> ?l } }
+  UNION
+  { GRAPH ?g { ?c <${SKOS}inScheme> <${scheme}> . OPTIONAL { ?c <${SKOS}prefLabel> ?l } } }
+  FILTER NOT EXISTS { ?c <http://www.w3.org/2002/07/owl#deprecated> true }
+  FILTER NOT EXISTS { GRAPH ?g2 { ?c <http://www.w3.org/2002/07/owl#deprecated> true } }
+}
+GROUP BY ?c ORDER BY ?lbl`;
+  const r = await select(ep, q);
+  return r.bindings.filter((b) => b.c).map((b) => ({ iri: b.c.value, label: b.lbl?.value ?? b.c.value.split(/[#/]/).pop()! }));
 }
 
 /** Pure: rows → forest. Concepts whose broader is missing/outside the scheme become roots.
  *  Cycles are broken by treating the back-edge's child as a root (never dropped, never looped). */
 export function buildTaxonomyTree(rows: ConceptRow[]): ConceptNode[] {
-  const byIri = new Map(rows.map((r) => [r.iri, { iri: r.iri, label: r.label, children: [] as ConceptNode[] }]));
+  const byIri = new Map(rows.map((r) => [r.iri, { iri: r.iri, label: r.label, deprecated: r.deprecated, children: [] as ConceptNode[] }]));
   const roots: ConceptNode[] = [];
   for (const row of rows) {
     const node = byIri.get(row.iri)!;

@@ -11,6 +11,7 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
   const { prefixes, loadClasses } = useGraph();
   const fileRef = useRef<HTMLInputElement>(null);
   const [url, setUrl] = useState('');
+  const [pasted, setPasted] = useState('');
   const [targetGraph, setTargetGraph] = useState(conn.activeGraph ?? '');
   const [phase, setPhase] = useState<Phase>('idle');
   const [message, setMessage] = useState('');
@@ -103,6 +104,22 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
             onKeyDown={(e) => e.key === 'Enter' && onUrl()}
           />
           <button disabled={busy || !url.trim()} onClick={onUrl}>Fetch</button>
+        </div>
+        <label className="field-label" style={{ marginTop: 8 }}>
+          Or paste Turtle / N-Triples
+        </label>
+        <textarea
+          value={pasted}
+          onChange={(e) => setPasted(e.target.value)}
+          placeholder={'<https://example.org/a> a <https://example.org/Thing> .'}
+          rows={4}
+          spellCheck={false}
+          style={{ width: '100%', fontFamily: 'var(--font-mono, monospace)', fontSize: 12 }}
+        />
+        <div className="modal-row">
+          <button disabled={busy || !pasted.trim()} onClick={() => runImport(pasted, 'pasted text')}>
+            Import pasted text
+          </button>
         </div>
 
         <div className="panel-title" style={{ marginTop: 14 }}>Export current scope</div>

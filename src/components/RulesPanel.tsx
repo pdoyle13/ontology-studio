@@ -4,6 +4,7 @@
 // via /api/rules/explain for any derived triple.
 
 import { useCallback, useEffect, useState } from 'react';
+import { SH } from '../rdf/vocab';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { update } from '../rdf/sparqlClient';
@@ -11,7 +12,6 @@ import { useHistory } from '../state/history';
 import { displayName } from '../rdf/display';
 import { ResourcePicker } from './ResourcePicker';
 
-const SH = 'http://www.w3.org/ns/shacl#';
 const RULES_GRAPH = 'https://studio.local/graphs/rules';
 
 interface RuleRow {
@@ -82,22 +82,22 @@ export function RulesPanel() {
     const ruleIri = `${shapeIri}/rule-${Date.now().toString(36)}`;
     const lit = (v: string) => `"${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
     const t = [
-      `<${shapeIri}> a <${SH}NodeShape> .`,
-      `<${shapeIri}> <${SH}targetClass> <${target}> .`,
-      `<${shapeIri}> <${SH}rule> <${ruleIri}> .`,
+      `<${shapeIri}> a <${SH.NodeShape}> .`,
+      `<${shapeIri}> <${SH.targetClass}> <${target}> .`,
+      `<${shapeIri}> <${SH.rule}> <${ruleIri}> .`,
     ];
     if (kind === 'triple') {
       if (!predicate.trim() || !objectVal.trim()) {
         setError('predicate and object are required');
         return;
       }
-      t.push(`<${ruleIri}> a <${SH}TripleRule> .`);
-      t.push(`<${ruleIri}> <${SH}subject> <${SH}this> .`);
-      t.push(`<${ruleIri}> <${SH}predicate> <${predicate.trim()}> .`);
-      t.push(`<${ruleIri}> <${SH}object> ${objectIsIri ? `<${objectVal.trim()}>` : lit(objectVal.trim())} .`);
+      t.push(`<${ruleIri}> a <${SH.TripleRule}> .`);
+      t.push(`<${ruleIri}> <${SH.subject}> <${SH.this}> .`);
+      t.push(`<${ruleIri}> <${SH.predicate}> <${predicate.trim()}> .`);
+      t.push(`<${ruleIri}> <${SH.object}> ${objectIsIri ? `<${objectVal.trim()}>` : lit(objectVal.trim())} .`);
     } else {
-      t.push(`<${ruleIri}> a <${SH}SPARQLRule> .`);
-      t.push(`<${ruleIri}> <${SH}construct> ${lit(constructText)} .`);
+      t.push(`<${ruleIri}> a <${SH.SPARQLRule}> .`);
+      t.push(`<${ruleIri}> <${SH.construct}> ${lit(constructText)} .`);
     }
     const block = t.join('\n');
     try {
@@ -118,9 +118,9 @@ export function RulesPanel() {
   const toggle = async (rule: RuleRow) => {
     const ep = conn.active();
     if (!ep) return;
-    const triple = `<${rule.ruleIri}> <${SH}deactivated> true .`;
+    const triple = `<${rule.ruleIri}> <${SH.deactivated}> true .`;
     const q = rule.deactivated
-      ? `DELETE WHERE { GRAPH ?g { <${rule.ruleIri}> <${SH}deactivated> ?v } }`
+      ? `DELETE WHERE { GRAPH ?g { <${rule.ruleIri}> <${SH.deactivated}> ?v } }`
       : `INSERT DATA { GRAPH <${RULES_GRAPH}> { ${triple} } }`;
     await update(ep, q);
     refresh();
@@ -194,7 +194,9 @@ export function RulesPanel() {
             <li key={r.ruleIri} className={`ext-row ${r.deactivated ? 'rule-off' : ''}`}>
               <span className="ext-name" title={r.ruleIri}>
                 <a className="term-link" onClick={() => r.targetClass && selectResource(r.targetClass)}>
-                  {r.targetClass ? displayName(r.targetClass) : '(untargeted)'}
+                  {r.targetClass
+                    ? displayName(r.targetClass, classes.find((c) => c.iri === r.targetClass)?.label)
+                    : '(untargeted)'}
                 </a>{' '}
                 {r.kind === 'triple' ? (
                   <>→ {displayName(r.predicate ?? '')} = {r.object?.isIri ? displayName(r.object.value) : r.object?.value}</>

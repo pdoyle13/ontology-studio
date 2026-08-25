@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGraph } from '../state/graph';
+import { useCanvas } from '../state/canvas';
 import { useConnection } from '../state/connection';
 import { fetchInstances, searchResources, type InstanceInfo } from '../rdf/queries';
 import { displayName } from '../rdf/display';
@@ -11,6 +12,8 @@ export const dragIri = (e: React.DragEvent, iri: string) => {
   e.dataTransfer.setData('application/x-studio-iri', iri);
   e.dataTransfer.effectAllowed = 'copy';
 };
+
+const toCanvas = (iri: string) => useCanvas.getState().addResource(iri, undefined, { focus: true });
 
 const TREE_PAGE = 50;
 
@@ -45,6 +48,7 @@ function InstanceList({ classIri }: { classIri: string }) {
           draggable
           onDragStart={(e) => dragIri(e, i.iri)}
           onClick={() => selectResource(i.iri)}
+          onDoubleClick={() => toCanvas(i.iri)}
         >
           {displayName(i.iri, i.label)}
         </li>
@@ -110,6 +114,7 @@ export function ClassTree() {
               draggable
               onDragStart={(e) => dragIri(e, r.iri)}
               onClick={() => selectResource(r.iri)}
+              onDoubleClick={() => toCanvas(r.iri)}
             >
               {displayName(r.iri, r.label)}
             </li>
@@ -142,6 +147,10 @@ export function ClassTree() {
                     onClick={(e) => {
                       e.stopPropagation();
                       selectResource(c.iri);
+                    }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      toCanvas(c.iri);
                     }}
                   >
                     {displayName(c.iri, c.label)}

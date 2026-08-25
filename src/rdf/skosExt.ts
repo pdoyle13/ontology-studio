@@ -4,6 +4,7 @@
 // dialog, validation, and (later) CSV import all read the same shapes.
 
 import type { Endpoint } from './sparqlClient';
+import { SH, DASH } from './vocab';
 import { select, update } from './sparqlClient';
 import { serializeTerm } from './mutations';
 import { useHistory } from '../state/history';
@@ -11,8 +12,6 @@ import type { PropertyShapeInfo } from './shacl';
 import { SKOS } from './skos';
 
 export const EXT_GRAPH = 'https://studio.local/graphs/extensions';
-const SH = 'http://www.w3.org/ns/shacl#';
-const DASH = 'http://datashapes.org/dash#';
 const XSD = 'http://www.w3.org/2001/XMLSchema#';
 const RDF_NS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 export const STUDIO_VOCAB = 'https://studio.local/vocab/';
@@ -34,7 +33,7 @@ export function slug(label: string): string {
 }
 
 /** Field kinds offered in the extensions configurator. */
-export type FieldKind = 'text' | 'multiline' | 'langtext' | 'number' | 'date' | 'boolean' | 'enum';
+export type FieldKind = 'text' | 'multiline' | 'langtext' | 'number' | 'date' | 'boolean' | 'enum' | 'codelist';
 
 export interface CustomFieldSpec {
   label: string;
@@ -42,6 +41,7 @@ export interface CustomFieldSpec {
   required: boolean;
   description?: string;
   options?: string[]; // enum only
+  codelist?: string; // codelist only — concept scheme IRI providing the codes
   /** Reuse an existing predicate (e.g. skos:editorialNote); default mints studio.local/vocab/<slug>. */
   path?: string;
 }
@@ -54,6 +54,7 @@ const KIND_DATATYPE: Record<FieldKind, string | null> = {
   date: `${XSD}date`,
   boolean: `${XSD}boolean`,
   enum: `${XSD}string`,
+  codelist: `${XSD}string`,
 };
 
 /** The built-in SKOS fields every concept dialog shows (shape-shaped so widgets work). */
@@ -95,18 +96,19 @@ export function builtinFields(asset: AssetType): PropertyShapeInfo[] {
 export async function fetchCustomFields(ep: Endpoint, asset: AssetType): Promise<PropertyShapeInfo[]> {
   const shape = ASSET_SHAPE[asset];
   const q = `
-SELECT ?ps ?path ?name ?desc ?datatype ?minCount ?singleLine ?order ?cell ?inVal (COUNT(?mid) AS ?depth) WHERE {
+SELECT ?ps ?path ?name ?desc ?datatype ?minCount ?singleLine ?order ?cell ?inVal ?codelist (COUNT(?mid) AS ?depth) WHERE {
   GRAPH <${EXT_GRAPH}> {
-    <${shape}> <${SH}property> ?ps .
-    ?ps <${SH}path> ?path .
-    OPTIONAL { ?ps <${SH}name> ?name }
-    OPTIONAL { ?ps <${SH}description> ?desc }
-    OPTIONAL { ?ps <${SH}datatype> ?datatype }
-    OPTIONAL { ?ps <${SH}minCount> ?minCount }
-    OPTIONAL { ?ps <${DASH}singleLine> ?singleLine }
-    OPTIONAL { ?ps <${SH}order> ?order }
+    <${shape}> <${SH.property}> ?ps .
+    ?ps <${SH.path}> ?path .
+    OPTIONAL { ?ps <${SH.name}> ?name }
+    OPTIONAL { ?ps <${SH.description}> ?desc }
+    OPTIONAL { ?ps <${SH.datatype}> ?datatype }
+    OPTIONAL { ?ps <${SH.minCount}> ?minCount }
+    OPTIONAL { ?ps <${DASH.singleLine}> ?singleLine }
+    OPTIONAL { ?ps <${SH.order}> ?order }
+    OPTIONAL { ?ps <https://studio.local/ns#codelist> ?codelist }
     OPTIONAL {
-      ?ps <${SH}in> ?list .
+      ?ps <${SH.in}> ?list .
       ?list <${RDF_NS}rest>* ?cell .
       ?cell <${RDF_NS}first> ?inVal .
       ?list <${RDF_NS}rest>* ?mid .
@@ -114,7 +116,7 @@ SELECT ?ps ?path ?name ?desc ?datatype ?minCount ?singleLine ?order ?cell ?inVal
     }
   }
 }
-GROUP BY ?ps ?path ?name ?desc ?datatype ?minCount ?singleLine ?order ?cell ?inVal
+GROUP BY ?ps ?path ?name ?desc ?datatype ?minCount ?singleLine ?order ?cell ?inVal ?codelist
 ORDER BY ?order ?ps ?depth`;
   const r = await select(ep, q);
   const byPs = new Map<string, PropertyShapeInfo>();
@@ -137,6 +139,7 @@ ORDER BY ?order ?ps ?depth`;
         maxInclusive: null,
         pattern: null,
         singleLine: b.singleLine ? b.singleLine.value === 'true' : null,
+        codelist: b.codelist?.value ?? null,
         maxLength: null,
         inValues: null,
       });
@@ -163,27 +166,28 @@ export async function cmdAddCustomField(ep: Endpoint, asset: AssetType, spec: Cu
   const path = spec.path?.trim() || `${STUDIO_VOCAB}${slug(spec.label)}`;
   const psIri = `${shape}/prop/${slug(spec.label)}`;
   const t: string[] = [
-    `<${shape}> a <${SH}NodeShape> .`,
-    `<${shape}> <${SH}targetClass> <${ASSET_CLASS[asset]}> .`,
-    `<${shape}> <${SH}property> <${psIri}> .`,
-    `<${psIri}> a <${SH}PropertyShape> .`,
-    `<${psIri}> <${SH}path> <${path}> .`,
-    `<${psIri}> <${SH}name> ${lit(spec.label)} .`,
-    `<${psIri}> <${SH}order> "${100}"^^<${XSD}integer> .`,
+    `<${shape}> a <${SH.NodeShape}> .`,
+    `<${shape}> <${SH.targetClass}> <${ASSET_CLASS[asset]}> .`,
+    `<${shape}> <${SH.property}> <${psIri}> .`,
+    `<${psIri}> a <${SH.PropertyShape}> .`,
+    `<${psIri}> <${SH.path}> <${path}> .`,
+    `<${psIri}> <${SH.name}> ${lit(spec.label)} .`,
+    `<${psIri}> <${SH.order}> "${100}"^^<${XSD}integer> .`,
   ];
-  if (spec.description?.trim()) t.push(`<${psIri}> <${SH}description> ${lit(spec.description.trim())} .`);
+  if (spec.description?.trim()) t.push(`<${psIri}> <${SH.description}> ${lit(spec.description.trim())} .`);
   const dt = KIND_DATATYPE[spec.kind];
-  if (dt) t.push(`<${psIri}> <${SH}datatype> <${dt}> .`);
-  if (spec.kind === 'multiline') t.push(`<${psIri}> <${DASH}singleLine> false .`);
-  if (spec.required) t.push(`<${psIri}> <${SH}minCount> "1"^^<${XSD}integer> .`);
+  if (dt) t.push(`<${psIri}> <${SH.datatype}> <${dt}> .`);
+  if (spec.kind === 'multiline') t.push(`<${psIri}> <${DASH.singleLine}> false .`);
+  if (spec.required) t.push(`<${psIri}> <${SH.minCount}> "1"^^<${XSD}integer> .`);
+  if (spec.kind === 'codelist' && spec.codelist) t.push(`<${psIri}> <https://studio.local/ns#codelist> <${spec.codelist}> .`);
   const block = t.join('\n');
   const inList =
     spec.kind === 'enum' && spec.options?.length
-      ? `<${psIri}> <${SH}in> ( ${spec.options.map((o) => lit(o)).join(' ')} ) .`
+      ? `<${psIri}> <${SH.in}> ( ${spec.options.map((o) => lit(o)).join(' ')} ) .`
       : '';
   const ins = `INSERT DATA { GRAPH <${EXT_GRAPH}> { ${block}\n${inList} } }`;
   // undo removes the whole property shape (incl. its sh:in list) + the link
-  const del = `DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${psIri}> ?p ?o } } ; DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${shape}> <${SH}property> <${psIri}> } }`;
+  const del = `DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${psIri}> ?p ?o } } ; DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${shape}> <${SH.property}> <${psIri}> } }`;
   await useHistory.getState().exec({
     label: 'add custom field',
     redo: () => update(ep, ins),
@@ -200,9 +204,9 @@ export async function cmdRemoveCustomField(ep: Endpoint, asset: AssetType, psIri
   const snapshot = r.bindings
     .filter((b) => b.o.type !== 'bnode')
     .map((b) => `<${psIri}> <${b.p.value}> ${b.o.type === 'uri' ? `<${b.o.value}>` : serializeTerm({ type: 'literal', value: b.o.value, datatype: (b.o as { datatype?: string }).datatype })} .`)
-    .concat([`<${shape}> <${SH}property> <${psIri}> .`])
+    .concat([`<${shape}> <${SH.property}> <${psIri}> .`])
     .join('\n');
-  const del = `DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${psIri}> ?p ?o } } ; DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${shape}> <${SH}property> <${psIri}> } }`;
+  const del = `DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${psIri}> ?p ?o } } ; DELETE WHERE { GRAPH <${EXT_GRAPH}> { <${shape}> <${SH.property}> <${psIri}> } }`;
   await useHistory.getState().exec({
     label: 'remove custom field',
     redo: () => update(ep, del),

@@ -25,17 +25,51 @@ export const rememberPredicate = (iri: string) => {
   localStorage.setItem(RECENT_KEY, JSON.stringify(list));
 };
 
+/** Namespace of an IRI: everything up to and including the last # or /. */
+const namespaceOf = (iri: string): string => {
+  const hash = iri.lastIndexOf('#');
+  if (hash >= 0) return iri.slice(0, hash + 1);
+  return iri.slice(0, iri.lastIndexOf('/') + 1);
+};
+
+/** "wrote poems for" → "wrotePoemsFor" */
+const camelSlug = (text: string): string => {
+  const words = text.trim().split(/[^A-Za-z0-9]+/).filter(Boolean);
+  if (!words.length) return '';
+  return words
+    .map((w, i) => (i === 0 ? w[0].toLowerCase() + w.slice(1) : w[0].toUpperCase() + w.slice(1)))
+    .join('');
+};
+
+const isAbsoluteIri = (v: string) => /^[a-z][a-z0-9+.-]*:/i.test(v) && (v.includes('://') || /^(urn|mailto|tag|did):/i.test(v));
+
+/** A virtual SQL class IRI: https://studio.local/sql/<db>#<table> (no row path). */
+export const isSqlClass = (iri: string) => /^https:\/\/studio\.local\/sql\/[^#]+#[^/]+$/.test(iri);
+
+export interface JoinSpec {
+  predicate: string;
+  label: string;
+  sourceKey: string;
+  targetKey: string;
+}
+
 export function RelationPicker({
   at,
+  sourceIri,
+  targetIri,
   sourceLabel,
   targetLabel,
   onPick,
+  onPickJoin,
   onCancel,
 }: {
   at: { x: number; y: number };
+  sourceIri: string;
+  targetIri?: string;
   sourceLabel: string;
   targetLabel: string;
-  onPick: (predicateIri: string) => void;
+  onPick: (predicateIri: string, mintedLabel?: string) => void;
+  onPickJoin?: (spec: JoinSpec) => void;
   onCancel: () => void;
 }) {
   const conn = useConnection();
@@ -78,6 +112,43 @@ export function RelationPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conn.activeId, conn.activeGraph]);
 
+  // two SQL classes = a field-level cross-database link: pick the join keys
+  const joinMode = !!(onPickJoin && targetIri && isSqlClass(sourceIri) && isSqlClass(targetIri));
+  const [srcCols, setSrcCols] = useState<{ iri: string; label: string }[]>([]);
+  const [tgtCols, setTgtCols] = useState<{ iri: string; label: string }[]>([]);
+  const [srcKey, setSrcKey] = useState('');
+  const [tgtKey, setTgtKey] = useState('');
+  const [joinName, setJoinName] = useState('');
+
+  useEffect(() => {
+    if (!joinMode) return;
+    const ep = conn.active();
+    if (!ep) return;
+    let cancelled = false;
+    const colsOf = (cls: string) =>
+      select(
+        ep,
+        `SELECT DISTINCT ?p (SAMPLE(?l) AS ?lbl) WHERE {
+  ${scoped(`?p <http://www.w3.org/2000/01/rdf-schema#domain> <${cls}> . OPTIONAL { ?p <http://www.w3.org/2000/01/rdf-schema#label> ?l }`, null)}
+} GROUP BY ?p ORDER BY ?p LIMIT 200`
+      ).then((r) => r.bindings.map((b) => ({ iri: b.p.value, label: b.lbl?.value ?? humanize(localName(b.p.value)) })));
+    Promise.all([colsOf(sourceIri), colsOf(targetIri!)]).then(([a, b]) => {
+      if (cancelled) return;
+      setSrcCols(a);
+      setTgtCols(b);
+      // preselect likely keys: matching local-name suffixes (order_ref = order_number style is manual)
+      const guess = a.find((c) => b.some((d) => localName(d.iri) === localName(c.iri)));
+      if (guess) {
+        setSrcKey(guess.iri);
+        setTgtKey(b.find((d) => localName(d.iri) === localName(guess.iri))!.iri);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [joinMode, sourceIri, targetIri]);
+
   const filtered = useMemo(() => {
     const q = text.trim().toLowerCase();
     if (!q) return props.slice(0, 8);
@@ -85,10 +156,66 @@ export function RelationPicker({
   }, [props, text]);
 
   const confirm = (iri?: string) => {
-    const value = iri ?? (filtered[highlight]?.iri || (text.trim() ? prefixes.expand(text.trim()) : ''));
-    if (!value) return;
-    onPick(value);
+    if (iri) return onPick(iri);
+    if (filtered[highlight]) return onPick(filtered[highlight].iri);
+    const raw = text.trim();
+    if (!raw) return;
+    const expanded = prefixes.expand(raw);
+    if (isAbsoluteIri(expanded)) return onPick(expanded);
+    // plain name: mint a property in the source's namespace instead of
+    // sending a relative IRI the store would reject
+    const slug = camelSlug(raw);
+    if (!slug) return;
+    onPick(namespaceOf(sourceIri) + slug, raw);
   };
+
+  if (joinMode) {
+    const ready = srcKey && tgtKey && joinName.trim();
+    return (
+      <div className="relation-picker" style={{ left: at.x, top: at.y }}>
+        <div className="term-meta" style={{ marginBottom: 4 }}>
+          Link {sourceLabel} → {targetLabel} <span title="Cross-database join: resolved live, no instance edges written">ⓘ</span>
+        </div>
+        <input
+          autoFocus
+          placeholder="relation name (e.g. has orders)"
+          value={joinName}
+          onChange={(e) => setJoinName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Escape' && onCancel()}
+        />
+        <label className="field-label">where {sourceLabel}’s…</label>
+        <select value={srcKey} onChange={(e) => setSrcKey(e.target.value)}>
+          <option value="">pick key field…</option>
+          {srcCols.map((c) => (
+            <option key={c.iri} value={c.iri}>{c.label}</option>
+          ))}
+        </select>
+        <label className="field-label">…matches {targetLabel}’s</label>
+        <select value={tgtKey} onChange={(e) => setTgtKey(e.target.value)}>
+          <option value="">pick key field…</option>
+          {tgtCols.map((c) => (
+            <option key={c.iri} value={c.iri}>{c.label}</option>
+          ))}
+        </select>
+        <div className="modal-row" style={{ marginTop: 6 }}>
+          <button
+            disabled={!ready}
+            onClick={() =>
+              onPickJoin!({
+                predicate: namespaceOf(sourceIri) + camelSlug(joinName),
+                label: joinName.trim(),
+                sourceKey: srcKey,
+                targetKey: tgtKey,
+              })
+            }
+          >
+            Create link
+          </button>
+          <button className="ghost" onClick={onCancel}>Cancel</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relation-picker" style={{ left: at.x, top: at.y }}>

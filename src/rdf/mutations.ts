@@ -24,6 +24,25 @@ function inGraph(graph: string | null, triples: string): string {
   return graph ? `GRAPH <${graph}> { ${triples} }` : triples;
 }
 
+export interface TriplePattern {
+  s: string;
+  p: string;
+  o: TermValue;
+}
+
+const block = (triples: TriplePattern[]) =>
+  triples.map((t) => `<${t.s}> <${t.p}> ${serializeTerm(t.o)} .`).join('\n');
+
+export async function insertTriples(ep: Endpoint, graph: string | null, triples: TriplePattern[]): Promise<void> {
+  if (!triples.length) return;
+  await update(ep, `INSERT DATA { ${inGraph(graph, block(triples))} }`);
+}
+
+export async function deleteTriples(ep: Endpoint, graph: string | null, triples: TriplePattern[]): Promise<void> {
+  if (!triples.length) return;
+  await update(ep, `DELETE DATA { ${inGraph(graph, block(triples))} }`);
+}
+
 export async function insertTriple(
   ep: Endpoint,
   graph: string | null,

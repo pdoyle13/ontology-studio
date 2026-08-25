@@ -78,4 +78,26 @@ test.describe('query drawer', () => {
     await page.locator('.sparql-input').press('Control+Enter');
     await expect(page.locator('.sparql-results tbody tr').first()).toBeVisible({ timeout: 15_000 });
   });
+
+  test('parameterized query: {{placeholders}} get a values form and substitute on run', async ({ page }) => {
+    const tag = runTag();
+    await page.fill('.sparql-input', 'SELECT ?s WHERE { ?s a {{cls}} } LIMIT {{max}}');
+    // a form input appears per placeholder
+    await expect(page.locator('.query-params .param-input')).toHaveCount(2);
+    await page.locator('.query-params .param-input').nth(0).fill('<https://example.org/music#Artist>');
+    await page.locator('.query-params .param-input').nth(1).fill('3');
+    await page.click('button:has-text("Run (Ctrl+Enter)")');
+    await expect(page.locator('.sparql-results tbody tr')).toHaveCount(3, { timeout: 15_000 });
+
+    // defaults persist with the saved query and reload with it
+    page.once('dialog', (d) => d.accept(`param demo ${tag}`));
+    await page.click('button:has-text("⤓ Save")');
+    await page.fill('.sparql-input', 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1'); // clobber the editor
+    await expect(page.locator('.query-params')).toHaveCount(0);
+    await page.locator('.saved-picker').selectOption({ label: `param demo ${tag} (sparql)` });
+    await expect(page.locator('.sparql-input')).toHaveValue(/\{\{cls\}\}/);
+    await expect(page.locator('.query-params .param-input').nth(1)).toHaveValue('3');
+    // clean up the saved query
+    await page.click('button:has-text("✕")');
+  });
 });

@@ -14,6 +14,21 @@
 <https://studio.local/query/dashq-tmt7d1jzs7906> <https://studio.local/ns#queryMode> "sql" .
 <https://studio.local/query/dashq-tmt7d1jzs7906> <https://studio.local/ns#queryText> "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC" .
 <https://studio.local/query/dashq-tmt7d1jzs7906> <https://studio.local/ns#sourceId> "sales_db" .
+<https://studio.local/query/dashq-tmt7h2rhj2478> <http://purl.org/dc/terms/title> "DashQ Tmt7h2rhj2478" .
+<https://studio.local/query/dashq-tmt7h2rhj2478> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#SavedQuery> .
+<https://studio.local/query/dashq-tmt7h2rhj2478> <https://studio.local/ns#queryMode> "sql" .
+<https://studio.local/query/dashq-tmt7h2rhj2478> <https://studio.local/ns#queryText> "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC" .
+<https://studio.local/query/dashq-tmt7h2rhj2478> <https://studio.local/ns#sourceId> "sales_db" .
+<https://studio.local/query/dashq-tmt7zzu1l3145> <http://purl.org/dc/terms/title> "DashQ Tmt7zzu1l3145" .
+<https://studio.local/query/dashq-tmt7zzu1l3145> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#SavedQuery> .
+<https://studio.local/query/dashq-tmt7zzu1l3145> <https://studio.local/ns#queryMode> "sql" .
+<https://studio.local/query/dashq-tmt7zzu1l3145> <https://studio.local/ns#queryText> "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC" .
+<https://studio.local/query/dashq-tmt7zzu1l3145> <https://studio.local/ns#sourceId> "sales_db" .
+<https://studio.local/query/dashq-tmt80nk3c5310> <http://purl.org/dc/terms/title> "DashQ Tmt80nk3c5310" .
+<https://studio.local/query/dashq-tmt80nk3c5310> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#SavedQuery> .
+<https://studio.local/query/dashq-tmt80nk3c5310> <https://studio.local/ns#queryMode> "sql" .
+<https://studio.local/query/dashq-tmt80nk3c5310> <https://studio.local/ns#queryText> "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC" .
+<https://studio.local/query/dashq-tmt80nk3c5310> <https://studio.local/ns#sourceId> "sales_db" .
 <https://studio.local/query/orders-by-status> <http://purl.org/dc/terms/title> "Orders by status" .
 <https://studio.local/query/orders-by-status> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#SavedQuery> .
 <https://studio.local/query/orders-by-status> <https://studio.local/ns#queryMode> "sql" .

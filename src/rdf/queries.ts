@@ -2,7 +2,9 @@
 // (or null to search the default graph plus all named graphs).
 
 import type { Endpoint, SelectBinding } from './sparqlClient';
+import { SH, DASH } from './vocab';
 import { select } from './sparqlClient';
+import { useSettings } from '../state/settings';
 import {
   virtualClasses,
   isVirtualClass,
@@ -18,8 +20,6 @@ export function scoped(pattern: string, graph: string | null): string {
 }
 
 const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
-const SH_NS = 'http://www.w3.org/ns/shacl#';
-const DASH_NS = 'http://datashapes.org/dash#';
 
 /**
  * Label resolution for a subject variable: rdfs:label when asserted, otherwise
@@ -32,8 +32,8 @@ export function labelPattern(subjectVar: string, out: string, sfx: string): stri
      OPTIONAL { ${subjectVar} <${RDFS_LABEL}> ?__rl${sfx} }
      OPTIONAL {
        ${subjectVar} a ?__lc${sfx} .
-       ?__lsh${sfx} <${SH_NS}targetClass> ?__lc${sfx} ; <${SH_NS}property> ?__lps${sfx} .
-       ?__lps${sfx} <${DASH_NS}propertyRole> <${DASH_NS}LabelRole> ; <${SH_NS}path> ?__lp${sfx} .
+       ?__lsh${sfx} <${SH.targetClass}> ?__lc${sfx} ; <${SH.property}> ?__lps${sfx} .
+       ?__lps${sfx} <${DASH.propertyRole}> <${DASH.LabelRole}> ; <${SH.path}> ?__lp${sfx} .
        ${subjectVar} ?__lp${sfx} ?__dl${sfx} .
      }
      BIND(COALESCE(?__rl${sfx}, ?__dl${sfx}) AS ?${out})`;
@@ -46,19 +46,9 @@ export interface ClassInfo {
   superClass: string | null;
 }
 
-// System machinery that must not clutter the Classes tree. Each of these has
-// its own home surface (Taxonomy, Shapes, Assets>Mappings, Reviews, audit
-// log, dashboards) - user-minted classes are never matched.
-const SYSTEM_NS_PREFIXES = [
-  'http://www.w3.org/2004/02/skos/core#',
-  'http://www.w3.org/ns/shacl#',
-  'http://www.w3.org/ns/r2rml#',
-  'http://www.w3.org/ns/prov#',
-  'http://datashapes.org/dash#',
-  'http://www.w3.org/2002/07/owl#',
-  'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-  'http://www.w3.org/2000/01/rdf-schema#',
-];
+// System machinery that must not clutter the Classes tree. The namespace
+// list is user-configurable (Settings dialog); studio-internal class IRIs
+// are always hidden — they have dedicated surfaces.
 const SYSTEM_CLASS_IRIS = new Set(
   [
     'Change',
@@ -76,7 +66,7 @@ const SYSTEM_CLASS_IRIS = new Set(
 );
 
 export function isSystemClass(iri: string): boolean {
-  return SYSTEM_NS_PREFIXES.some((ns) => iri.startsWith(ns)) || SYSTEM_CLASS_IRIS.has(iri);
+  return useSettings.getState().systemNamespaces.some((ns) => iri.startsWith(ns)) || SYSTEM_CLASS_IRIS.has(iri);
 }
 
 export async function fetchClasses(ep: Endpoint, graph: string | null): Promise<ClassInfo[]> {
@@ -271,6 +261,12 @@ SELECT ?l WHERE {
     .map((b) => ({ subject: b.s.value, subjectLabel: b.slbl?.value ?? null, predicate: b.p.value }));
 
   const resolvedLabel = label ?? selfR.bindings[0]?.l?.value ?? null;
+  // scoped miss → union fallback: the resource may live in another graph
+  // (e.g. a translated SQL schema class while a domain graph is selected);
+  // silently describing it as empty made canvas expansion look broken
+  if (graph && outgoing.length === 0 && incoming.length === 0) {
+    return describeResource(ep, null, iri);
+  }
   return { iri, label: resolvedLabel, types, outgoing, incoming, incomingTotal: incoming.length };
 }
 

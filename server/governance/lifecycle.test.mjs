@@ -28,8 +28,8 @@ describe('validateTransition', () => {
   });
 
   it('rejects undeclared moves and underpowered roles', () => {
-    expect(validateTransition(DEFAULT_WORKFLOW, 'draft', 'approved', 'admin')).toMatch(/no transition/);
-    expect(validateTransition(DEFAULT_WORKFLOW, 'in-review', 'approved', 'editor')).toMatch(/needs steward/);
+    expect(validateTransition(DEFAULT_WORKFLOW, 'draft', 'approved', 'admin')).toMatchObject({ status: 400, error: expect.stringMatching(/no transition/) });
+    expect(validateTransition(DEFAULT_WORKFLOW, 'in-review', 'approved', 'editor')).toMatchObject({ status: 403, error: expect.stringMatching(/needs steward/) });
   });
 
   it('custom workflows drive everything', () => {

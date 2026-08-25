@@ -8,7 +8,7 @@ import { select, update } from './sparqlClient';
 import { serializeTerm } from './mutations';
 import { useHistory } from '../state/history';
 import { slug } from './skosExt';
-import { listSavedQueries, type SavedQuery } from './savedQueries';
+import { listSavedQueries, applyParams, type SavedQuery } from './savedQueries';
 
 const STUDIO = 'https://studio.local/ns#';
 const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
@@ -143,13 +143,13 @@ export async function runWidgetQuery(ep: Endpoint, queryIri: string, saved?: Sav
     const res = await fetch(`/api/sql/sources/${q.sourceId}/query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sql: q.text }),
+      body: JSON.stringify({ sql: applyParams(q.text, q.params) }),
     });
     const json = await res.json();
     if (!res.ok) throw new Error(json.error ?? `${res.status}`);
     return { columns: json.columns, rows: json.rows };
   }
-  const r = await select(ep, q.text, { union: true });
+  const r = await select(ep, applyParams(q.text, q.params), { union: true });
   return {
     columns: r.vars,
     rows: r.bindings.map((b) => Object.fromEntries(r.vars.map((v) => [v, b[v]?.value ?? null]))),

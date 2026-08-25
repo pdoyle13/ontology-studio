@@ -3,12 +3,12 @@
 // a starter NodeShape by profiling instance data.
 
 import type { Endpoint } from './sparqlClient';
+import { SH } from './vocab';
 import { select, update } from './sparqlClient';
 import { scoped } from './queries';
 import { useHistory } from '../state/history';
 import { localName } from './prefixes';
 
-const SH = 'http://www.w3.org/ns/shacl#';
 const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 function wrap(graph: string | null, t: string): string {
@@ -44,13 +44,13 @@ export async function cmdSetConstraint(
   oldValue: string | null
 ): Promise<void> {
   const build = (value: string | null) => {
-    const del = `?ps <${SH}${constraint}> ?old .`;
-    const ins = value !== null && value !== '' ? `?ps <${SH}${constraint}> ${constraintValue(constraint, value)} .` : '';
+    const del = `?ps <${SH.NS}${constraint}> ?old .`;
+    const ins = value !== null && value !== '' ? `?ps <${SH.NS}${constraint}> ${constraintValue(constraint, value)} .` : '';
     return `DELETE { ${wrap(graph, del)} }
 ${ins ? `INSERT { ${wrap(graph, ins)} }` : ''}
 WHERE { ${wrap(
       graph,
-      `<${nodeShape}> <${SH}property> ?ps . ?ps <${SH}path> <${path}> . OPTIONAL { ?ps <${SH}${constraint}> ?old }`
+      `<${nodeShape}> <${SH.property}> ?ps . ?ps <${SH.path}> <${path}> . OPTIONAL { ?ps <${SH.NS}${constraint}> ?old }`
     )} }`;
   };
   await useHistory.getState().exec({
@@ -68,14 +68,14 @@ export async function cmdAddPropertyShape(
   path: string
 ): Promise<void> {
   const psIri = `${nodeShape}-p-${localName(path)}-${Math.floor(Math.random() * 10000)}`;
-  const triples = `<${nodeShape}> <${SH}property> <${psIri}> . <${psIri}> <${SH}path> <${path}> .`;
+  const triples = `<${nodeShape}> <${SH.property}> <${psIri}> . <${psIri}> <${SH.path}> <${path}> .`;
   await useHistory.getState().exec({
     label: 'add property shape',
     redo: () => update(ep, `INSERT DATA { ${wrap(graph, triples)} }`),
     undo: () =>
       update(
         ep,
-        `DELETE WHERE { ${wrap(graph, `<${nodeShape}> <${SH}property> <${psIri}> . <${psIri}> ?p ?o .`)} }`
+        `DELETE WHERE { ${wrap(graph, `<${nodeShape}> <${SH.property}> <${psIri}> . <${psIri}> ?p ?o .`)} }`
       ),
   });
 }
@@ -91,13 +91,13 @@ export async function cmdRemovePropertyShape(
   const snap = await select(
     ep,
     `SELECT ?c ?v WHERE { ${scoped(
-      `<${nodeShape}> <${SH}property> ?ps . ?ps <${SH}path> <${path}> . ?ps ?c ?v .`,
+      `<${nodeShape}> <${SH.property}> ?ps . ?ps <${SH.path}> <${path}> . ?ps ?c ?v .`,
       graph
     )} }`
   );
   const psTmp = `${nodeShape}-p-${localName(path)}-restored`;
   const restore = [
-    `<${nodeShape}> <${SH}property> <${psTmp}> .`,
+    `<${nodeShape}> <${SH.property}> <${psTmp}> .`,
     ...snap.bindings
       .filter((b) => b.c && b.v)
       .map((b) => {
@@ -110,8 +110,8 @@ export async function cmdRemovePropertyShape(
         return `<${psTmp}> <${b.c.value}> ${v} .`;
       }),
   ].join('\n');
-  const del = `DELETE { ${wrap(graph, `<${nodeShape}> <${SH}property> ?ps . ?ps ?c ?v .`)} }
-WHERE { ${wrap(graph, `<${nodeShape}> <${SH}property> ?ps . ?ps <${SH}path> <${path}> . ?ps ?c ?v .`)} }`;
+  const del = `DELETE { ${wrap(graph, `<${nodeShape}> <${SH.property}> ?ps . ?ps ?c ?v .`)} }
+WHERE { ${wrap(graph, `<${nodeShape}> <${SH.property}> ?ps . ?ps <${SH.path}> <${path}> . ?ps ?c ?v .`)} }`;
   await useHistory.getState().exec({
     label: 'remove property shape',
     redo: () => update(ep, del),
@@ -174,18 +174,18 @@ export async function cmdGenerateShape(
   const { total, predicates } = await profileClass(ep, graph, classIri);
   const shapeIri = `${classIri}Shape`;
   const lines: string[] = [
-    `<${shapeIri}> <${RDF_TYPE}> <${SH}NodeShape> .`,
-    `<${shapeIri}> <${SH}targetClass> <${classIri}> .`,
+    `<${shapeIri}> <${RDF_TYPE}> <${SH.NodeShape}> .`,
+    `<${shapeIri}> <${SH.targetClass}> <${classIri}> .`,
   ];
   predicates.forEach((p, i) => {
     const ps = `${shapeIri}-p-${localName(p.predicate)}`;
-    lines.push(`<${shapeIri}> <${SH}property> <${ps}> .`);
-    lines.push(`<${ps}> <${SH}path> <${p.predicate}> .`);
-    lines.push(`<${ps}> <${SH}order> ${lit(String(i + 1), XSD_INT)} .`);
-    if (p.datatype) lines.push(`<${ps}> <${SH}datatype> <${p.datatype}> .`);
-    else if (p.objectClass) lines.push(`<${ps}> <${SH}class> <${p.objectClass}> .`);
-    if (total > 0 && p.subjects === total) lines.push(`<${ps}> <${SH}minCount> ${lit('1', XSD_INT)} .`);
-    if (p.uses === p.subjects) lines.push(`<${ps}> <${SH}maxCount> ${lit('1', XSD_INT)} .`);
+    lines.push(`<${shapeIri}> <${SH.property}> <${ps}> .`);
+    lines.push(`<${ps}> <${SH.path}> <${p.predicate}> .`);
+    lines.push(`<${ps}> <${SH.order}> ${lit(String(i + 1), XSD_INT)} .`);
+    if (p.datatype) lines.push(`<${ps}> <${SH.datatype}> <${p.datatype}> .`);
+    else if (p.objectClass) lines.push(`<${ps}> <${SH.class}> <${p.objectClass}> .`);
+    if (total > 0 && p.subjects === total) lines.push(`<${ps}> <${SH.minCount}> ${lit('1', XSD_INT)} .`);
+    if (p.uses === p.subjects) lines.push(`<${ps}> <${SH.maxCount}> ${lit('1', XSD_INT)} .`);
   });
   const block = lines.join('\n');
   await useHistory.getState().exec({

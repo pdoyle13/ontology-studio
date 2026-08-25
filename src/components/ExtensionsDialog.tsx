@@ -14,6 +14,7 @@ import {
   type AssetType,
   type FieldKind,
 } from '../rdf/skosExt';
+import { listSchemes, type SchemeInfo } from '../rdf/skos';
 import { confirmDialog } from './Modal';
 
 interface ExtState {
@@ -30,6 +31,7 @@ const KINDS: { id: FieldKind; label: string }[] = [
   { id: 'date', label: 'Date' },
   { id: 'boolean', label: 'Yes / no' },
   { id: 'enum', label: 'Pick list' },
+  { id: 'codelist', label: 'Codelist (from a concept scheme)' },
 ];
 
 function AssetSection({ asset, title }: { asset: AssetType; title: string }) {
@@ -38,6 +40,13 @@ function AssetSection({ asset, title }: { asset: AssetType; title: string }) {
   const [adding, setAdding] = useState(false);
   const [label, setLabel] = useState('');
   const [kind, setKind] = useState<FieldKind>('text');
+  const [codelist, setCodelist] = useState('');
+  const [schemes, setSchemes] = useState<SchemeInfo[]>([]);
+  useEffect(() => {
+    const ep = useConnection.getState().active();
+    if (!ep) return;
+    listSchemes(ep, null).then(setSchemes).catch(() => setSchemes([]));
+  }, []);
   const [required, setRequired] = useState(false);
   const [description, setDescription] = useState('');
   const [options, setOptions] = useState('');
@@ -56,6 +65,10 @@ function AssetSection({ asset, title }: { asset: AssetType; title: string }) {
   const add = async () => {
     const ep = conn.active();
     if (!ep || !label.trim()) return;
+    if (kind === 'codelist' && !codelist) {
+      setError('pick the concept scheme that provides the codes');
+      return;
+    }
     if (kind === 'enum' && !options.trim()) {
       setError('a pick list needs options (separate with |)');
       return;
@@ -68,6 +81,7 @@ function AssetSection({ asset, title }: { asset: AssetType; title: string }) {
         required,
         description: description.trim() || undefined,
         options: kind === 'enum' ? options.split('|').map((o) => o.trim()).filter(Boolean) : undefined,
+        codelist: kind === 'codelist' ? codelist : undefined,
         path: path.trim() || undefined,
       });
       setLabel('');
@@ -122,6 +136,17 @@ function AssetSection({ asset, title }: { asset: AssetType; title: string }) {
             <>
               <label className="field-label">Options (separate with |)</label>
               <input value={options} onChange={(e) => setOptions(e.target.value)} placeholder="draft | approved | deprecated" style={{ width: '100%' }} />
+            </>
+          )}
+          {kind === 'codelist' && (
+            <>
+              <label className="field-label">Concept scheme *</label>
+              <select value={codelist} onChange={(e) => setCodelist(e.target.value)} style={{ width: '100%' }}>
+                <option value="">pick a scheme…</option>
+                {schemes.map((sc) => (
+                  <option key={sc.iri} value={sc.iri}>{sc.label ?? sc.iri} ({sc.conceptCount})</option>
+                ))}
+              </select>
             </>
           )}
           <label className="field-label">Help text</label>

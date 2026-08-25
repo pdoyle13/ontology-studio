@@ -27,7 +27,10 @@ test.describe('data grid', () => {
       .allTextContents()
       .then((ths) => ths.findIndex((t) => t.includes('Status')));
     const filterInput = page.locator('.data-grid thead tr').nth(1).locator('th').nth(statusIdx).locator('input');
-    await filterInput.fill('cancelled');
+    // type like a human — one keystroke at a time. fill() masked a controlled-
+    // input bug where the box reset to empty after every keypress.
+    await filterInput.pressSequentially('cancelled', { delay: 20 });
+    await expect(filterInput).toHaveValue('cancelled'); // the box echoes what you type
     await filterInput.press('Enter');
     await expect(page.locator('.grid-sql')).toContainText(/LIKE '%cancelled%'/, { timeout: 10_000 });
     await expect(async () => {

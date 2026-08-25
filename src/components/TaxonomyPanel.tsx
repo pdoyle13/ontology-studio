@@ -14,12 +14,14 @@ import {
   type SchemeInfo,
   type ConceptRow,
   type ConceptNode,
+  cmdSetDeprecated,
 } from '../rdf/skos';
 import { displayName } from '../rdf/display';
 import { openAssetDialog } from './AssetDialog';
 import { openExtensions } from './ExtensionsDialog';
 import { openCsvImport } from './CsvImportDialog';
 import { dragIri } from './ClassTree';
+import { CrosswalkDialog } from './CrosswalkDialog';
 
 const CONCEPT_MIME = 'application/x-studio-concept';
 
@@ -112,10 +114,23 @@ function ConceptTreeNode({
         }}
         onClick={() => selectResource(node.iri)}
       >
-        <span className="skos-label">{displayName(node.iri, node.label)}</span>
+        <span className={`skos-label ${node.deprecated ? 'code-deprecated' : ''}`}>{displayName(node.iri, node.label)}</span>
         <span className="skos-actions">
           <button className="micro" title="Add narrower concept" onClick={(e) => { e.stopPropagation(); addChild(); }}>+</button>
           <button className="micro" title="Rename" onClick={(e) => { e.stopPropagation(); rename(); }}>✎</button>
+          <button
+            className="micro"
+            title={node.deprecated ? 'Reactivate code' : 'Deprecate code (leaves pick-lists, keeps data)'}
+            onClick={async (e) => {
+              e.stopPropagation();
+              const ep = useConnection.getState().active();
+              if (!ep) return;
+              await cmdSetDeprecated(ep, useConnection.getState().activeGraph, node.iri, !node.deprecated);
+              onChanged();
+            }}
+          >
+            {node.deprecated ? '↺' : '⊘'}
+          </button>
         </span>
       </div>
       {node.children.length > 0 && (
@@ -135,6 +150,7 @@ export function TaxonomyPanel() {
   const [active, setActive] = useState<string | null>(null);
   const [rows, setRows] = useState<ConceptRow[]>([]);
   const [rootOver, setRootOver] = useState(false);
+  const [crosswalking, setCrosswalking] = useState(false);
   const [nonce, setNonce] = useState(0);
   const refresh = useCallback(() => setNonce((n) => n + 1), []);
 
@@ -226,7 +242,23 @@ export function TaxonomyPanel() {
         >
           ⇪ CSV
         </button>
+        <button
+          className="ghost"
+          disabled={!active || schemes.length < 2}
+          onClick={() => setCrosswalking(true)}
+          title="Map this scheme's concepts to another scheme (suggested matches)"
+        >
+          ⇄ Crosswalk
+        </button>
       </div>
+      {crosswalking && active && (
+        <CrosswalkDialog
+          fromScheme={active}
+          fromLabel={displayName(active, schemes.find((s) => s.iri === active)?.label ?? null)}
+          schemes={schemes.map((s) => ({ iri: s.iri, label: displayName(s.iri, s.label) }))}
+          onClose={() => setCrosswalking(false)}
+        />
+      )}
       {active && (
         <>
           <div

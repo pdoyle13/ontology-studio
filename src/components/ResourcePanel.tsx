@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ProvenanceBlock } from './ProvenanceBlock';
 import { useWrite } from '../hooks/useWrite';
 import { useUi } from '../state/ui';
 import { useGraph } from '../state/graph';
@@ -255,9 +256,12 @@ export function ResourcePanel() {
           </div>
         )}
         {d.virtual && (
-          <div className="virtual-badge" title="Instance data is not in the graph - fetched live from the owning database">
-            live · {d.virtual.sourceId}.{d.virtual.table}
-          </div>
+          <>
+            <div className="virtual-badge" title="Instance data is not in the graph - fetched live from the owning database">
+              live · {d.virtual.sourceId}.{d.virtual.table}
+            </div>
+            <ProvenanceBlock sourceId={d.virtual.sourceId} table={d.virtual.table} />
+          </>
         )}
         <div className="resource-actions">
           {!d.virtual && isClass && (

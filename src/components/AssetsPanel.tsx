@@ -16,6 +16,7 @@ import { openImportWizard } from './ImportWizard';
 import { openDataGrid } from './DataGrid';
 import { TaxonomyPanel } from './TaxonomyPanel';
 import { dragIri } from './ClassTree';
+import { openMappingEditor } from './MappingEditor';
 
 const STUDIO = 'https://studio.local/ns#';
 const RR = 'http://www.w3.org/ns/r2rml#';
@@ -88,8 +89,20 @@ function CatalogList({ type }: { type: AssetTypeDef }) {
           onDragStart={(e) => dragIri(e, r.iri)}
           onClick={() => selectResource(r.iri)}
         >
-          {r.label}
+          <span className="row-label">{r.label}</span>
           <span className="count" style={{ marginLeft: 6 }}>{r.detail}</span>
+          {type.classIri === `${RR}TriplesMap` && (
+            <button
+              className="micro"
+              title="Edit mapping (predicates, datatypes, subject template)"
+              onClick={(e) => {
+                e.stopPropagation();
+                openMappingEditor(r.iri);
+              }}
+            >
+              ✎
+            </button>
+          )}
           {type.classIri === `${STUDIO}PhysicalObject` && (
             <button
               className="micro"

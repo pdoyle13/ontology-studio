@@ -24,6 +24,9 @@ import { addComment, listComments, COMMENTS_GRAPH } from './governance/comments.
 import { createTokenStore } from './governance/tokens.mjs';
 import { createOidcVerifier } from './governance/oidc.mjs';
 import { createRegistry } from './core/metrics.mjs';
+import { updateGraphTags } from './core/sparqlAst.mjs';
+import { suggestCrosswalk, acceptMapping, removeMapping, listMappings, CROSSWALKS_GRAPH } from './semantic/crosswalk.mjs';
+import { autoTag } from './semantic/autotag.mjs';
 import { manifest as reconcileManifest, reconcileBatch } from './search/reconcile.mjs';
 import { runQualityChecks, persistSnapshot, readHistory, QUALITY_GRAPH } from './semantic/quality.mjs';
 import { discoverBusinessAreas, readAlignment } from './semantic/discover.mjs';
@@ -51,6 +54,7 @@ import {
   submitProposal,
   decideProposal,
   seedGovernance,
+  migrateStagingGraphs,
 } from './governance/governance.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -86,12 +90,10 @@ const sqlCache = new QueryCache({
   ttlMs: Number(process.env.SQL_CACHE_TTL_MS ?? 15_000),
 });
 
-/** Which graph tags does a SPARQL update body touch? Empty → unknown → global. */
-function updateTags(body) {
-  const tags = new Set();
-  for (const m of String(body).matchAll(/GRAPH\s*<([^>]+)>/gi)) tags.add(m[1]);
-  return [...tags];
-}
+/** Which graph tags does a SPARQL update body touch? Empty → unknown → global.
+ *  Parsed via Traqula (regex fallback inside) — governance write-gating and
+ *  cache invalidation both key off this, so it must not miss graphs. */
+const updateTags = (body) => updateGraphTags(body);
 
 // ---------------- metrics ----------------
 const metrics = createRegistry();
@@ -601,6 +603,68 @@ const reconcileHandler = async (req, res) => {
 app.get('/api/reconcile', reconcileHandler);
 app.post('/api/reconcile', express.urlencoded({ extended: true }), reconcileHandler);
 
+// ---- auto-tagging: find taxonomy concepts mentioned in free text ----
+app.post('/api/tag', async (req, res) => {
+  const { text, scheme } = req.body ?? {};
+  if (!text || typeof text !== 'string') return bad(res, 400, 'text (string) required');
+  try {
+    res.json(await autoTag(OXIGRAPH, { text, scheme: scheme || null }));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+// ---- crosswalks: inter-vocabulary SKOS mappings with suggestions ----
+app.get('/api/crosswalk/suggest', async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return bad(res, 400, 'from and to scheme IRIs required');
+  try {
+    res.json(await suggestCrosswalk(OXIGRAPH, { fromScheme: String(from), toScheme: String(to) }));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.get('/api/crosswalk', async (req, res) => {
+  const { from, to } = req.query;
+  if (!from || !to) return bad(res, 400, 'from and to scheme IRIs required');
+  try {
+    res.json(await listMappings(OXIGRAPH, { fromScheme: String(from), toScheme: String(to) }));
+  } catch (e) {
+    bad(res, 500, e.message);
+  }
+});
+
+app.post('/api/crosswalk', async (req, res) => {
+  const user = req.studioUser;
+  if (!canPropose(user)) return forbid(res, user, 'accepting mappings requires editor, steward, or admin');
+  const { from, to, relation } = req.body ?? {};
+  if (!from || !to) return bad(res, 400, 'from and to concept IRIs required');
+  try {
+    const r = await acceptMapping(OXIGRAPH, { from, to, relation });
+    recordChange(OXIGRAPH, { actor: user.name, operation: `crosswalk:${r.relation}`, graphs: [CROSSWALKS_GRAPH], detail: `${from} -> ${to}` });
+    cache.invalidate([CROSSWALKS_GRAPH]);
+    res.json(r);
+  } catch (e) {
+    bad(res, 400, e.message);
+  }
+});
+
+app.delete('/api/crosswalk', async (req, res) => {
+  const user = req.studioUser;
+  if (!canPropose(user)) return forbid(res, user, 'removing mappings requires editor, steward, or admin');
+  const { from, to, relation } = req.body ?? {};
+  if (!from || !to || !relation) return bad(res, 400, 'from, to, relation required');
+  try {
+    const r = await removeMapping(OXIGRAPH, { from, to, relation });
+    recordChange(OXIGRAPH, { actor: user.name, operation: 'crosswalk:remove', graphs: [CROSSWALKS_GRAPH], detail: `${from} -x- ${to}` });
+    cache.invalidate([CROSSWALKS_GRAPH]);
+    res.json(r);
+  } catch (e) {
+    bad(res, 400, e.message);
+  }
+});
+
 // ---- data quality: rule sweeps with persisted history ----
 app.post('/api/quality/run', async (req, res) => {
   const user = req.studioUser;
@@ -650,7 +714,7 @@ app.post('/api/lifecycle/transition', async (req, res) => {
     const wf = await readWorkflow(OXIGRAPH, assetType ?? null);
     const state = await getState(OXIGRAPH, iri);
     const err = validateTransition(wf, state, to, req.studioUser.role);
-    if (err) return bad(res, 403, err);
+    if (err) return bad(res, err.status, err.error);
     await setState(OXIGRAPH, iri, to);
     recordChange(OXIGRAPH, { actor: req.studioUser.name, operation: `lifecycle:${state ?? wf.initial}->${to}`, graphs: [STATE_GRAPH], detail: iri });
     publishChange({ actor: req.studioUser.name, operation: 'lifecycle', graphs: [STATE_GRAPH], replay: { kind: 'lifecycle', iri, to } });
@@ -1106,6 +1170,10 @@ cache.onInvalidate(() => snapshotter.schedule());
 seedGovernance(OXIGRAPH, ['https://studio.local/graphs/lineage'])
   .then((seeded) => seeded && console.log('governance: seeded default users (pat/admin, sam/steward, quinn/editor)'))
   .catch(() => {});
+// convert any legacy live staging graphs (draft leakage) to on-proposal literals
+migrateStagingGraphs(OXIGRAPH)
+  .then((n) => n && console.log(`governance: migrated ${n} legacy proposal staging graph(s)`))
+  .catch(() => {});
 
 
 function wsBroadcast(msg, except = null) {
@@ -1118,10 +1186,21 @@ function wsBroadcast(msg, except = null) {
 // watch hits ride the same bus as graph changes
 searchSvc.setWatchListener((hit) => wsBroadcast({ type: 'search-watch', ...hit }));
 
+// Presence is debounced: page reloads and short-lived sockets churn
+// open/close in bursts, and broadcasting each one makes the count flicker.
+let presenceTimer = null;
+function schedulePresence() {
+  if (presenceTimer) clearTimeout(presenceTimer);
+  presenceTimer = setTimeout(() => {
+    presenceTimer = null;
+    wsBroadcast({ type: 'presence', count: wss.clients.size });
+  }, 800);
+}
+
 wss.on('connection', (socket) => {
-  wsBroadcast({ type: 'presence', count: wss.clients.size });
   socket.send(JSON.stringify({ type: 'presence', count: wss.clients.size }));
-  socket.on('close', () => wsBroadcast({ type: 'presence', count: wss.clients.size }));
+  schedulePresence();
+  socket.on('close', schedulePresence);
   socket.on('message', (raw) => {
     // relay lightweight client events (e.g. selection) to other participants
     try {

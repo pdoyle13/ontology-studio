@@ -6,6 +6,7 @@ import {
   MiniMap,
   applyNodeChanges,
   ConnectionLineType,
+  ConnectionMode,
   BaseEdge,
   EdgeLabelRenderer,
   useInternalNode,
@@ -21,7 +22,8 @@ import { toPng } from 'html-to-image';
 import { useCanvas, type RdfNode, type RdfNodeData } from '../state/canvas';
 import { LAYOUTS, bestAnchorPair, type LayoutAlgo } from '../layout';
 import { useContextMenu } from './ContextMenu';
-import { RelationPicker, rememberPredicate } from './RelationPicker';
+import { RelationPicker, rememberPredicate, type JoinSpec } from './RelationPicker';
+import { cmdInsertMany } from '../rdf/commands';
 import { confirmDialog, openCreateInstance } from './Modal';
 import { openDataGrid } from './DataGrid';
 import { openSourceEditor } from './SourceEditor';
@@ -47,7 +49,7 @@ function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
       style={{ borderLeftColor: hasViolation ? 'var(--err)' : border }}
     >
       <Handle type="target" position={Position.Left} className="rdf-handle" />
-      <div className="node-quick-actions">
+      <div className="node-quick-actions nodrag">
         <button className="quick" title="Expand neighbors" onClick={quick(() => useCanvas.getState().expandNode(data.iri))}>
           ⇅
         </button>
@@ -143,7 +145,7 @@ export function GraphCanvas() {
   }, []);
 
   const commitRelation = useCallback(
-    (predicate: string) => {
+    async (predicate: string, mintedLabel?: string) => {
       if (!pendingRel) return;
       const conn = useConnection.getState();
       const ep = conn.active();
@@ -151,12 +153,21 @@ export function GraphCanvas() {
       const { source, target } = pendingRel;
       setPendingRel(null);
       rememberPredicate(predicate);
-      cmdInsert(ep, conn.activeGraph, source, predicate, { type: 'uri', value: target }, 'create edge')
-        .then(() => {
-          addEdgeLocal(source, predicate, target);
-          refreshSelected();
-        })
-        .catch((e) => window.alert(`Edge creation failed: ${(e as Error).message}`));
+      try {
+        if (mintedLabel) {
+          // brand-new predicate typed by name: declare it so it labels
+          // correctly and shows up in future pickers
+          await cmdInsert(ep, conn.activeGraph, predicate, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+            { type: 'uri', value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#Property' }, 'declare property');
+          await cmdInsert(ep, conn.activeGraph, predicate, 'http://www.w3.org/2000/01/rdf-schema#label',
+            { type: 'literal', value: mintedLabel }, 'label property');
+        }
+        await cmdInsert(ep, conn.activeGraph, source, predicate, { type: 'uri', value: target }, 'create edge');
+        addEdgeLocal(source, predicate, target);
+        refreshSelected();
+      } catch (e) {
+        window.alert(`Edge creation failed: ${(e as Error).message}`);
+      }
     },
     [pendingRel, addEdgeLocal, refreshSelected]
   );
@@ -202,10 +213,56 @@ export function GraphCanvas() {
       const at = flowRef.current
         ? flowRef.current.screenToFlowPosition({ x: e.clientX, y: e.clientY })
         : undefined;
+      // dropping ONTO an existing node means "link these two" — hit-test in
+      // flow coordinates (screen-space elementFromPoint misses when zoomed/panned)
+      const hit = at
+        ? useCanvas.getState().nodes.find((n) => {
+            const w = (n as { measured?: { width?: number } }).measured?.width ?? 180;
+            const h = (n as { measured?: { height?: number } }).measured?.height ?? 52;
+            return at.x >= n.position.x && at.x <= n.position.x + w && at.y >= n.position.y && at.y <= n.position.y + h;
+          })?.id
+        : undefined;
+      if (hit && hit !== iri) {
+        addResource(iri, at ? { x: at.x + 240, y: at.y } : undefined);
+        lastPointer.current = { x: e.clientX, y: e.clientY };
+        setPendingRel({ source: hit, target: iri, at: { x: e.clientX, y: e.clientY } });
+        return;
+      }
       addResource(iri, at);
       selectResource(iri);
     },
     [addResource, selectResource]
+  );
+
+  // field-level cross-DB link: write only the meta declaration; instance
+  // traversal resolves live from it (virtual layer, federation, lineage)
+  const commitJoinLink = useCallback(
+    async (spec: JoinSpec) => {
+      if (!pendingRel) return;
+      const conn = useConnection.getState();
+      const ep = conn.active();
+      if (!ep) return;
+      const { source, target } = pendingRel;
+      setPendingRel(null);
+      const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+      const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
+      const STUDIO = 'https://studio.local/ns#';
+      try {
+        await cmdInsertMany(ep, conn.activeGraph, [
+          { s: spec.predicate, p: `${RDF}type`, o: { type: 'uri', value: `${RDF}Property` } },
+          { s: spec.predicate, p: `${RDFS}label`, o: { type: 'literal', value: spec.label } },
+          { s: spec.predicate, p: `${RDFS}domain`, o: { type: 'uri', value: source } },
+          { s: spec.predicate, p: `${RDFS}range`, o: { type: 'uri', value: target } },
+          { s: spec.predicate, p: `${STUDIO}sourceKeyProperty`, o: { type: 'uri', value: spec.sourceKey } },
+          { s: spec.predicate, p: `${STUDIO}targetKeyProperty`, o: { type: 'uri', value: spec.targetKey } },
+        ], 'declare link');
+        addEdgeLocal(source, spec.predicate, target);
+        refreshSelected();
+      } catch (e) {
+        window.alert(`Link creation failed: ${(e as Error).message}`);
+      }
+    },
+    [pendingRel, addEdgeLocal, refreshSelected]
   );
 
   return (
@@ -359,12 +416,14 @@ export function GraphCanvas() {
         }}
         onInit={(instance) => {
           flowRef.current = instance;
+          useCanvas.getState().setFlowInstance(instance);
         }}
         fitView
         proOptions={{ hideAttribution: true }}
         colorMode="dark"
         defaultEdgeOptions={{ type: 'mid' }}
         connectionLineType={ConnectionLineType.Straight}
+        connectionMode={ConnectionMode.Loose}
         connectionRadius={80}
         selectionKeyCode="Shift"
         multiSelectionKeyCode={['Control', 'Meta']}
@@ -377,9 +436,12 @@ export function GraphCanvas() {
       {pendingRel && (
         <RelationPicker
           at={{ x: Math.min(pendingRel.at.x, window.innerWidth - 320), y: Math.min(pendingRel.at.y, window.innerHeight - 280) }}
+          sourceIri={pendingRel.source}
+          targetIri={pendingRel.target}
           sourceLabel={(nodes.find((n) => n.id === pendingRel.source)?.data.label as string) ?? pendingRel.source}
           targetLabel={(nodes.find((n) => n.id === pendingRel.target)?.data.label as string) ?? pendingRel.target}
           onPick={commitRelation}
+          onPickJoin={commitJoinLink}
           onCancel={() => setPendingRel(null)}
         />
       )}

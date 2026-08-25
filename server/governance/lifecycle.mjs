@@ -35,12 +35,16 @@ export function availableTransitions(workflow, state, role) {
   return workflow.transitions.filter((t) => t.from === cur && roleAllows(role, t.role));
 }
 
-/** Pure: validate one requested transition. Returns error string or null. */
+/**
+ * Pure: validate one requested transition. Returns null when allowed, else
+ * { status, error } — 400 for a transition the workflow doesn't define
+ * (client error), 403 only when the transition exists but the role lacks it.
+ */
 export function validateTransition(workflow, state, to, role) {
   const cur = state ?? workflow.initial;
   const t = workflow.transitions.find((x) => x.from === cur && x.to === to);
-  if (!t) return `no transition ${cur} → ${to}`;
-  if (!roleAllows(role, t.role)) return `transition "${t.label}" needs ${t.role} (you are ${role})`;
+  if (!t) return { status: 400, error: `no transition ${cur} → ${to}` };
+  if (!roleAllows(role, t.role)) return { status: 403, error: `transition "${t.label}" needs ${t.role} (you are ${role})` };
   return null;
 }
 

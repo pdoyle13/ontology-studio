@@ -5,8 +5,22 @@ import type { Endpoint } from './sparqlClient';
 import { update } from './sparqlClient';
 import type { TermValue } from './queries';
 import { describeResource } from './queries';
-import { insertTriple, deleteTriple, replaceTriple, serializeTerm } from './mutations';
+import { insertTriple, deleteTriple, replaceTriple, serializeTerm, insertTriples, deleteTriples, type TriplePattern } from './mutations';
 import { useHistory } from '../state/history';
+
+/** One undoable step inserting several triples at once. */
+export async function cmdInsertMany(
+  ep: Endpoint,
+  graph: string | null,
+  triples: TriplePattern[],
+  label = 'add values'
+): Promise<void> {
+  await useHistory.getState().exec({
+    label,
+    redo: () => insertTriples(ep, graph, triples),
+    undo: () => deleteTriples(ep, graph, triples),
+  });
+}
 
 export async function cmdInsert(
   ep: Endpoint,

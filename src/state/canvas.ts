@@ -2,6 +2,7 @@
 // Nodes = IRI resources; literals stay in the inspector. Edges dedup by s|p|o.
 
 import { create } from 'zustand';
+import { SH } from '../rdf/vocab';
 import type { Node, Edge } from '@xyflow/react';
 import { layout, type LayoutAlgo, type LayoutMetrics, type LayoutNode } from '../layout';
 import { describeResource } from '../rdf/queries';
@@ -37,7 +38,12 @@ export interface CanvasState {
   edges: Edge[];
   expanding: string | null;
   onNodesChange: (nodes: RdfNode[]) => void;
-  addResource: (iri: string, at?: { x: number; y: number }) => Promise<void>;
+  /** React Flow instance, registered by GraphCanvas — used for viewport moves. */
+  flowInstance: { setCenter: (x: number, y: number, opts?: { zoom?: number; duration?: number }) => void } | null;
+  setFlowInstance: (i: CanvasState['flowInstance']) => void;
+  /** Pan the viewport to a node (no-op if it isn't on the canvas). */
+  centerOn: (iri: string) => void;
+  addResource: (iri: string, at?: { x: number; y: number }, opts?: { focus?: boolean }) => Promise<void>;
   expandNode: (iri: string) => Promise<void>;
   removeNode: (iri: string) => void;
   addTriples: (triples: { s: string; p: string; o: string; oIsIri: boolean }[]) => void;
@@ -88,14 +94,34 @@ export const useCanvas = create<CanvasState>((set, get) => ({
 
   onNodesChange: (nodes) => set({ nodes }),
 
-  addResource: async (iri, at) => {
-    if (get().nodes.some((n) => n.id === iri)) return;
+  flowInstance: null,
+  setFlowInstance: (flowInstance) => set({ flowInstance }),
+
+  centerOn: (iri) => {
+    const { flowInstance, nodes } = get();
+    const node = nodes.find((n) => n.id === iri);
+    if (!flowInstance || !node) return;
+    // aim at the node's middle (measured size when available, else defaults)
+    const w = (node as { measured?: { width?: number } }).measured?.width ?? 180;
+    const h = (node as { measured?: { height?: number } }).measured?.height ?? 52;
+    flowInstance.setCenter(node.position.x + w / 2, node.position.y + h / 2, { duration: 350 });
+  },
+
+  addResource: async (iri, at, opts) => {
+    const existing = get().nodes.find((n) => n.id === iri);
+    if (existing) {
+      // already on the canvas: honor an explicit drop position, then focus it
+      if (at) set({ nodes: get().nodes.map((n) => (n.id === iri ? { ...n, position: at } : n)) });
+      if (opts?.focus) get().centerOn(iri);
+      return;
+    }
     const conn = useConnection.getState();
     const ep = conn.active();
     if (!ep) return;
     const pos = at ?? { x: 120 + Math.random() * 240, y: 100 + Math.random() * 180 };
     // optimistic placeholder, then hydrate label/types
     set({ nodes: [...get().nodes, makeNode(iri, null, [], pos)] });
+    if (opts?.focus) get().centerOn(iri);
     try {
       const d = await describeResource(ep, conn.activeGraph, iri);
       set({
@@ -236,8 +262,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
     if (classes.length === 0) return;
 
     // object-property links between classes: rdfs:domain/range + shape sh:class
-    const SH = 'http://www.w3.org/ns/shacl#';
-    const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
+        const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
     let links: { src: string; prop: string; dst: string }[] = [];
     try {
       const r = await select(
@@ -245,7 +270,7 @@ export const useCanvas = create<CanvasState>((set, get) => ({
         `SELECT DISTINCT ?src ?prop ?dst WHERE {
   ${scoped(
     `{ ?prop <${RDFS}domain> ?src ; <${RDFS}range> ?dst . FILTER(isIRI(?dst) && !STRSTARTS(STR(?dst), "http://www.w3.org/2001/XMLSchema#")) }
-     UNION { ?sh <${SH}targetClass> ?src ; <${SH}property> ?ps . ?ps <${SH}path> ?prop ; <${SH}class> ?dst }
+     UNION { ?sh <${SH.targetClass}> ?src ; <${SH.property}> ?ps . ?ps <${SH.path}> ?prop ; <${SH.class}> ?dst }
      UNION { ?src <${RDFS}subClassOf> ?dst . BIND(<${RDFS}subClassOf> AS ?prop) }`,
     conn.activeGraph
   )}
@@ -456,6 +481,9 @@ export const useCanvas = create<CanvasState>((set, get) => ({
         return p ? { ...n, position: p } : n;
       }),
     });
+    // the new arrangement can land anywhere — bring it back into view
+    const fi = get().flowInstance as { fitView?: (o?: { duration?: number; padding?: number }) => void } | null;
+    setTimeout(() => fi?.fitView?.({ duration: 350, padding: 0.12 }), 30);
   },
 }));
 

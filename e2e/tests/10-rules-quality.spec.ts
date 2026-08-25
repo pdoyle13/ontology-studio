@@ -24,7 +24,7 @@ test.describe('SHACL-AF rules', () => {
     await page.fill('.ext-form input[placeholder*="asset-kind"]', `https://studio.local/vocab/rk${tag}`);
     await page.fill('.ext-form input[placeholder="literal value"]', 'flagged');
     await page.click('button:has-text("Create rule")');
-    await expect(page.locator('.ext-row', { hasText: `RC${tag}` })).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('.ext-row', { hasText: `RuleClass ${tag}` })).toBeVisible({ timeout: 10_000 });
 
     await page.click('button:has-text("Materialize")');
     await expect(page.locator('.rules-panel .term-meta', { hasText: 'derived by' })).toBeVisible({ timeout: 30_000 });
@@ -47,7 +47,7 @@ test.describe('SHACL-AF rules', () => {
     expect(expl[0].kind).toBe('triple');
 
     // deactivate the rule and re-materialize: derived triples for it disappear
-    const row = page.locator('.ext-row', { hasText: `RC${tag}` });
+    const row = page.locator('.ext-row', { hasText: `RuleClass ${tag}` });
     await row.locator('button[title="Deactivate"]').click();
     await expect(row.locator('button[title="Activate"]')).toBeVisible({ timeout: 8_000 });
     await page.click('button:has-text("Materialize")');

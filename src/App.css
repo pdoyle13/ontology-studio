@@ -172,6 +172,12 @@ button.ghost { background: transparent; }
   white-space: nowrap;
 }
 .instance-list li:hover { background: var(--bg-inset); color: var(--accent); }
+/* rows with inline actions: the LABEL truncates, never the action buttons
+   (overflow:hidden on the li clipped trailing buttons out of hit-testing) */
+.asset-type .instance-list li { display: flex; align-items: center; min-width: 0; }
+.asset-type .instance-list li .row-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asset-type .instance-list li .count { flex: none; }
+.asset-type .instance-list li button.micro { flex: none; }
 .tree-loading { color: var(--text-dim); font-size: 12px; padding: 4px; }
 
 /* ---- resource panel ---- */
@@ -334,9 +340,9 @@ button.micro.add-field:hover { color: var(--accent); }
   white-space: nowrap;
 }
 .rdf-handle {
-  opacity: 0;
-  width: 10px;
-  height: 10px;
+  opacity: 0.3; /* always faintly visible — invisible grab targets are undraggable */
+  width: 14px;
+  height: 14px;
   background: var(--accent);
   border: 1px solid var(--bg);
   transition: opacity 0.12s;
@@ -533,13 +539,16 @@ button.micro.add-field:hover { color: var(--accent); }
 /* ---- node hover quick actions ---- */
 .node-quick-actions {
   position: absolute;
-  top: -22px;
+  top: -26px;
   right: 0;
   display: flex;
   gap: 2px;
   opacity: 0;
   transition: opacity 0.12s;
   pointer-events: none;
+  /* bridge to the node so moving the pointer up to the buttons never leaves
+     the hover region (a gap here made them unclickable) */
+  padding-bottom: 8px;
 }
 .rdf-node:hover .node-quick-actions { opacity: 1; pointer-events: auto; }
 button.quick {
@@ -684,6 +693,39 @@ button.quick:hover { color: var(--accent); border-color: var(--accent); }
 .csv-preview td, .csv-preview th { white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
 .csv-bad td:first-child { color: var(--err); }
 .csv-ok td:first-child { color: var(--ok); }
+
+/* agent as the main surface (Ask workspace): a wide centered column instead
+   of a cramped side tab */
+.agent-center {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background: var(--bg);
+  overflow: hidden;
+}
+.agent-center .agent-panel {
+  width: min(100%, 880px);
+  height: 100%; /* the side-panel variant subtracts its tab row; none here */
+  padding: 14px 18px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.agent-center .agent-messages { font-size: 14px; }
+.agent-center .intent-chips { justify-content: center; }
+
+/* parameterized saved queries */
+.query-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 4px 0 6px;
+}
+.query-params .param-input { width: 140px; margin-left: 4px; }
+
+/* codelists */
+.code-deprecated { text-decoration: line-through; opacity: 0.55; }
+.prov-block { margin-top: 4px; }
+.prov-chain { font-size: 11px; }
 
 /* workspaces */
 .workspace-switch { margin-left: 10px; }

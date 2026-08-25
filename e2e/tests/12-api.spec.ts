@@ -103,12 +103,19 @@ test.describe('HTTP API surfaces', () => {
       headers: { 'X-Studio-User': 'pat' },
       data: { iri: 'https://example.org/music#Radiohead', to: 'nonexistent-state' },
     });
-    expect(badMove.status()).toBe(403);
+    expect(badMove.status()).toBe(400); // undefined transition = validation error, not authz
+    // fresh IRI starts at the workflow's initial state (draft); draft->in-review
+    // is a real transition but needs editor, and unknown users are viewers
+    const notAllowed = await request.post(`${API}/api/lifecycle/transition`, {
+      headers: { 'X-Studio-User': 'rando-viewer' },
+      data: { iri: 'https://example.org/music#LifecycleProbe', to: 'in-review' },
+    });
+    expect(notAllowed.status()).toBe(403); // real permission denial keeps 403
   });
 
   test('sql console: read-only enforcement + kinds registry', async ({ request }) => {
     const kinds = await (await request.get(`${API}/api/sql/kinds`)).json();
-    expect(kinds.map((k: { kind: string }) => k.kind)).toEqual(expect.arrayContaining(['sqlite', 'postgres', 'duckdb', 'mysql', 'trino']));
+    expect(kinds.map((k: { kind: string }) => k.kind)).toEqual(expect.arrayContaining(['sqlite', 'postgres', 'duckdb', 'mysql', 'trino', 'rest']));
     const write = await request.post(`${API}/api/sql/sources/sales_db/query`, { data: { sql: 'DROP TABLE orders' } });
     expect(write.status()).toBe(400);
   });
@@ -120,6 +127,14 @@ test.describe('HTTP API surfaces', () => {
     expect(list.map((w: { id: string }) => w.id)).toContain(created.id);
     const del = await request.delete(`${API}/api/search/watches/${created.id}`);
     expect(del.status()).toBe(204);
+  });
+
+  test('governance gate catches WITH-scoped updates (regex tagging missed them)', async ({ request }) => {
+    const r = await request.post(`${API}/db/update`, {
+      headers: { 'Content-Type': 'application/sparql-update', 'X-Studio-User': 'quinn' },
+      data: 'WITH <https://studio.local/graphs/lineage> DELETE { ?s ?p ?o } WHERE { ?s ?p ?o }',
+    });
+    expect(r.status()).toBe(403); // editor may not write a governed graph directly, however scoped
   });
 
   test('backup checkpoints list', async ({ request }) => {

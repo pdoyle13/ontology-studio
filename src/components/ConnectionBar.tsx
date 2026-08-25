@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useConnection } from '../state/connection';
 import { oxigraphEndpoint } from '../rdf/sparqlClient';
 import { ImportExportDialog } from './ImportExport';
+import { openSettings } from './SettingsDialog';
 import { useUi } from '../state/ui';
 import { useCollab } from '../state/collab';
 import { useIdentity } from '../state/identity';
@@ -96,6 +97,11 @@ export function ConnectionBar() {
       {status === 'connected' && (
         <button className="ghost" onClick={() => setShowImport(true)}>
           Import / Export
+        </button>
+      )}
+      {status === 'connected' && (
+        <button className="ghost" title="Settings" onClick={openSettings}>
+          ⚙
         </button>
       )}
       <select

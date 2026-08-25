@@ -3,6 +3,7 @@
 // the DASH pattern: the shape IS the model contract.
 
 import type { Endpoint } from './sparqlClient';
+import { SH, DASH } from './vocab';
 import { select } from './sparqlClient';
 import { scoped } from './queries';
 
@@ -21,6 +22,7 @@ export interface PropertyShapeInfo {
   maxInclusive: string | null;
   pattern: string | null;
   inValues: { value: string; isIri: boolean }[] | null; // sh:in enumeration
+  codelist: string | null; // studio:codelist — options resolve live from this scheme's active concepts
   singleLine: boolean | null; // dash:singleLine — false renders a textarea
   maxLength: number | null;
 }
@@ -31,8 +33,6 @@ export interface NodeShapeInfo {
   properties: PropertyShapeInfo[];
 }
 
-const SH = 'http://www.w3.org/ns/shacl#';
-const DASH = 'http://datashapes.org/dash#';
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 
 /** Fetch sh:in enumerations for the property shapes of the given node shapes.
@@ -49,9 +49,9 @@ async function fetchInLists(
 SELECT ?shape ?path ?cell ?inVal (COUNT(?mid) AS ?depth) WHERE {
   VALUES ?shape { ${values} }
   ${scoped(
-    `?shape <${SH}property> ?ps .
-     ?ps <${SH}path> ?path .
-     ?ps <${SH}in> ?list .
+    `?shape <${SH.property}> ?ps .
+     ?ps <${SH.path}> ?path .
+     ?ps <${SH.in}> ?list .
      ?list <${RDF}rest>* ?cell .
      ?cell <${RDF}first> ?inVal .
      ?list <${RDF}rest>* ?mid .
@@ -83,25 +83,26 @@ export async function fetchShapesForClasses(
   if (classIris.length === 0) return [];
   const values = classIris.map((c) => `<${c}>`).join(' ');
   const q = `
-SELECT ?shape ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern ?singleLine ?maxLen WHERE {
+SELECT ?shape ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern ?singleLine ?maxLen ?codelist WHERE {
   VALUES ?target { ${values} }
   ${scoped(
-    `?shape <${SH}targetClass> ?target .
-     ?shape <${SH}property> ?ps .
-     ?ps <${SH}path> ?path .
-     OPTIONAL { ?ps <${SH}name> ?name }
-     OPTIONAL { ?ps <${SH}description> ?desc }
-     OPTIONAL { ?ps <${SH}datatype> ?datatype }
-     OPTIONAL { ?ps <${SH}class> ?cls }
-     OPTIONAL { ?ps <${SH}nodeKind> ?nodeKind }
-     OPTIONAL { ?ps <${SH}minCount> ?minCount }
-     OPTIONAL { ?ps <${SH}maxCount> ?maxCount }
-     OPTIONAL { ?ps <${SH}order> ?order }
-     OPTIONAL { ?ps <${SH}minInclusive> ?minInc }
-     OPTIONAL { ?ps <${SH}maxInclusive> ?maxInc }
-     OPTIONAL { ?ps <${SH}pattern> ?pattern }
-     OPTIONAL { ?ps <${DASH}singleLine> ?singleLine }
-     OPTIONAL { ?ps <${SH}maxLength> ?maxLen }`,
+    `?shape <${SH.targetClass}> ?target .
+     ?shape <${SH.property}> ?ps .
+     ?ps <${SH.path}> ?path .
+     OPTIONAL { ?ps <${SH.name}> ?name }
+     OPTIONAL { ?ps <${SH.description}> ?desc }
+     OPTIONAL { ?ps <${SH.datatype}> ?datatype }
+     OPTIONAL { ?ps <${SH.class}> ?cls }
+     OPTIONAL { ?ps <${SH.nodeKind}> ?nodeKind }
+     OPTIONAL { ?ps <${SH.minCount}> ?minCount }
+     OPTIONAL { ?ps <${SH.maxCount}> ?maxCount }
+     OPTIONAL { ?ps <${SH.order}> ?order }
+     OPTIONAL { ?ps <${SH.minInclusive}> ?minInc }
+     OPTIONAL { ?ps <${SH.maxInclusive}> ?maxInc }
+     OPTIONAL { ?ps <${SH.pattern}> ?pattern }
+     OPTIONAL { ?ps <${DASH.singleLine}> ?singleLine }
+     OPTIONAL { ?ps <${SH.maxLength}> ?maxLen }
+     OPTIONAL { ?ps <https://studio.local/ns#codelist> ?codelist }`,
     graph
   )}
   FILTER(isIRI(?path))
@@ -135,6 +136,7 @@ ORDER BY ?shape ?order`;
       maxInclusive: b.maxInc?.value ?? null,
       pattern: b.pattern?.value ?? null,
       singleLine: b.singleLine ? b.singleLine.value === 'true' : null,
+      codelist: b.codelist?.value ?? null,
       maxLength: b.maxLen ? Number(b.maxLen.value) : null,
       inValues: null,
     });
@@ -154,24 +156,25 @@ export async function fetchShape(
   shapeIri: string
 ): Promise<NodeShapeInfo | null> {
   const q = `
-SELECT ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern ?singleLine ?maxLen WHERE {
+SELECT ?target ?ps ?path ?name ?desc ?datatype ?cls ?nodeKind ?minCount ?maxCount ?order ?minInc ?maxInc ?pattern ?singleLine ?maxLen ?codelist WHERE {
   ${scoped(
-    `OPTIONAL { <${shapeIri}> <${SH}targetClass> ?target }
-     <${shapeIri}> <${SH}property> ?ps .
-     ?ps <${SH}path> ?path .
-     OPTIONAL { ?ps <${SH}name> ?name }
-     OPTIONAL { ?ps <${SH}description> ?desc }
-     OPTIONAL { ?ps <${SH}datatype> ?datatype }
-     OPTIONAL { ?ps <${SH}class> ?cls }
-     OPTIONAL { ?ps <${SH}nodeKind> ?nodeKind }
-     OPTIONAL { ?ps <${SH}minCount> ?minCount }
-     OPTIONAL { ?ps <${SH}maxCount> ?maxCount }
-     OPTIONAL { ?ps <${SH}order> ?order }
-     OPTIONAL { ?ps <${SH}minInclusive> ?minInc }
-     OPTIONAL { ?ps <${SH}maxInclusive> ?maxInc }
-     OPTIONAL { ?ps <${SH}pattern> ?pattern }
-     OPTIONAL { ?ps <${DASH}singleLine> ?singleLine }
-     OPTIONAL { ?ps <${SH}maxLength> ?maxLen }`,
+    `OPTIONAL { <${shapeIri}> <${SH.targetClass}> ?target }
+     <${shapeIri}> <${SH.property}> ?ps .
+     ?ps <${SH.path}> ?path .
+     OPTIONAL { ?ps <${SH.name}> ?name }
+     OPTIONAL { ?ps <${SH.description}> ?desc }
+     OPTIONAL { ?ps <${SH.datatype}> ?datatype }
+     OPTIONAL { ?ps <${SH.class}> ?cls }
+     OPTIONAL { ?ps <${SH.nodeKind}> ?nodeKind }
+     OPTIONAL { ?ps <${SH.minCount}> ?minCount }
+     OPTIONAL { ?ps <${SH.maxCount}> ?maxCount }
+     OPTIONAL { ?ps <${SH.order}> ?order }
+     OPTIONAL { ?ps <${SH.minInclusive}> ?minInc }
+     OPTIONAL { ?ps <${SH.maxInclusive}> ?maxInc }
+     OPTIONAL { ?ps <${SH.pattern}> ?pattern }
+     OPTIONAL { ?ps <${DASH.singleLine}> ?singleLine }
+     OPTIONAL { ?ps <${SH.maxLength}> ?maxLen }
+     OPTIONAL { ?ps <https://studio.local/ns#codelist> ?codelist }`,
     graph
   )}
   FILTER(isIRI(?path))
@@ -205,6 +208,7 @@ ORDER BY ?order`;
       maxInclusive: b.maxInc?.value ?? null,
       pattern: b.pattern?.value ?? null,
       singleLine: b.singleLine ? b.singleLine.value === 'true' : null,
+      codelist: b.codelist?.value ?? null,
       maxLength: b.maxLen ? Number(b.maxLen.value) : null,
       inValues: null,
     });
@@ -223,9 +227,9 @@ export async function listNodeShapes(
   const q = `
 SELECT ?shape (SAMPLE(?target) AS ?t) (COUNT(DISTINCT ?ps) AS ?n) WHERE {
   ${scoped(
-    `{ ?shape a <${SH}NodeShape> } UNION { ?shape <${SH}property> ?anyPs }
-     OPTIONAL { ?shape <${SH}targetClass> ?target }
-     OPTIONAL { ?shape <${SH}property> ?ps }`,
+    `{ ?shape a <${SH.NodeShape}> } UNION { ?shape <${SH.property}> ?anyPs }
+     OPTIONAL { ?shape <${SH.targetClass}> ?target }
+     OPTIONAL { ?shape <${SH.property}> ?ps }`,
     graph
   )}
   FILTER(isIRI(?shape))

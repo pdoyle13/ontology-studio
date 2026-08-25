@@ -1,4 +1,5 @@
 # graph: https://studio.local/graphs/extensions
+<https://studio.local/config#app> <https://studio.local/ns#settingSystemNamespaces> "[\"http://www.w3.org/2004/02/skos/core#\",\"http://www.w3.org/ns/shacl#\",\"http://www.w3.org/ns/r2rml#\",\"http://www.w3.org/ns/prov#\",\"http://datashapes.org/dash#\",\"http://www.w3.org/2002/07/owl#\",\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\",\"http://www.w3.org/2000/01/rdf-schema#\"]" .
 <https://studio.local/ns#DataDomains> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://studio.local/ns#DataDomains> <http://www.w3.org/2000/01/rdf-schema#label> "Data Domain" .
 <https://studio.local/ns#Imptmt7aova23942> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
@@ -11,6 +12,14 @@
 <https://studio.local/ns#Imptmt7cqna85467> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt7cqna85467" .
 <https://studio.local/ns#Imptmt7d15dp4127> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://studio.local/ns#Imptmt7d15dp4127> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt7d15dp4127" .
+<https://studio.local/ns#Imptmt7h2ekx2509> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Imptmt7h2ekx2509> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt7h2ekx2509" .
+<https://studio.local/ns#Imptmt7zzf6g6470> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Imptmt7zzf6g6470> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt7zzf6g6470" .
+<https://studio.local/ns#Imptmt80n4bj6044> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Imptmt80n4bj6044> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt80n4bj6044" .
+<https://studio.local/ns#Imptmt86dbdc6081> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Imptmt86dbdc6081> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt86dbdc6081" .
 <https://studio.local/ns#Widgetstmt7aoqvx7950> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://studio.local/ns#Widgetstmt7aoqvx7950> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt7aoqvx7950" .
 <https://studio.local/ns#Widgetstmt7bfe0f6934> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
@@ -21,6 +30,14 @@
 <https://studio.local/ns#Widgetstmt7cqjqs6537> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt7cqjqs6537" .
 <https://studio.local/ns#Widgetstmt7d11ss4352> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://studio.local/ns#Widgetstmt7d11ss4352> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt7d11ss4352" .
+<https://studio.local/ns#Widgetstmt7h2ajz6833> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Widgetstmt7h2ajz6833> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt7h2ajz6833" .
+<https://studio.local/ns#Widgetstmt7zzbmv3198> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Widgetstmt7zzbmv3198> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt7zzbmv3198" .
+<https://studio.local/ns#Widgetstmt80mzsr906> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Widgetstmt80mzsr906> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt80mzsr906" .
+<https://studio.local/ns#Widgetstmt86d7ci4760> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://studio.local/ns#Widgetstmt86d7ci4760> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmt86d7ci4760" .
 <https://studio.local/ns#assetType/data-domains> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
 <https://studio.local/ns#assetType/data-domains> <http://www.w3.org/2000/01/rdf-schema#label> "Data Domains" .
 <https://studio.local/ns#assetType/data-domains> <https://studio.local/ns#assetClass> <https://studio.local/ns#DataDomains> .
@@ -51,6 +68,26 @@
 <https://studio.local/ns#assetType/imptmt7d15dp4127> <https://studio.local/ns#assetClass> <https://studio.local/ns#Imptmt7d15dp4127> .
 <https://studio.local/ns#assetType/imptmt7d15dp4127> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <https://studio.local/ns#assetType/imptmt7d15dp4127> <https://studio.local/ns#presentation> "list" .
+<https://studio.local/ns#assetType/imptmt7h2ekx2509> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
+<https://studio.local/ns#assetType/imptmt7h2ekx2509> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt7h2ekx2509" .
+<https://studio.local/ns#assetType/imptmt7h2ekx2509> <https://studio.local/ns#assetClass> <https://studio.local/ns#Imptmt7h2ekx2509> .
+<https://studio.local/ns#assetType/imptmt7h2ekx2509> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/ns#assetType/imptmt7h2ekx2509> <https://studio.local/ns#presentation> "list" .
+<https://studio.local/ns#assetType/imptmt7zzf6g6470> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
+<https://studio.local/ns#assetType/imptmt7zzf6g6470> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt7zzf6g6470" .
+<https://studio.local/ns#assetType/imptmt7zzf6g6470> <https://studio.local/ns#assetClass> <https://studio.local/ns#Imptmt7zzf6g6470> .
+<https://studio.local/ns#assetType/imptmt7zzf6g6470> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/ns#assetType/imptmt7zzf6g6470> <https://studio.local/ns#presentation> "list" .
+<https://studio.local/ns#assetType/imptmt80n4bj6044> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
+<https://studio.local/ns#assetType/imptmt80n4bj6044> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt80n4bj6044" .
+<https://studio.local/ns#assetType/imptmt80n4bj6044> <https://studio.local/ns#assetClass> <https://studio.local/ns#Imptmt80n4bj6044> .
+<https://studio.local/ns#assetType/imptmt80n4bj6044> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/ns#assetType/imptmt80n4bj6044> <https://studio.local/ns#presentation> "list" .
+<https://studio.local/ns#assetType/imptmt86dbdc6081> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
+<https://studio.local/ns#assetType/imptmt86dbdc6081> <http://www.w3.org/2000/01/rdf-schema#label> "ImpTmt86dbdc6081" .
+<https://studio.local/ns#assetType/imptmt86dbdc6081> <https://studio.local/ns#assetClass> <https://studio.local/ns#Imptmt86dbdc6081> .
+<https://studio.local/ns#assetType/imptmt86dbdc6081> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/ns#assetType/imptmt86dbdc6081> <https://studio.local/ns#presentation> "list" .
 <https://studio.local/ns#importTemplate/datadomains-1102525612> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
 <https://studio.local/ns#importTemplate/datadomains-1102525612> <https://studio.local/ns#forClass> <https://studio.local/ns#DataDomains> .
 <https://studio.local/ns#importTemplate/datadomains-1102525612> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Steward Person\":\"\",\"Notes\":\"\"}" .
@@ -69,6 +106,18 @@
 <https://studio.local/ns#importTemplate/imptmt7d15dp4127-1972973439> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
 <https://studio.local/ns#importTemplate/imptmt7d15dp4127-1972973439> <https://studio.local/ns#forClass> <https://studio.local/ns#Imptmt7d15dp4127> .
 <https://studio.local/ns#importTemplate/imptmt7d15dp4127-1972973439> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Ignored Col\":\"\"}" .
+<https://studio.local/ns#importTemplate/imptmt7h2ekx2509-639173373> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
+<https://studio.local/ns#importTemplate/imptmt7h2ekx2509-639173373> <https://studio.local/ns#forClass> <https://studio.local/ns#Imptmt7h2ekx2509> .
+<https://studio.local/ns#importTemplate/imptmt7h2ekx2509-639173373> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Ignored Col\":\"\"}" .
+<https://studio.local/ns#importTemplate/imptmt7zzf6g6470-1547366121> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
+<https://studio.local/ns#importTemplate/imptmt7zzf6g6470-1547366121> <https://studio.local/ns#forClass> <https://studio.local/ns#Imptmt7zzf6g6470> .
+<https://studio.local/ns#importTemplate/imptmt7zzf6g6470-1547366121> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Ignored Col\":\"\"}" .
+<https://studio.local/ns#importTemplate/imptmt80n4bj6044-738184896> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
+<https://studio.local/ns#importTemplate/imptmt80n4bj6044-738184896> <https://studio.local/ns#forClass> <https://studio.local/ns#Imptmt80n4bj6044> .
+<https://studio.local/ns#importTemplate/imptmt80n4bj6044-738184896> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Ignored Col\":\"\"}" .
+<https://studio.local/ns#importTemplate/imptmt86dbdc6081-1019953810> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
+<https://studio.local/ns#importTemplate/imptmt86dbdc6081-1019953810> <https://studio.local/ns#forClass> <https://studio.local/ns#Imptmt86dbdc6081> .
+<https://studio.local/ns#importTemplate/imptmt86dbdc6081-1019953810> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Ignored Col\":\"\"}" .
 <https://studio.local/shapes/ext/ConceptShape/prop/status> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#PropertyShape> .
 <https://studio.local/shapes/ext/ConceptShape/prop/status> <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#string> .
 <https://studio.local/shapes/ext/ConceptShape/prop/status> <http://www.w3.org/ns/shacl#in> _:e74c552d6b56dcac4ddae2d407019038 .
@@ -97,6 +146,14 @@
 <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt7cu7464001> .
 <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt7cwiju1427> .
 <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt7cx6ge5140> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87ko0a4602> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87l5yz6972> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87n7u07546> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87nuak9176> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87ofdt987> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87oxf0112> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87pjk3575> .
+<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmt87sbqi4058> .
 <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/status> .
 <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#targetClass> <http://www.w3.org/2004/02/skos/core#Concept> .
 _:a46d3c81ca0585adda200405e1468884 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "deprecated" .

@@ -77,7 +77,9 @@ function connect() {
     } catch { /* ignore */ }
   };
   socket.onclose = () => {
-    useCollab.setState({ connected: false, peers: 0 });
+    // keep the last peer count through the reconnect — zeroing it here made
+    // the "N online" badge flash 0 on every transient drop
+    useCollab.setState({ connected: false });
     setTimeout(connect, retryMs);
     retryMs = Math.min(retryMs * 2, 15000);
   };

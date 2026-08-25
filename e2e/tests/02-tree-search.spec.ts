@@ -98,4 +98,15 @@ test.describe('shapes & issues tabs', () => {
     await page.click('button:has-text("Run SHACL validation")');
     await expect(page.locator('text=/conforms|result\\(s\\) over/')).toBeVisible({ timeout: 45_000 });
   });
+
+  test('SHACL validation over union scope completes per graph (no crash, no hang)', async ({ page }) => {
+    await connect(page);
+    // no graph selected = union scope; validated graph-by-graph so same-IRI
+    // shapes in different graphs never merge. Oversized scopes fail fast with
+    // a "too large to validate" message instead of hanging — either outcome
+    // must arrive promptly.
+    await openTab(page, 'Issues');
+    await page.click('button:has-text("Run SHACL validation")');
+    await expect(page.locator('text=/conforms|result\\(s\\) over|too large to validate/')).toBeVisible({ timeout: 45_000 });
+  });
 });

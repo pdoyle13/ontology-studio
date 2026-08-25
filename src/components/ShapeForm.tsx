@@ -2,6 +2,7 @@
 // of its class(es) — ordered, named, cardinality-aware. The DASH pattern.
 
 import { useEffect, useState } from 'react';
+import { CodelistSelect } from './CodelistSelect';
 import { useGraph } from '../state/graph';
 import { useWrite } from '../hooks/useWrite';
 import { useConnection } from '../state/connection';
@@ -42,7 +43,9 @@ function ConstrainedInput({
   };
   return (
     <>
-      {widget === 'enum' && ps.inValues ? (
+      {ps.codelist ? (
+        <CodelistSelect scheme={ps.codelist} value={value} onChange={onChange} />
+      ) : widget === 'enum' && ps.inValues ? (
         <select autoFocus value={text} onChange={(e) => setText(e.target.value)} onKeyDown={keys}>
           <option value="" disabled>
             select…

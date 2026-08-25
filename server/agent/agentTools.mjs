@@ -2,6 +2,8 @@
 // action (create class, create property, link resources…) — the model never
 // hand-writes update SPARQL. All writes are graph-scoped and built server-side.
 
+import { autoTag as autoTagFn } from '../semantic/autotag.mjs';
+
 const RDF_ = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
 const SH = 'http://www.w3.org/ns/shacl#';
@@ -113,6 +115,17 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
         const inc = await c.query(`SELECT ?s ?p WHERE { ?s ?p <${iri}> } LIMIT 50`);
         return JSON.stringify({ outgoing: JSON.parse(out), incoming: JSON.parse(inc) });
       },
+    },
+    {
+      name: 'tag_text',
+      description:
+        'AUTO-TAG: find taxonomy concepts mentioned in free text (word-boundary label matching incl. altLabels, longest label wins). Optional scheme IRI narrows the vocabulary. Returns [{iri, scheme, label, count, spans}].',
+      parameters: {
+        type: 'object',
+        properties: { text: str, scheme: str },
+        required: ['text'],
+      },
+      run: async ({ text, scheme }) => JSON.stringify(await autoTagFn(oxigraph, { text, scheme: scheme || null })),
     },
     {
       name: 'sparql_query',

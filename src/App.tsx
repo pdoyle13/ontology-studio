@@ -16,10 +16,14 @@ import { AssetDialog } from './components/AssetDialog';
 import { ExtensionsDialog } from './components/ExtensionsDialog';
 import { CsvImportDialog } from './components/CsvImportDialog';
 import { ImportWizard } from './components/ImportWizard';
+import { SettingsDialog } from './components/SettingsDialog';
+import { MappingEditor } from './components/MappingEditor';
 import { DashboardView } from './components/DashboardsPanel';
 import { SourceEditor } from './components/SourceEditor';
 import { useConnection } from './state/connection';
+import { useWorkspace } from './state/workspace';
 import { startCollab } from './state/collab';
+import { useSettings } from './state/settings';
 import { startIdentity } from './state/identity';
 import './App.css';
 
@@ -27,11 +31,21 @@ export default function App() {
   const status = useConnection((s) => s.status);
   const rightTab = useUi((s) => s.rightTab);
   const setRightTab = useUi((s) => s.setRightTab);
+  const workspace = useWorkspace((s) => s.workspace);
+  // Ask is agent-first: the agent IS the main surface, not a side tab
+  const agentCenter = workspace === 'ask';
 
   useEffect(() => {
     startIdentity();
     startCollab();
   }, []);
+
+  // settings live in the extensions graph — load them once connected
+  useEffect(() => {
+    const conn = useConnection.getState();
+    const ep = conn.active();
+    if (status === 'connected' && ep) useSettings.getState().load(ep);
+  }, [status]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -59,7 +73,13 @@ export default function App() {
         <main className="canvas-area">
           {status === 'connected' ? (
             <>
-              <GraphCanvas />
+              {agentCenter ? (
+                <div className="agent-center">
+                  <AgentPanel />
+                </div>
+              ) : (
+                <GraphCanvas />
+              )}
               <DataGrid />
               <DashboardView />
               <SourceEditor />
@@ -69,15 +89,21 @@ export default function App() {
           )}
         </main>
         <aside className="inspector">
-          <div className="tab-row">
-            <button className={`tab ${rightTab === 'inspector' ? 'active' : ''}`} onClick={() => setRightTab('inspector')}>
-              Inspector
-            </button>
-            <button className={`tab ${rightTab === 'agent' ? 'active' : ''}`} onClick={() => setRightTab('agent')}>
-              ✦ Agent
-            </button>
-          </div>
-          {rightTab === 'inspector' ? <ResourcePanel /> : <AgentPanel />}
+          {agentCenter ? (
+            <ResourcePanel />
+          ) : (
+            <>
+              <div className="tab-row">
+                <button className={`tab ${rightTab === 'inspector' ? 'active' : ''}`} onClick={() => setRightTab('inspector')}>
+                  Inspector
+                </button>
+                <button className={`tab ${rightTab === 'agent' ? 'active' : ''}`} onClick={() => setRightTab('agent')}>
+                  ✦ Agent
+                </button>
+              </div>
+              {rightTab === 'inspector' ? <ResourcePanel /> : <AgentPanel />}
+            </>
+          )}
         </aside>
       </div>
       <SparqlDrawer />
@@ -88,6 +114,8 @@ export default function App() {
       <ExtensionsDialog />
       <CsvImportDialog />
       <ImportWizard />
+      <SettingsDialog />
+      <MappingEditor />
     </div>
   );
 }

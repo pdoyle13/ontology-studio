@@ -31,12 +31,20 @@ test.describe('import/export dialog', () => {
     });
     await expect(page.locator('.import-status')).toContainText(/1 triple|imported|loaded/i, { timeout: 20_000 });
   });
+
+  test('pasted turtle imports into the active graph', async ({ page }) => {
+    const tag = runTag();
+    await page.locator('.modal textarea').fill(`<https://example.org/music#Paste${tag}> a <https://example.org/music#Artist> .`);
+    await page.click('button:has-text("Import pasted text")');
+    await expect(page.locator('.import-status')).toContainText(/1 triple|imported|loaded/i, { timeout: 20_000 });
+  });
 });
 
 test.describe('agent panel surface', () => {
   test('agent-first entry: intent chips render without any LLM call', async ({ page }) => {
     await connect(page, { workspace: 'ask' });
-    await expect(page.locator('.intent-chips')).toBeVisible({ timeout: 10_000 });
+    // Ask is agent-first: the agent renders as the MAIN center surface
+    await expect(page.locator('.agent-center .intent-chips')).toBeVisible({ timeout: 10_000 });
     const chips = await page.locator('.intent-chip').allTextContents();
     expect(chips.join()).toContain('Add a datasource');
     expect(chips.join()).toContain('Ask a question');
@@ -73,7 +81,7 @@ test.describe('proposals workflow (request-level)', () => {
     const before = await (
       await request.post(`${API}/db/query?union-default-graph=`, {
         headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
-        data: `SELECT ?o WHERE { GRAPH <https://studio.local/graphs/lineage> { <https://x/prop${tag}> ?p ?o } }`,
+        data: `SELECT ?o WHERE { <https://x/prop${tag}> ?p ?o }`,
       })
     ).json();
     expect(before.results.bindings.length).toBe(0);

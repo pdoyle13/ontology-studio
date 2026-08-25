@@ -4,7 +4,7 @@ import { useGraph } from '../state/graph';
 import { Parser } from 'n3';
 import { select, ask, construct, update, type SelectResult } from '../rdf/sparqlClient';
 import { useCanvas } from '../state/canvas';
-import { listSavedQueries, saveQuery, deleteSavedQuery, type SavedQuery } from '../rdf/savedQueries';
+import { listSavedQueries, saveQuery, deleteSavedQuery, extractParams, applyParams, type SavedQuery } from '../rdf/savedQueries';
 
 type ResultView =
   | { kind: 'select'; result: SelectResult }
@@ -32,6 +32,8 @@ export function SparqlDrawer() {
   const [view, setView] = useState<ResultView>(null);
   const [saved, setSaved] = useState<SavedQuery[]>([]);
   const [loadedIri, setLoadedIri] = useState('');
+  const [paramVals, setParamVals] = useState<Record<string, string>>({});
+  const paramNames = extractParams(mode === 'sparql' ? query : sqlText);
 
   const refreshSaved = () => {
     const ep = conn.active();
@@ -48,6 +50,7 @@ export function SparqlDrawer() {
     const q = saved.find((x) => x.iri === iri);
     if (!q) return;
     setMode(q.mode);
+    setParamVals(q.params ?? {});
     if (q.mode === 'sparql') setQuery(q.text);
     else {
       setSqlText(q.text);
@@ -66,6 +69,7 @@ export function SparqlDrawer() {
       mode,
       text: mode === 'sparql' ? query : sqlText,
       sourceId: mode === 'sql' ? sqlSource || null : null,
+      params: Object.fromEntries(paramNames.filter((n) => paramVals[n]).map((n) => [n, paramVals[n]])),
     });
     setLoadedIri(iri);
     refreshSaved();
@@ -99,7 +103,7 @@ export function SparqlDrawer() {
       const res = await fetch(`/api/sql/sources/${sqlSource}/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql: sqlText }),
+        body: JSON.stringify({ sql: applyParams(sqlText, paramVals) }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? `${res.status}`);
@@ -114,8 +118,9 @@ export function SparqlDrawer() {
   const run = async () => {
     const ep = conn.active();
     if (!ep || running) return;
-    const q = usePrefixes ? `${prefixes.sparqlPreamble()}\n${query}` : query;
-    const kw = query.replace(/^\s*(PREFIX[^\n]*\n|#[^\n]*\n)*/gim, '').trim().slice(0, 30).toUpperCase();
+    const bound = applyParams(query, paramVals);
+    const q = usePrefixes ? `${prefixes.sparqlPreamble()}\n${bound}` : bound;
+    const kw = bound.replace(/^\s*(PREFIX[^\n]*\n|#[^\n]*\n)*/gim, '').trim().slice(0, 30).toUpperCase();
     // scope to the active graph; with none picked, union all graphs (Oxigraph)
     const dataset = conn.activeGraph ? { defaultGraph: conn.activeGraph } : { union: true };
     setRunning(true);
@@ -196,6 +201,21 @@ export function SparqlDrawer() {
       </div>
       {open && (
         <div className="drawer-body">
+          {paramNames.length > 0 && (
+            <div className="query-params">
+              {paramNames.map((n) => (
+                <label key={n} className="term-meta">
+                  {'{{'}{n}{'}}'}{' '}
+                  <input
+                    className="param-input"
+                    value={paramVals[n] ?? ''}
+                    placeholder="value"
+                    onChange={(e) => setParamVals((v) => ({ ...v, [n]: e.target.value }))}
+                  />
+                </label>
+              ))}
+            </div>
+          )}
           <textarea
             className="sparql-input"
             value={mode === 'sparql' ? query : sqlText}
