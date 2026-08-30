@@ -6,7 +6,7 @@
 export function manifest(baseUrl) {
   return {
     versions: ['0.2'],
-    name: 'YAOE reconciliation',
+    name: 'Ontology Studio reconciliation',
     identifierSpace: 'https://studio.local/',
     schemaSpace: 'http://www.w3.org/2000/01/rdf-schema#',
     defaultTypes: [{ id: 'asset', name: 'Any asset' }],

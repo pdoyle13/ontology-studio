@@ -23,7 +23,7 @@ export function createTokenStore(filePath) {
   return {
     /** Returns {id, token} — the only time the plaintext exists. */
     create(user, label = '') {
-      const token = `yaoe_${randomBytes(24).toString('hex')}`;
+      const token = `ostudio_${randomBytes(24).toString('hex')}`;
       const id = `t${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}`;
       tokens.push({ id, user, hash: sha256(token), createdAt: new Date().toISOString(), label });
       persist();

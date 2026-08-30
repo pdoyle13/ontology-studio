@@ -10,6 +10,12 @@
 <https://example.org/music#Artist> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://example.org/music#Artist> <http://www.w3.org/2000/01/rdf-schema#label> "Artist" .
 <https://example.org/music#Artist> <https://example.org/music#testRelTmt80pp6b3907> <https://example.org/music#Track> .
+<https://example.org/music#Artist> <https://example.org/music#testRelTmt87y05w1116> <https://example.org/music#Track> .
+<https://example.org/music#Artist> <https://example.org/music#testRelTmt8low7b4213> <https://example.org/music#Track> .
+<https://example.org/music#Artist> <https://example.org/music#testRelTmt8mhyml8482> <https://example.org/music#Track> .
+<https://example.org/music#Artist> <https://example.org/music#testRelTmt8moiad3137> <https://example.org/music#Track> .
+<https://example.org/music#Artist> <https://example.org/music#testRelTmt8n6fia1777> <https://example.org/music#Track> .
+<https://example.org/music#Artist> <https://example.org/music#testRelTmtfsm9gu587> <https://example.org/music#Track> .
 <https://example.org/music#Band> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://example.org/music#Band> <http://www.w3.org/2000/01/rdf-schema#label> "Band" .
 <https://example.org/music#Band> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <https://example.org/music#Artist> .
@@ -67,6 +73,18 @@
 <https://example.org/music#RCTmt80v5ao6221> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt80v5ao6221" .
 <https://example.org/music#RCTmt80vem27325> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://example.org/music#RCTmt80vem27325> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt80vem27325" .
+<https://example.org/music#RCTmt8801vf8279> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#RCTmt8801vf8279> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt8801vf8279" .
+<https://example.org/music#RCTmt8lyvns8683> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#RCTmt8lyvns8683> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt8lyvns8683" .
+<https://example.org/music#RCTmt8mk70863> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#RCTmt8mk70863> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt8mk70863" .
+<https://example.org/music#RCTmt8mr71y9188> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#RCTmt8mr71y9188> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt8mr71y9188" .
+<https://example.org/music#RCTmt8n8i3n8013> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#RCTmt8n8i3n8013> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmt8n8i3n8013" .
+<https://example.org/music#RCTmtfsooro6774> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
+<https://example.org/music#RCTmtfsooro6774> <http://www.w3.org/2000/01/rdf-schema#label> "RuleClass Tmtfsooro6774" .
 <https://example.org/music#Radiohead> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Band> .
 <https://example.org/music#Radiohead> <http://www.w3.org/2000/01/rdf-schema#label> "Radiohead" .
 <https://example.org/music#Reckoner> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Track> .
@@ -158,6 +176,42 @@
 <https://example.org/music#Tmt81uji42539> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmt81uji42539" .
 <https://example.org/music#Tmt81urw09304> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
 <https://example.org/music#Tmt81urw09304> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmt81urw09304" .
+<https://example.org/music#Tmt87xrkt2902X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt87xrkt2902X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmt87xrkt2902" .
+<https://example.org/music#Tmt87yo719548> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt87yo719548> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmt87yo719548" .
+<https://example.org/music#Tmt87yw8n5075> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt87yw8n5075> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmt87yw8n5075" .
+<https://example.org/music#Tmt8lonnz8837X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8lonnz8837X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmt8lonnz8837" .
+<https://example.org/music#Tmt8lpkm15449> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8lpkm15449> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmt8lpkm15449" .
+<https://example.org/music#Tmt8lpsxs5959> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8lpsxs5959> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmt8lpsxs5959" .
+<https://example.org/music#Tmt8mhqxw437X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8mhqxw437X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmt8mhqxw437" .
+<https://example.org/music#Tmt8mimzw1608> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8mimzw1608> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmt8mimzw1608" .
+<https://example.org/music#Tmt8mivz68816> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8mivz68816> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmt8mivz68816" .
+<https://example.org/music#Tmt8moaoj493X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8moaoj493X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmt8moaoj493" .
+<https://example.org/music#Tmt8mp6ne6243> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8mp6ne6243> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmt8mp6ne6243" .
+<https://example.org/music#Tmt8mpg8c3497> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8mpg8c3497> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmt8mpg8c3497" .
+<https://example.org/music#Tmt8n666b8501X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8n666b8501X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmt8n666b8501" .
+<https://example.org/music#Tmt8n746p628> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8n746p628> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmt8n746p628" .
+<https://example.org/music#Tmt8n7bxy6288> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmt8n7bxy6288> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmt8n7bxy6288" .
+<https://example.org/music#Tmtfslyid1371X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmtfslyid1371X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmtfslyid1371" .
+<https://example.org/music#Tmtfsn3pa9266> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmtfsn3pa9266> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmtfsn3pa9266" .
+<https://example.org/music#Tmtfsncjv7255> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmtfsncjv7255> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmtfsncjv7255" .
 <https://example.org/music#Track> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://example.org/music#Track> <http://www.w3.org/2000/01/rdf-schema#label> "Track" .
 <https://example.org/music#TrackShape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .
@@ -197,6 +251,12 @@
 <https://example.org/music#ri1Tmt80thob2751> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt80thob2751> .
 <https://example.org/music#ri1Tmt80v5ao6221> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt80v5ao6221> .
 <https://example.org/music#ri1Tmt80vem27325> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt80vem27325> .
+<https://example.org/music#ri1Tmt8801vf8279> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8801vf8279> .
+<https://example.org/music#ri1Tmt8lyvns8683> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8lyvns8683> .
+<https://example.org/music#ri1Tmt8mk70863> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8mk70863> .
+<https://example.org/music#ri1Tmt8mr71y9188> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8mr71y9188> .
+<https://example.org/music#ri1Tmt8n8i3n8013> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8n8i3n8013> .
+<https://example.org/music#ri1Tmtfsooro6774> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmtfsooro6774> .
 <https://example.org/music#ri2Tmt7c8lvf7462> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt7c8lvf7462> .
 <https://example.org/music#ri2Tmt7caj3p2648> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt7caj3p2648> .
 <https://example.org/music#ri2Tmt7cbxvp1329> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt7cbxvp1329> .
@@ -211,8 +271,26 @@
 <https://example.org/music#ri2Tmt80thob2751> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt80thob2751> .
 <https://example.org/music#ri2Tmt80v5ao6221> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt80v5ao6221> .
 <https://example.org/music#ri2Tmt80vem27325> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt80vem27325> .
+<https://example.org/music#ri2Tmt8801vf8279> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8801vf8279> .
+<https://example.org/music#ri2Tmt8lyvns8683> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8lyvns8683> .
+<https://example.org/music#ri2Tmt8mk70863> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8mk70863> .
+<https://example.org/music#ri2Tmt8mr71y9188> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8mr71y9188> .
+<https://example.org/music#ri2Tmt8n8i3n8013> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmt8n8i3n8013> .
+<https://example.org/music#ri2Tmtfsooro6774> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#RCTmtfsooro6774> .
 <https://example.org/music#testRelTmt80pp6b3907> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
 <https://example.org/music#testRelTmt80pp6b3907> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmt80pp6b3907" .
+<https://example.org/music#testRelTmt87y05w1116> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#testRelTmt87y05w1116> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmt87y05w1116" .
+<https://example.org/music#testRelTmt8low7b4213> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#testRelTmt8low7b4213> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmt8low7b4213" .
+<https://example.org/music#testRelTmt8mhyml8482> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#testRelTmt8mhyml8482> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmt8mhyml8482" .
+<https://example.org/music#testRelTmt8moiad3137> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#testRelTmt8moiad3137> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmt8moiad3137" .
+<https://example.org/music#testRelTmt8n6fia1777> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#testRelTmt8n6fia1777> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmt8n6fia1777" .
+<https://example.org/music#testRelTmtfsm9gu587> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/1999/02/22-rdf-syntax-ns#Property> .
+<https://example.org/music#testRelTmtfsm9gu587> <http://www.w3.org/2000/01/rdf-schema#label> "test rel Tmtfsm9gu587" .
 _:a43dfe30a853aadcc6eb00abe42190fc <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "classical" .
 _:a43dfe30a853aadcc6eb00abe42190fc <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .
 _:ace09ca7f541325d64929dc2e6b40ae3 <http://www.w3.org/ns/shacl#class> <https://example.org/music#Album> .

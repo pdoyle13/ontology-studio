@@ -1,4 +1,4 @@
-// YAOE sidecar (port 7881):
+// Ontology Studio sidecar (port 7881):
 //  - SQL datasources: attach SQLite files, introspect schema, translate the
 //    schema to an RDF ontology + SHACL shapes (Direct-Mapping style), and
 //    keep everything virtual (meta-only graph). Read-only SQL query endpoint.
@@ -525,7 +525,7 @@ cache.onInvalidate(() => searchSvc.markDirty());
 // ES/OpenSearch compatibility surface (point any ES client at <server>/es)
 app.get('/es', (_req, res) =>
   res.json({
-    name: 'yaoe',
+    name: 'ontology-studio',
     cluster_name: 'studio',
     version: { number: '8.13.0', distribution: 'opensearch', build_flavor: 'embedded' },
     tagline: 'The graph knows where everything lives',
@@ -1128,7 +1128,7 @@ const require_ = createRequire(import.meta.url);
 try {
   const swaggerDist = require_('swagger-ui-dist').absolutePath();
   app.get('/api/docs', (_req, res) => {
-    res.type('html').send(`<!doctype html><html><head><title>YAOE API</title>
+    res.type('html').send(`<!doctype html><html><head><title>Ontology Studio API</title>
 <link rel="stylesheet" href="/api/docs-assets/swagger-ui.css"><style>body{margin:0}</style></head>
 <body><div id="ui"></div>
 <script src="/api/docs-assets/swagger-ui-bundle.js"></script>

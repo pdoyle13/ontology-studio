@@ -4,6 +4,7 @@
 // federation and GraphQL pick the change up on their next catalog read.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Input, Select } from '../ui/controls';
 import { create } from 'zustand';
 import { useConnection } from '../state/connection';
 import { select, update } from '../rdf/sparqlClient';
@@ -170,7 +171,7 @@ INSERT DATA { GRAPH <${G}> { <${subjectMap}> <${RR}template> "${esc(template.tri
 
         <label className="field-label">Subject IRI template</label>
         <div className="modal-row">
-          <input value={template} onChange={(e) => setTemplate(e.target.value)} style={{ flex: 1, fontFamily: 'var(--mono)', fontSize: 12 }} />
+          <Input value={template} onChange={(e) => setTemplate(e.target.value)} style={{ flex: 1, fontFamily: 'var(--mono)', fontSize: 12 }} />
           <button className="micro" title="Apply template" onClick={applyTemplate}>apply</button>
         </div>
 
@@ -190,7 +191,7 @@ INSERT DATA { GRAPH <${G}> { <${subjectMap}> <${RR}template> "${esc(template.tri
                   <td className="term-literal">{p.column ?? `→ ${p.template}`}</td>
                   <td>
                     <span style={{ display: 'flex', gap: 4 }}>
-                      <input
+                      <Input
                         value={drafts[p.pom] ?? ''}
                         onChange={(e) => setDrafts((d) => ({ ...d, [p.pom]: e.target.value }))}
                         onKeyDown={(e) => e.key === 'Enter' && applyPredicate(p)}
@@ -203,11 +204,11 @@ INSERT DATA { GRAPH <${G}> { <${subjectMap}> <${RR}template> "${esc(template.tri
                   </td>
                   <td>
                     {p.column ? (
-                      <select value={p.datatype?.split('#').pop() ?? ''} onChange={(e) => applyDatatype(p, e.target.value)}>
+                      <Select value={p.datatype?.split('#').pop() ?? ''} onChange={(e) => applyDatatype(p, e.target.value)}>
                         {DATATYPES.map((d) => (
                           <option key={d} value={d}>{d || 'string'}</option>
                         ))}
-                      </select>
+                      </Select>
                     ) : (
                       <span className="term-meta">IRI link</span>
                     )}
@@ -223,13 +224,13 @@ INSERT DATA { GRAPH <${G}> { <${subjectMap}> <${RR}template> "${esc(template.tri
 
         <div className="panel-title" style={{ marginTop: 10 }}>Add column mapping</div>
         <div className="modal-row">
-          <input placeholder="column name" value={newCol} onChange={(e) => setNewCol(e.target.value)} />
-          <input placeholder="predicate IRI" value={newPred} onChange={(e) => setNewPred(e.target.value)} style={{ flex: 1, fontFamily: 'var(--mono)', fontSize: 11.5 }} />
-          <button disabled={!newCol.trim() || !newPred.trim()} onClick={addPom}>Add</button>
+          <Input placeholder="column name" value={newCol} onChange={(e) => setNewCol(e.target.value)} style={{ width: 160 }} />
+          <Input placeholder="predicate IRI" value={newPred} onChange={(e) => setNewPred(e.target.value)} style={{ flex: 1, fontFamily: 'var(--mono)', fontSize: 11.5 }} />
+          <Button disabled={!newCol.trim() || !newPred.trim()} onClick={addPom}>Add</Button>
         </div>
 
         <div className="modal-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <button onClick={close}>Close</button>
+          <Button onClick={close}>Close</Button>
         </div>
       </div>
     </div>

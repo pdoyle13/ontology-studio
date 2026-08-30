@@ -1,10 +1,10 @@
-"""YAOE Python client — a thin, dependency-free wrapper over the HTTP API.
+"""Ontology Studio Python client — a thin, dependency-free wrapper over the HTTP API.
 
 Every method maps 1:1 to a documented endpoint (GET /api/openapi.json for the
 full surface). Auth: pass an API token (Bearer) or a user name (dev header).
 
-    from yaoe import Yaoe
-    y = Yaoe("http://localhost:7881", user="pat")
+    from ontology_studio import Studio
+    y = Studio("http://localhost:7881", user="pat")
     rows = y.sparql("SELECT ?s WHERE { ?s a <https://example.org/music#Artist> } LIMIT 5")
 """
 
@@ -16,13 +16,13 @@ import urllib.request
 from typing import Any, Optional
 
 
-class YaoeError(RuntimeError):
+class StudioError(RuntimeError):
     def __init__(self, status: int, message: str):
         super().__init__(f"HTTP {status}: {message}")
         self.status = status
 
 
-class Yaoe:
+class Studio:
     def __init__(self, base_url: str = "http://localhost:7881", token: Optional[str] = None, user: Optional[str] = None, timeout: float = 30.0):
         self.base_url = base_url.rstrip("/")
         self.token = token
@@ -54,7 +54,7 @@ class Yaoe:
                 detail = json.loads(detail).get("error", detail)
             except Exception:
                 pass
-            raise YaoeError(e.code, detail) from None
+            raise StudioError(e.code, detail) from None
         if not raw:
             return None
         if accept == "application/json" or raw[:1] in (b"{", b"["):
@@ -96,7 +96,7 @@ class Yaoe:
     def graphql(self, query: str, variables: Optional[dict] = None) -> Any:
         out = self._json("POST", "/api/graphql", {"query": query, "variables": variables or {}})
         if out.get("errors"):
-            raise YaoeError(200, json.dumps(out["errors"]))
+            raise StudioError(200, json.dumps(out["errors"]))
         return out["data"]
 
     def reconcile(self, queries: dict) -> Any:

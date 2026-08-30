@@ -9,15 +9,15 @@ import { createOidcVerifier } from './oidc.mjs';
 import { createRegistry } from '../core/metrics.mjs';
 
 describe('token store', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'yaoe-tok-'));
+  const dir = mkdtempSync(join(tmpdir(), 'ostudio-tok-'));
   const file = join(dir, 'tokens.json');
 
   it('creates, verifies, lists (no hashes leaked), revokes, persists', () => {
     const store = createTokenStore(file);
     const { id, token } = store.create('sam', 'ci token');
-    expect(token).toMatch(/^yaoe_[0-9a-f]{48}$/);
+    expect(token).toMatch(/^ostudio_[0-9a-f]{48}$/);
     expect(store.verify(token)).toBe('sam');
-    expect(store.verify('yaoe_nope')).toBeNull();
+    expect(store.verify('ostudio_nope')).toBeNull();
     expect(store.list()[0]).toEqual(expect.objectContaining({ id, user: 'sam', label: 'ci token' }));
     expect(JSON.stringify(store.list())).not.toContain(token);
 
@@ -50,11 +50,11 @@ describe('oidc verifier', () => {
   afterAll(() => server?.close());
 
   it('verifies a signed JWT and maps the subject', async () => {
-    const v = createOidcVerifier({ jwksUrl: url, issuer: 'https://idp.test', audience: 'yaoe' });
+    const v = createOidcVerifier({ jwksUrl: url, issuer: 'https://idp.test', audience: 'ontology-studio' });
     const jwt = await new SignJWT({ preferred_username: 'sam' })
       .setProtectedHeader({ alg: 'RS256', kid: 'k1' })
       .setIssuer('https://idp.test')
-      .setAudience('yaoe')
+      .setAudience('ontology-studio')
       .setSubject('sam-sub')
       .setExpirationTime('5m')
       .sign(privateKey);

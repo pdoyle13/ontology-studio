@@ -5,7 +5,7 @@ test.describe('workspaces & connection', () => {
   test('connects and shows the model workspace', async ({ page }) => {
     await connect(page, { workspace: 'model' });
     await expect(page.locator('.class-list li').first()).toBeVisible();
-    await expect(page.locator('.brand')).toHaveText('YAOE');
+    await expect(page.locator('.brand')).toHaveText('Ontology Studio');
   });
 
   test('each workspace filters tabs and lands on its default', async ({ page }) => {
@@ -39,9 +39,14 @@ test.describe('workspaces & connection', () => {
     await expect(page.locator('.workspace-switch')).toHaveValue('integrate');
   });
 
-  test('presence badge and import/export button render when connected', async ({ page }) => {
+  test('presence badge and import/export button render when connected', async ({ page, context }) => {
     await connect(page);
-    await expect(page.locator('.presence')).toBeVisible();
     await expect(page.locator('button:has-text("Import / Export")')).toBeVisible();
+    // the badge shows only with >1 participant - open a second tab so the
+    // count is deterministic instead of depending on who else is around
+    const other = await context.newPage();
+    await other.goto('/');
+    await expect(page.locator('.presence')).toBeVisible({ timeout: 15_000 });
+    await other.close();
   });
 });

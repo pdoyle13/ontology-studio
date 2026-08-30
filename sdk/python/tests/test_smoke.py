@@ -1,4 +1,4 @@
-"""Live smoke test against a running YAOE server (like the e2e suite).
+"""Live smoke test against a running Ontology Studio server (like the e2e suite).
 
 Run:  python -m unittest discover sdk/python/tests
 """
@@ -10,7 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from yaoe import Yaoe, YaoeError  # noqa: E402
+from ontology_studio import Studio, StudioError  # noqa: E402
 
 TAG = f"pysdk{int(time.time() * 1000) % 100000000:x}"
 G = "https://example.org/graphs/music"
@@ -19,7 +19,7 @@ G = "https://example.org/graphs/music"
 class SmokeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.y = Yaoe("http://localhost:7881", user="pat")
+        cls.y = Studio("http://localhost:7881", user="pat")
 
     def test_01_sparql_select_and_ask(self):
         rows = self.y.sparql("SELECT ?s WHERE { ?s a <https://example.org/music#Artist> } LIMIT 3")
@@ -34,9 +34,9 @@ class SmokeTest(unittest.TestCase):
         rows = self.y.sparql(f"SELECT ?t WHERE {{ <{iri}> a ?t }}")
         self.assertEqual(rows[0]["t"], "https://example.org/music#Artist")
         self.y.update(f'DELETE DATA {{ GRAPH <{G}> {{ <{iri}> a <https://example.org/music#Artist> }} }}')
-        # governed graph as viewer → YaoeError(403)
-        viewer = Yaoe("http://localhost:7881", user="rando-viewer")
-        with self.assertRaises(YaoeError) as ctx:
+        # governed graph as viewer → StudioError(403)
+        viewer = Studio("http://localhost:7881", user="rando-viewer")
+        with self.assertRaises(StudioError) as ctx:
             viewer.update('INSERT DATA { GRAPH <https://studio.local/graphs/lineage> { <https://x/a> <https://x/b> "c" } }')
         self.assertEqual(ctx.exception.status, 403)
 
@@ -62,7 +62,7 @@ class SmokeTest(unittest.TestCase):
         self.assertIsInstance(tags, list)
 
     def test_06_error_shape(self):
-        with self.assertRaises(YaoeError) as ctx:
+        with self.assertRaises(StudioError) as ctx:
             self.y._json("POST", "/api/tag", {})
         self.assertEqual(ctx.exception.status, 400)
 

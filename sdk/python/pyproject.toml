@@ -3,12 +3,12 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "yaoe"
+name = "ontology-studio"
 version = "0.1.0"
-description = "Python client for YAOE (yet another ontology editor) - SPARQL, search, GraphQL, virtual layer, federation, crosswalks, tagging"
+description = "Python client for Ontology Studio - SPARQL, search, GraphQL, virtual layer, federation, crosswalks, tagging"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 
 [tool.setuptools.packages.find]
-include = ["yaoe*"]
+include = ["ontology_studio*"]

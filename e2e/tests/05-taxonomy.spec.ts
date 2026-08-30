@@ -55,7 +55,15 @@ test.describe('taxonomy editor', () => {
 
   test('drag re-parents; drop on root promotes', async ({ page }) => {
     const tag = runTag();
-    // fresh sibling pair under the currently selected scheme
+    // own scheme: which scheme is preselected depends on residue ordering
+    await page.click('button:has-text("Scheme")');
+    await page.locator('.modal input').first().fill(`DragScheme ${tag}`);
+    await page.click('.modal button:has-text("Create")');
+    await expect(async () => {
+      const opts = await page.locator('.skos-toolbar option').allTextContents();
+      expect(opts.join()).toContain(`DragScheme ${tag}`);
+    }).toPass({ timeout: 10_000 });
+    // fresh sibling pair in it
     for (const label of [`A${tag}`, `B${tag}`]) {
       await page.click('.skos-root button[title="Add top concept"]');
       await page.locator('.modal input').first().fill(label);
@@ -64,14 +72,15 @@ test.describe('taxonomy editor', () => {
     }
     const a = page.locator('.skos-row', { hasText: `A${tag}` }).first();
     const b = page.locator('.skos-row', { hasText: `B${tag}` }).first();
-    await a.dragTo(b);
+    // grab by the label area - the row centre can land on hover-action buttons
+    await a.dragTo(b, { sourcePosition: { x: 30, y: 8 }, targetPosition: { x: 30, y: 8 } });
     await expect(async () => {
       const aPad = parseInt((await page.locator('.skos-row', { hasText: `A${tag}` }).first().evaluate((el) => (el as HTMLElement).style.paddingLeft)) || '0');
       const bPad = parseInt((await page.locator('.skos-row', { hasText: `B${tag}` }).first().evaluate((el) => (el as HTMLElement).style.paddingLeft)) || '0');
       expect(aPad).toBeGreaterThan(bPad);
     }).toPass({ timeout: 10_000 });
     // promote back to top
-    await page.locator('.skos-row', { hasText: `A${tag}` }).first().dragTo(page.locator('.skos-root'));
+    await page.locator('.skos-row', { hasText: `A${tag}` }).first().dragTo(page.locator('.skos-root'), { sourcePosition: { x: 30, y: 8 } });
     await expect(async () => {
       const aPad = parseInt((await page.locator('.skos-row', { hasText: `A${tag}` }).first().evaluate((el) => (el as HTMLElement).style.paddingLeft)) || '0');
       expect(aPad).toBeLessThanOrEqual(8);

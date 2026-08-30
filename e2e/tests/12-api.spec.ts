@@ -80,7 +80,7 @@ test.describe('HTTP API surfaces', () => {
   });
 
   test('auth: bad bearer 401, token management admin-only', async ({ request }) => {
-    const bad = await request.get(`${API}/api/search?q=test`, { headers: { Authorization: 'Bearer yaoe_bogus' } });
+    const bad = await request.get(`${API}/api/search?q=test`, { headers: { Authorization: 'Bearer ostudio_bogus' } });
     expect(bad.status()).toBe(401);
     const nonAdmin = await request.post(`${API}/api/auth/tokens`, {
       headers: { 'X-Studio-User': 'quinn' },

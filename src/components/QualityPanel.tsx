@@ -2,6 +2,7 @@
 // per-check trend sparklines from persisted snapshots.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button } from '../ui/controls';
 import { useIdentity } from '../state/identity';
 
 interface Check {
@@ -61,9 +62,9 @@ export function QualityPanel() {
 
   return (
     <div className="quality-panel">
-      <button onClick={runNow} disabled={busy || !['steward', 'admin'].includes(role)} title="Run all checks and record a snapshot">
+      <Button onClick={runNow} disabled={busy || !['steward', 'admin'].includes(role)} title="Run all checks and record a snapshot">
         {busy ? 'Running…' : '▷ Run quality checks'}
-      </button>
+      </Button>
       {history.length > 0 && (
         <div className="term-meta" style={{ margin: '4px 0' }}>
           {history.length} recorded run(s) · latest {history[0].at.replace('T', ' ').slice(0, 16)}

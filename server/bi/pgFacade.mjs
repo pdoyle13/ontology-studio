@@ -125,7 +125,7 @@ export function errorResponse(text) {
 export function parseBiSql(sql) {
   const s = sql.trim().replace(/;\s*$/, '');
   if (/^select\s+1$/i.test(s)) return { kind: 'const', columns: ['?column?'], row: ['1'] };
-  if (/^select\s+version\(\)/i.test(s)) return { kind: 'const', columns: ['version'], row: ['PostgreSQL 15.0 (YAOE semantic facade)'] };
+  if (/^select\s+version\(\)/i.test(s)) return { kind: 'const', columns: ['version'], row: ['PostgreSQL 15.0 (Ontology Studio semantic facade)'] };
   if (/^select\s+current_schema\(\)/i.test(s)) return { kind: 'const', columns: ['current_schema'], row: ['public'] };
   if (/information_schema\.tables/i.test(s)) return { kind: 'tables' };
   if (/information_schema\.columns/i.test(s)) {

@@ -3,6 +3,7 @@
 // against the owning database, planned from the KG catalog.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Ghost } from '../ui/controls';
 import { create } from 'zustand';
 import { useGraph } from '../state/graph';
 import { displayName, humanize } from '../rdf/display';
@@ -104,7 +105,7 @@ export function DataGrid() {
               <button className="micro" onClick={() => { setFilter(null); setDrafts((d) => ({ ...d, [filter.column]: '' })); }}>✕</button>
             </span>
           )}
-          <button className="ghost" onClick={close}>Close</button>
+          <Ghost onClick={close}>Close</Ghost>
         </span>
       </div>
       {error && <div className="err-text" style={{ padding: '4px 10px' }}>{error}</div>}
@@ -152,9 +153,9 @@ export function DataGrid() {
       <div className="grid-foot">
         <span className="term-meta">{rows.length} rows{done ? ' (all)' : ''}</span>
         {!done && (
-          <button className="ghost" disabled={busy} onClick={() => fetchPage(offset, true)}>
+          <Ghost disabled={busy} onClick={() => fetchPage(offset, true)}>
             {busy ? 'Loading…' : 'Load more'}
-          </button>
+          </Ghost>
         )}
         {meta && <span className="term-meta grid-sql" title={meta.sql}>{meta.sql}</span>}
       </div>

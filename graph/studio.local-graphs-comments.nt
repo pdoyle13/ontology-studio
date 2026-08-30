@@ -69,6 +69,36 @@
 <https://studio.local/graphs/comments/c-mt81up7h-8906> <https://studio.local/ns#by> "pat" .
 <https://studio.local/graphs/comments/c-mt81up7h-8906> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
 <https://studio.local/graphs/comments/c-mt81up7h-8906> <https://studio.local/ns#text> "note Tmt81umtc7478" .
+<https://studio.local/graphs/comments/c-mt87ytww-8989> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt87ytww-8989> <https://studio.local/ns#at> "2026-08-25T05:23:29.648Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt87ytww-8989> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt87ytww-8989> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt87ytww-8989> <https://studio.local/ns#text> "note Tmt87yri35142" .
+<https://studio.local/graphs/comments/c-mt8lpqe7-5925> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt8lpqe7-5925> <https://studio.local/ns#at> "2026-08-25T11:48:19.807Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt8lpqe7-5925> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt8lpqe7-5925> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt8lpqe7-5925> <https://studio.local/ns#text> "note Tmt8lpnyi9711" .
+<https://studio.local/graphs/comments/c-mt8miswn-6657> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt8miswn-6657> <https://studio.local/ns#at> "2026-08-25T12:10:56.087Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt8miswn-6657> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt8miswn-6657> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt8miswn-6657> <https://studio.local/ns#text> "note Tmt8miqgj6104" .
+<https://studio.local/graphs/comments/c-mt8mpd9h-5945> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt8mpd9h-5945> <https://studio.local/ns#at> "2026-08-25T12:16:02.405Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt8mpd9h-5945> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt8mpd9h-5945> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt8mpd9h-5945> <https://studio.local/ns#text> "note Tmt8mpbjt7175" .
+<https://studio.local/graphs/comments/c-mt8n79d1-4476> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mt8n79d1-4476> <https://studio.local/ns#at> "2026-08-25T12:29:57.157Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mt8n79d1-4476> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mt8n79d1-4476> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mt8n79d1-4476> <https://studio.local/ns#text> "note Tmt8n76xw676" .
+<https://studio.local/graphs/comments/c-mtfsn9p0-4784> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Comment> .
+<https://studio.local/graphs/comments/c-mtfsn9p0-4784> <https://studio.local/ns#at> "2026-08-30T12:36:45.396Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/graphs/comments/c-mtfsn9p0-4784> <https://studio.local/ns#by> "pat" .
+<https://studio.local/graphs/comments/c-mtfsn9p0-4784> <https://studio.local/ns#on> <https://example.org/music#Radiohead> .
+<https://studio.local/graphs/comments/c-mtfsn9p0-4784> <https://studio.local/ns#text> "note Tmtfsn74v6259" .
 <https://studio.local/sql/crm_db#customers> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://studio.local/sql/crm_db#customers> <http://www.w3.org/2000/01/rdf-schema#label> "Customers" .
 <https://studio.local/sql/crm_db#customersShape-p-city> <http://www.w3.org/ns/shacl#datatype> <http://www.w3.org/2001/XMLSchema#string> .

@@ -3,6 +3,7 @@
 // (SKOS/SHACL/R2RML/…) out of the Classes tree.
 
 import { useEffect, useState } from 'react';
+import { Button, Ghost, TextArea } from '../ui/controls';
 import { create } from 'zustand';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
@@ -53,7 +54,7 @@ export function SettingsDialog() {
           Classes in these namespaces are hidden from the Classes tree (they have
           their own surfaces — Taxonomy, Shapes, Mappings…). One namespace per line.
         </div>
-        <textarea
+        <TextArea
           rows={9}
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -61,15 +62,15 @@ export function SettingsDialog() {
           style={{ width: '100%', fontFamily: 'var(--mono)', fontSize: 11.5 }}
         />
         <div className="modal-row">
-          <button className="ghost" onClick={() => setText(DEFAULT_SYSTEM_NAMESPACES.join('\n'))}>
+          <Ghost onClick={() => setText(DEFAULT_SYSTEM_NAMESPACES.join('\n'))}>
             Reset to defaults
-          </button>
+          </Ghost>
         </div>
 
         {error && <div className="err-text">{error}</div>}
         <div className="modal-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <button className="ghost" onClick={close}>Cancel</button>
-          <button disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save'}</button>
+          <Ghost onClick={close}>Cancel</Ghost>
+          <Button disabled={busy} onClick={save}>{busy ? 'Saving…' : 'Save'}</Button>
         </div>
       </div>
     </div>

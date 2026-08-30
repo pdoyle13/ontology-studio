@@ -1,4 +1,4 @@
-# YAOE — yet another ontology editor
+# Ontology Studio
 
 In the proud lineage of YASGUI and YATE: an unassuming name for an ambitious
 tool. MIT-licensed; commercial support and integration consulting available

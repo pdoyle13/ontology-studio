@@ -1,4 +1,4 @@
-// E2E suite for YAOE. Requires the dev stack: studio-ui :5180, studio-server
+// E2E suite for Ontology Studio. Requires the dev stack: studio-ui :5180, studio-server
 // :7881, Oxigraph, seed data loaded. Workers=1 — the suite shares one live
 // backend and several specs write to it (each uses run-unique fixtures).
 

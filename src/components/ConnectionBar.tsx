@@ -1,10 +1,12 @@
 import { useWorkspace, WORKSPACES, type Workspace } from '../state/workspace';
+import { Button, Ghost, Input, Select } from '../ui/controls';
 import { useGraph as useGraphForToast } from '../state/graph';
 import { useState } from 'react';
 import { useConnection } from '../state/connection';
 import { oxigraphEndpoint } from '../rdf/sparqlClient';
 import { ImportExportDialog } from './ImportExport';
 import { openSettings } from './SettingsDialog';
+import { openHelp } from './HelpDialog';
 import { useUi } from '../state/ui';
 import { useCollab } from '../state/collab';
 import { useIdentity } from '../state/identity';
@@ -44,9 +46,9 @@ export function ConnectionBar() {
 
   return (
     <header className="connection-bar">
-      <span className="brand">YAOE</span>
+      <span className="brand">Ontology Studio</span>
       <Toasts />
-      <select
+      <Select
         className="workspace-switch"
         title="Workspace — a lens for your role, not a separate product"
         value={useWorkspace((s) => s.workspace)}
@@ -57,14 +59,14 @@ export function ConnectionBar() {
             {w.label}
           </option>
         ))}
-      </select>
+      </Select>
       {peers > 1 && (
         <span className="presence" title={`${peers} people are in this workspace right now`}>
           {peers} online
         </span>
       )}
       <span className={dotClass} title={statusMessage} />
-      <select
+      <Select
         value={activeId ?? ''}
         onChange={(e) => e.target.value && connect(e.target.value)}
         className="ep-select"
@@ -77,9 +79,9 @@ export function ConnectionBar() {
             {ep.name}
           </option>
         ))}
-      </select>
+      </Select>
       {status === 'connected' && (
-        <select
+        <Select
           value={activeGraph ?? ''}
           onChange={(e) => setActiveGraph(e.target.value || null)}
           className="graph-select"
@@ -91,20 +93,23 @@ export function ConnectionBar() {
               {g.graph} ({g.triples.toLocaleString()})
             </option>
           ))}
-        </select>
+        </Select>
       )}
       {status === 'error' && <span className="status-msg err-text">{statusMessage}</span>}
       {status === 'connected' && (
-        <button className="ghost" onClick={() => setShowImport(true)}>
+        <Ghost onClick={() => setShowImport(true)}>
           Import / Export
-        </button>
+        </Ghost>
       )}
       {status === 'connected' && (
-        <button className="ghost" title="Settings" onClick={openSettings}>
+        <Ghost title="Settings" onClick={openSettings}>
           ⚙
-        </button>
+        </Ghost>
       )}
-      <select
+      <Ghost title="Help — how to use Ontology Studio" onClick={openHelp}>
+        ?
+      </Ghost>
+      <Select
         className="acting-as"
         value={identity.actingUser}
         onChange={(e) => {
@@ -118,36 +123,35 @@ export function ConnectionBar() {
             {u.name} ({u.role})
           </option>
         ))}
-      </select>
-      <button className="ghost" onClick={() => setAdding(!adding)}>
+      </Select>
+      <Ghost onClick={() => setAdding(!adding)}>
         {adding ? 'Cancel' : '+ Endpoint'}
-      </button>
+      </Ghost>
       {showImport && <ImportExportDialog onClose={() => setShowImport(false)} />}
       {adding && (
         <span className="add-form">
-          <select value={kind} onChange={(e) => setKind(e.target.value as 'oxigraph' | 'generic')}>
+          <Select value={kind} onChange={(e) => setKind(e.target.value as 'oxigraph' | 'generic')}>
             <option value="oxigraph">Oxigraph</option>
             <option value="generic">Generic SPARQL</option>
-          </select>
-          <input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} size={12} />
-          <input
+          </Select>
+          <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} style={{ width: 120 }} />
+          <Input
             placeholder={kind === 'oxigraph' ? 'Oxigraph base URL' : 'Query endpoint URL'}
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            size={30}
+            style={{ width: 260 }}
           />
           {kind === 'generic' && (
-            <input
+            <Input
               placeholder="Update URL (blank = read-only)"
               value={updateUrl}
               onChange={(e) => setUpdateUrl(e.target.value)}
-              size={24}
+              style={{ width: 220 }}
             />
           )}
-          <button onClick={add}>Add</button>
+          <Button onClick={add}>Add</Button>
           {kind === 'generic' && (
-            <button
-              className="ghost"
+            <Ghost
               title="Preset: Wikidata (read-only)"
               onClick={() => {
                 setName('Wikidata (read-only)');
@@ -156,7 +160,7 @@ export function ConnectionBar() {
               }}
             >
               Wikidata
-            </button>
+            </Ghost>
           )}
         </span>
       )}

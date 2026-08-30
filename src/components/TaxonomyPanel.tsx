@@ -3,6 +3,7 @@
 // it a top concept. All edits are undoable commands on the graph.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Ghost, Select } from '../ui/controls';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import {
@@ -224,32 +225,30 @@ export function TaxonomyPanel() {
   return (
     <div className="taxonomy-panel">
       <div className="skos-toolbar">
-        <select value={active ?? ''} onChange={(e) => setActive(e.target.value || null)} style={{ flex: 1 }}>
+        <Select value={active ?? ''} onChange={(e) => setActive(e.target.value || null)} style={{ flex: 1 }}>
           {schemes.length === 0 && <option value="">no schemes yet</option>}
           {schemes.map((s) => (
             <option key={s.iri} value={s.iri}>
               {displayName(s.iri, s.label)} ({s.conceptCount})
             </option>
           ))}
-        </select>
-        <button className="ghost" onClick={newScheme} title="Create a concept scheme">＋ Scheme</button>
-        <button className="ghost" onClick={openExtensions} title="Configure custom fields for concepts and schemes">⚙</button>
-        <button
-          className="ghost"
+        </Select>
+        <Ghost onClick={newScheme} title="Create a concept scheme">＋ Scheme</Ghost>
+        <Ghost onClick={openExtensions} title="Configure custom fields for concepts and schemes">⚙</Ghost>
+        <Ghost
           disabled={!active}
           onClick={() => active && openCsvImport(active, refresh)}
           title="Bulk import concepts from a CSV spreadsheet"
         >
           ⇪ CSV
-        </button>
-        <button
-          className="ghost"
+        </Ghost>
+        <Ghost
           disabled={!active || schemes.length < 2}
           onClick={() => setCrosswalking(true)}
           title="Map this scheme's concepts to another scheme (suggested matches)"
         >
           ⇄ Crosswalk
-        </button>
+        </Ghost>
       </div>
       {crosswalking && active && (
         <CrosswalkDialog

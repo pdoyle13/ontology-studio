@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Button, Ghost, Input, TextArea } from '../ui/controls';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { parseTurtle, importQuads, fetchRdfFromUrl, exportGraphTurtle, exportGraphJsonLd, downloadText } from '../rdf/importExport';
@@ -85,7 +86,7 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
         <label className="field-label">
           Target graph IRI <span className="term-meta">(empty = default graph)</span>
         </label>
-        <input
+        <Input
           value={targetGraph}
           onChange={(e) => setTargetGraph(e.target.value)}
           placeholder="https://example.org/graphs/my-ontology"
@@ -94,21 +95,21 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
         <div className="modal-row">
           <input ref={fileRef} type="file" accept=".ttl,.nt,.turtle,text/turtle" style={{ display: 'none' }}
             onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
-          <button disabled={busy} onClick={() => fileRef.current?.click()}>Choose file…</button>
+          <Button disabled={busy} onClick={() => fileRef.current?.click()}>Choose file…</Button>
           <span className="term-meta">or</span>
-          <input
+          <Input
             placeholder="https://…/ontology.ttl"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             style={{ flex: 1 }}
             onKeyDown={(e) => e.key === 'Enter' && onUrl()}
           />
-          <button disabled={busy || !url.trim()} onClick={onUrl}>Fetch</button>
+          <Button disabled={busy || !url.trim()} onClick={onUrl}>Fetch</Button>
         </div>
         <label className="field-label" style={{ marginTop: 8 }}>
           Or paste Turtle / N-Triples
         </label>
-        <textarea
+        <TextArea
           value={pasted}
           onChange={(e) => setPasted(e.target.value)}
           placeholder={'<https://example.org/a> a <https://example.org/Thing> .'}
@@ -117,18 +118,17 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
           style={{ width: '100%', fontFamily: 'var(--font-mono, monospace)', fontSize: 12 }}
         />
         <div className="modal-row">
-          <button disabled={busy || !pasted.trim()} onClick={() => runImport(pasted, 'pasted text')}>
+          <Button disabled={busy || !pasted.trim()} onClick={() => runImport(pasted, 'pasted text')}>
             Import pasted text
-          </button>
+          </Button>
         </div>
 
         <div className="panel-title" style={{ marginTop: 14 }}>Export current scope</div>
         <div className="modal-row">
-          <button disabled={busy} onClick={onExport}>
+          <Button disabled={busy} onClick={onExport}>
             Download {conn.activeGraph ? localName(conn.activeGraph) : 'default graph'} as Turtle
-          </button>
-          <button
-            className="ghost"
+          </Button>
+          <Ghost
             onClick={async () => {
               const ep = conn.active();
               if (!ep) return;
@@ -137,7 +137,7 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
             }}
           >
             as JSON-LD
-          </button>
+          </Ghost>
         </div>
 
         {phase !== 'idle' && (
@@ -152,7 +152,7 @@ export function ImportExportDialog({ onClose }: { onClose: () => void }) {
         )}
 
         <div className="modal-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <button onClick={onClose}>Close</button>
+          <Button onClick={onClose}>Close</Button>
         </div>
       </div>
     </div>

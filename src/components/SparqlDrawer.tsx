@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Button, Ghost, Select } from '../ui/controls';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { Parser } from 'n3';
@@ -162,18 +163,19 @@ export function SparqlDrawer() {
                 prepend prefixes
               </label>
             ) : (
-              <select value={sqlSource} onChange={(e) => setSqlSource(e.target.value)}>
+              <Select value={sqlSource} onChange={(e) => setSqlSource(e.target.value)} style={{ width: 'auto' }}>
                 {sqlSources.length === 0 && <option value="">no SQL sources</option>}
                 {sqlSources.map((s) => (
                   <option key={s.id} value={s.id}>{s.id}</option>
                 ))}
-              </select>
+              </Select>
             )}
-            <select
+            <Select
               className="saved-picker"
               value={loadedIri}
               onChange={(e) => loadSaved(e.target.value)}
               title="Saved queries"
+              style={{ width: 'auto' }}
             >
               <option value="">saved queries…</option>
               {saved.map((q) => (
@@ -181,21 +183,21 @@ export function SparqlDrawer() {
                   {q.title} ({q.mode})
                 </option>
               ))}
-            </select>
-            <button className="ghost" onClick={doSave} title="Save the current query">
+            </Select>
+            <Ghost onClick={doSave} title="Save the current query">
               ⤓ Save
-            </button>
+            </Ghost>
             {loadedIri && (
-              <button className="ghost" onClick={doDeleteSaved} title="Delete this saved query">
+              <Ghost onClick={doDeleteSaved} title="Delete this saved query">
                 ✕
-              </button>
+              </Ghost>
             )}
-            <button
+            <Button
               onClick={mode === 'sparql' ? run : runSql}
               disabled={running || (mode === 'sparql' ? conn.status !== 'connected' : !sqlSource)}
             >
               {running ? 'Running…' : 'Run (Ctrl+Enter)'}
-            </button>
+            </Button>
           </span>
         )}
       </div>

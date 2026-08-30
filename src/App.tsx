@@ -18,6 +18,7 @@ import { CsvImportDialog } from './components/CsvImportDialog';
 import { ImportWizard } from './components/ImportWizard';
 import { SettingsDialog } from './components/SettingsDialog';
 import { MappingEditor } from './components/MappingEditor';
+import { HelpDialog } from './components/HelpDialog';
 import { DashboardView } from './components/DashboardsPanel';
 import { SourceEditor } from './components/SourceEditor';
 import { useConnection } from './state/connection';
@@ -85,7 +86,7 @@ export default function App() {
               <SourceEditor />
             </>
           ) : (
-            <div className="placeholder center">YAOE — connect to Oxigraph to begin</div>
+            <div className="placeholder center">Ontology Studio — connect to Oxigraph to begin</div>
           )}
         </main>
         <aside className="inspector">
@@ -116,6 +117,7 @@ export default function App() {
       <ImportWizard />
       <SettingsDialog />
       <MappingEditor />
+      <HelpDialog />
     </div>
   );
 }

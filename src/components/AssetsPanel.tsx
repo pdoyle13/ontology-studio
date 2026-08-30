@@ -5,6 +5,7 @@
 // creation. Nothing here is per-type code beyond the presentation renderers.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Ghost, Input, Select } from '../ui/controls';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { listAssetTypes, cmdCreateAssetType, cmdDeleteAssetType, type AssetTypeDef, type Presentation } from '../rdf/assetTypes';
@@ -191,18 +192,18 @@ function NewTypeForm({ onDone }: { onDone: () => void }) {
   return (
     <div className="ext-form" style={{ marginTop: 6 }}>
       <label className="field-label">Type name *</label>
-      <input autoFocus value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Data Domains, Requirements, KPIs" style={{ width: '100%' }} />
+      <Input autoFocus value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Data Domains, Requirements, KPIs" style={{ width: '100%' }} />
       <label className="field-label">Description</label>
-      <input value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%' }} />
+      <Input value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%' }} />
       <label className="field-label">Presentation</label>
-      <select value={presentation} onChange={(e) => setPresentation(e.target.value as Presentation)} style={{ width: '100%' }}>
+      <Select value={presentation} onChange={(e) => setPresentation(e.target.value as Presentation)} style={{ width: '100%' }}>
         <option value="list">flat list</option>
         <option value="tree">tree (broader/narrower)</option>
-      </select>
+      </Select>
       {error && <div className="err-text">{error}</div>}
       <div className="modal-row" style={{ justifyContent: 'flex-end' }}>
-        <button onClick={onDone}>Cancel</button>
-        <button disabled={!label.trim()} onClick={createIt}>Create type</button>
+        <Ghost onClick={onDone}>Cancel</Ghost>
+        <Button disabled={!label.trim()} onClick={createIt}>Create type</Button>
       </div>
     </div>
   );
@@ -286,9 +287,9 @@ export function AssetsPanel() {
           }}
         />
       ) : (
-        <button className="ghost" style={{ marginTop: 8 }} onClick={() => setAdding(true)}>
+        <Ghost style={{ marginTop: 8 }} onClick={() => setAdding(true)}>
           ＋ New asset type…
-        </button>
+        </Ghost>
       )}
     </div>
   );

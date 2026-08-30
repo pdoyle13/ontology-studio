@@ -79,7 +79,7 @@ export function createRegistry() {
   }
 
   /** DogStatsD export: fire-and-forget UDP to the Datadog agent. */
-  function startStatsd({ host = process.env.DD_AGENT_HOST, port = Number(process.env.DD_DOGSTATSD_PORT ?? 8125), intervalMs = 10000, prefix = 'yaoe.' } = {}) {
+  function startStatsd({ host = process.env.DD_AGENT_HOST, port = Number(process.env.DD_DOGSTATSD_PORT ?? 8125), intervalMs = 10000, prefix = 'ontology_studio.' } = {}) {
     if (!host) return null;
     const sock = dgram.createSocket('udp4');
     let last = new Map();

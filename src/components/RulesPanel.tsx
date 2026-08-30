@@ -4,6 +4,7 @@
 // via /api/rules/explain for any derived triple.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Ghost, Input, Select, TextArea } from '../ui/controls';
 import { SH } from '../rdf/vocab';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
@@ -131,10 +132,10 @@ export function RulesPanel() {
   return (
     <div className="rules-panel">
       <div className="modal-row" style={{ marginBottom: 6 }}>
-        <button onClick={materialize} disabled={busy} title="Run all active rules into the inferred graph">
+        <Button onClick={materialize} disabled={busy} title="Run all active rules into the inferred graph">
           {busy ? 'Materializing…' : '⚡ Materialize'}
-        </button>
-        <button className="ghost" onClick={() => setAdding((a) => !a)}>＋ Rule</button>
+        </Button>
+        <Ghost onClick={() => setAdding((a) => !a)}>＋ Rule</Ghost>
       </div>
       {last && (
         <div className="term-meta" style={{ marginBottom: 6 }}>
@@ -145,21 +146,21 @@ export function RulesPanel() {
       {adding && (
         <div className="ext-form" style={{ marginBottom: 8 }}>
           <label className="field-label">Target class *</label>
-          <select value={target} onChange={(e) => setTarget(e.target.value)} style={{ width: '100%' }}>
+          <Select value={target} onChange={(e) => setTarget(e.target.value)} style={{ width: '100%' }}>
             <option value="">pick a class…</option>
             {classes.map((c) => (
               <option key={c.iri} value={c.iri}>{displayName(c.iri, c.label)}</option>
             ))}
-          </select>
+          </Select>
           <label className="field-label">Rule kind</label>
-          <select value={kind} onChange={(e) => setKind(e.target.value as 'triple' | 'sparql')} style={{ width: '100%' }}>
+          <Select value={kind} onChange={(e) => setKind(e.target.value as 'triple' | 'sparql')} style={{ width: '100%' }}>
             <option value="triple">Triple rule — every member gets one triple</option>
             <option value="sparql">SPARQL rule — CONSTRUCT with $this</option>
-          </select>
+          </Select>
           {kind === 'triple' ? (
             <>
               <label className="field-label">Predicate IRI *</label>
-              <input value={predicate} onChange={(e) => setPredicate(e.target.value)} placeholder="https://studio.local/vocab/asset-kind" style={{ width: '100%' }} />
+              <Input value={predicate} onChange={(e) => setPredicate(e.target.value)} placeholder="https://studio.local/vocab/asset-kind" style={{ width: '100%' }} />
               <label className="field-label">
                 Object * <label className="term-meta"><input type="checkbox" checked={objectIsIri} onChange={(e) => setObjectIsIri(e.target.checked)} /> IRI</label>
               </label>
@@ -167,7 +168,7 @@ export function RulesPanel() {
                 <ResourcePicker classIri={null} onPick={(iri) => { setObjectVal(iri); setPickingObj(false); }} onCancel={() => setPickingObj(false)} />
               ) : (
                 <div className="modal-row">
-                  <input value={objectVal} onChange={(e) => setObjectVal(e.target.value)} placeholder={objectIsIri ? 'https://…' : 'literal value'} style={{ flex: 1 }} />
+                  <Input value={objectVal} onChange={(e) => setObjectVal(e.target.value)} placeholder={objectIsIri ? 'https://…' : 'literal value'} style={{ flex: 1 }} />
                   {objectIsIri && <button className="micro" onClick={() => setPickingObj(true)}>pick…</button>}
                 </div>
               )}
@@ -175,12 +176,12 @@ export function RulesPanel() {
           ) : (
             <>
               <label className="field-label">CONSTRUCT ($this = each member)</label>
-              <textarea className="field-textarea" rows={4} value={constructText} onChange={(e) => setConstructText(e.target.value)} />
+              <TextArea className="field-textarea" rows={4} value={constructText} onChange={(e) => setConstructText(e.target.value)} />
             </>
           )}
           <div className="modal-row" style={{ justifyContent: 'flex-end' }}>
-            <button onClick={() => setAdding(false)}>Cancel</button>
-            <button disabled={!target} onClick={addRule}>Create rule</button>
+            <Ghost onClick={() => setAdding(false)}>Cancel</Ghost>
+            <Button disabled={!target} onClick={addRule}>Create rule</Button>
           </div>
         </div>
       )}

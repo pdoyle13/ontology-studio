@@ -3,6 +3,7 @@
 // dialogs, validation, and CSV import pick them up automatically.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Ghost, Input, Select } from '../ui/controls';
 import { create } from 'zustand';
 import { useConnection } from '../state/connection';
 import type { PropertyShapeInfo } from '../rdf/shacl';
@@ -125,45 +126,45 @@ function AssetSection({ asset, title }: { asset: AssetType; title: string }) {
       {adding ? (
         <div className="ext-form">
           <label className="field-label">Field name *</label>
-          <input autoFocus value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Steward, Status, Source system" style={{ width: '100%' }} />
+          <Input autoFocus value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Steward, Status, Source system" style={{ width: '100%' }} />
           <label className="field-label">Type</label>
-          <select value={kind} onChange={(e) => setKind(e.target.value as FieldKind)} style={{ width: '100%' }}>
+          <Select value={kind} onChange={(e) => setKind(e.target.value as FieldKind)} style={{ width: '100%' }}>
             {KINDS.map((k) => (
               <option key={k.id} value={k.id}>{k.label}</option>
             ))}
-          </select>
+          </Select>
           {kind === 'enum' && (
             <>
               <label className="field-label">Options (separate with |)</label>
-              <input value={options} onChange={(e) => setOptions(e.target.value)} placeholder="draft | approved | deprecated" style={{ width: '100%' }} />
+              <Input value={options} onChange={(e) => setOptions(e.target.value)} placeholder="draft | approved | deprecated" style={{ width: '100%' }} />
             </>
           )}
           {kind === 'codelist' && (
             <>
               <label className="field-label">Concept scheme *</label>
-              <select value={codelist} onChange={(e) => setCodelist(e.target.value)} style={{ width: '100%' }}>
+              <Select value={codelist} onChange={(e) => setCodelist(e.target.value)} style={{ width: '100%' }}>
                 <option value="">pick a scheme…</option>
                 {schemes.map((sc) => (
                   <option key={sc.iri} value={sc.iri}>{sc.label ?? sc.iri} ({sc.conceptCount})</option>
                 ))}
-              </select>
+              </Select>
             </>
           )}
           <label className="field-label">Help text</label>
-          <input value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%' }} />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: '100%' }} />
           <label className="field-label">Property IRI <span className="term-meta">optional — reuse e.g. skos:editorialNote; blank mints one</span></label>
-          <input value={path} onChange={(e) => setPath(e.target.value)} placeholder="http://www.w3.org/2004/02/skos/core#editorialNote" style={{ width: '100%' }} />
+          <Input value={path} onChange={(e) => setPath(e.target.value)} placeholder="http://www.w3.org/2004/02/skos/core#editorialNote" style={{ width: '100%' }} />
           <label className="field-label" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
             <input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} /> required
           </label>
           {error && <div className="err-text">{error}</div>}
           <div className="modal-row" style={{ justifyContent: 'flex-end' }}>
-            <button onClick={() => setAdding(false)}>Cancel</button>
-            <button disabled={!label.trim()} onClick={add}>Add field</button>
+            <Ghost onClick={() => setAdding(false)}>Cancel</Ghost>
+            <Button disabled={!label.trim()} onClick={add}>Add field</Button>
           </div>
         </div>
       ) : (
-        <button className="ghost" onClick={() => setAdding(true)}>＋ Add custom field</button>
+        <Ghost onClick={() => setAdding(true)}>＋ Add custom field</Ghost>
       )}
     </div>
   );
@@ -183,7 +184,7 @@ export function ExtensionsDialog() {
         <AssetSection asset="concept" title="Concept fields" />
         <AssetSection asset="scheme" title="Scheme fields" />
         <div className="modal-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <button onClick={close}>Close</button>
+          <Button onClick={close}>Close</Button>
         </div>
       </div>
     </div>

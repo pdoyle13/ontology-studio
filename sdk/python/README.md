@@ -1,16 +1,16 @@
-# yaoe — Python client
+# ontology-studio — Python client
 
-Dependency-free client for the YAOE HTTP API.
+Dependency-free client for the Ontology Studio HTTP API.
 
 ```bash
 pip install -e sdk/python
 ```
 
 ```python
-from yaoe import Yaoe
+from ontology_studio import Studio
 
-y = Yaoe("http://localhost:7881", user="pat")          # dev header auth
-# y = Yaoe("http://localhost:7881", token="yaoe_...")  # API-token auth
+y = Studio("http://localhost:7881", user="pat")          # dev header auth
+# y = Studio("http://localhost:7881", token="ostudio_...")  # API-token auth
 
 # SPARQL (union scope by default; pass graph= to scope)
 rows = y.sparql("SELECT ?s WHERE { ?s a <https://example.org/music#Artist> } LIMIT 5")
@@ -33,4 +33,4 @@ y.federate("https://studio.local/sql/sales_db#orders",
 y.crosswalk_suggest(scheme_a, scheme_b)
 ```
 
-Errors raise `YaoeError` with the server's status and message.
+Errors raise `StudioError` with the server's status and message.

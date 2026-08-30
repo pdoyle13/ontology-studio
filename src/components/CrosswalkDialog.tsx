@@ -4,6 +4,7 @@
 // Existing mappings list below with remove.
 
 import { useCallback, useEffect, useState } from 'react';
+import { Button, Select } from '../ui/controls';
 import { useIdentity } from '../state/identity';
 
 const RELATIONS = ['exactMatch', 'closeMatch', 'broadMatch', 'narrowMatch', 'relatedMatch'];
@@ -104,18 +105,18 @@ export function CrosswalkDialog({
 
         <div className="modal-row">
           <label className="term-meta">to scheme</label>
-          <select value={toScheme} onChange={(e) => setToScheme(e.target.value)} style={{ flex: 1 }}>
+          <Select value={toScheme} onChange={(e) => setToScheme(e.target.value)} style={{ flex: 1 }}>
             {others.length === 0 && <option value="">no other schemes</option>}
             {others.map((s) => (
               <option key={s.iri} value={s.iri}>{s.label}</option>
             ))}
-          </select>
+          </Select>
           <label className="term-meta">accept as</label>
-          <select value={relation} onChange={(e) => setRelation(e.target.value)}>
+          <Select value={relation} onChange={(e) => setRelation(e.target.value)} style={{ width: 'auto' }}>
             {RELATIONS.map((r) => (
               <option key={r} value={r}>skos:{r}</option>
             ))}
-          </select>
+          </Select>
         </div>
 
         {error && <div className="err-text">{error}</div>}
@@ -163,7 +164,7 @@ export function CrosswalkDialog({
         )}
 
         <div className="modal-row" style={{ justifyContent: 'flex-end', marginTop: 12 }}>
-          <button onClick={onClose}>Close</button>
+          <Button onClick={onClose}>Close</Button>
         </div>
       </div>
     </div>
