@@ -9,3 +9,5 @@ seed/delivery.db
 backups/
 planning/
 test-results/
+server/.state/
+seed/support_desk.db
