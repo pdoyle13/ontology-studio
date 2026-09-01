@@ -129,3 +129,13 @@
 <https://studio.local/dashboard/page-tmtfsolfb3102> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
 <https://studio.local/dashboard/page-tmtfsolfb3102> <http://www.w3.org/2000/01/rdf-schema#label> "Page Tmtfsolfb3102" .
 <https://studio.local/dashboard/page-tmtfsolfb3102> <https://studio.local/ns#widget> <https://studio.local/dashboard/page-tmtfsolfb3102/widget/bars-tmtfsolfb3102-0> .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <http://www.w3.org/2000/01/rdf-schema#label> "Bars Tmtimmoz87009" .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <https://studio.local/ns#component> "bar" .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <https://studio.local/ns#position> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <https://studio.local/ns#query> <https://studio.local/query/dashq-tmtimmoz87009> .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <https://studio.local/ns#xField> "status" .
+<https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> <https://studio.local/ns#yField> "n" .
+<https://studio.local/dashboard/page-tmtimmoz87009> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
+<https://studio.local/dashboard/page-tmtimmoz87009> <http://www.w3.org/2000/01/rdf-schema#label> "Page Tmtimmoz87009" .
+<https://studio.local/dashboard/page-tmtimmoz87009> <https://studio.local/ns#widget> <https://studio.local/dashboard/page-tmtimmoz87009/widget/bars-tmtimmoz87009-0> .
