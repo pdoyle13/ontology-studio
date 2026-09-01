@@ -8,7 +8,7 @@
 import express from 'express';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, basename } from 'node:path';
+import { dirname, join, basename, resolve as resolvePath } from 'node:path';
 import { runAgent, agentAvailable } from './agent/agent.mjs';
 import { QueryCache, DiskCache, TieredCache } from './core/cache.mjs';
 import { emitR2rml, MAPPINGS_GRAPH, STUDIO } from './semantic/r2rml.mjs';
@@ -18,6 +18,7 @@ import { createGraphQL } from './semantic/graphqlLayer.mjs';
 import { createSearchService } from './search/searchService.mjs';
 import { readRules, materialize, explain, INFERRED_GRAPH } from './semantic/rules.mjs';
 import { metaStore } from './core/meta.mjs';
+import { assertInsideRoot } from './core/paths.mjs';
 import { startPgFacade } from './bi/pgFacade.mjs';
 import { readWorkflow, getState, setState, availableTransitions, validateTransition, STATE_GRAPH } from './governance/lifecycle.mjs';
 import { addComment, listComments, COMMENTS_GRAPH } from './governance/comments.mjs';
@@ -284,13 +285,19 @@ app.delete('/api/auth/tokens/:id', (req, res) => {
 /** @type {Map<string, ReturnType<typeof createDriver>>} */
 const sources = new Map();
 
+// SECURITY (P1.5): file-backed connectors must stay inside DATA_ROOT (default:
+// the repo root, which holds seed/*.db). Set DATA_ROOT to relocate.
+const DATA_ROOT = process.env.DATA_ROOT ? resolvePath(process.env.DATA_ROOT) : join(__dirname, '..');
+const FILE_KINDS = new Set(['sqlite', 'duckdb']);
+
 function attach({ kind = 'sqlite', target, id }) {
+  const confinedTarget = FILE_KINDS.has(kind) ? assertInsideRoot(DATA_ROOT, target, `${kind} file`) : target;
   const sid =
     id ??
     (kind === 'sqlite'
       ? basename(target).replace(/\.[^.]*$/, '').replace(/[^\w-]/g, '_')
       : (() => { try { return new URL(target).pathname.replace(/^\//, '').replace(/[^\w-]/g, '_') || 'pg'; } catch { return 'pg'; } })());
-  const driver = createDriver({ id: sid, kind, target });
+  const driver = createDriver({ id: sid, kind, target: confinedTarget });
   sources.set(sid, driver);
   return driver;
 }
@@ -337,12 +344,16 @@ app.get('/api/sql/sources', async (_req, res) => {
 });
 
 app.post('/api/sql/sources', async (req, res) => {
+  // SECURITY (P1.5): attaching a source can read arbitrary files / reach
+  // internal hosts — admin only, and file paths are confined in attach().
+  if (req.studioUser?.role !== 'admin') return forbid(res, req.studioUser, 'attaching data sources is admin-only');
   const { path, url, target: rawTarget, kind = 'sqlite', id } = req.body ?? {};
   const target = rawTarget ?? (kind === 'postgres' ? url : path) ?? path ?? url;
   if (!target) return bad(res, 400, 'target required (file path for sqlite, connection URL for postgres)');
-  if (kind === 'sqlite' && !existsSync(target)) return bad(res, 404, `file not found: ${target}`);
   try {
+    // existence check runs on the confined path so it can't probe outside DATA_ROOT
     const s = attach({ kind, target, id });
+    if (kind === 'sqlite' && !existsSync(s.target)) { s.close?.(); sources.delete(s.id); return bad(res, 404, 'file not found'); }
     const tables = (await s.tables()).length; // probe the connection now
     persist();
     res.json({ id: s.id, kind: s.kind, target: safeDescriptor(s.kind, s.target), tables });
@@ -1153,8 +1164,26 @@ if (process.env.BI_PORT) {
   console.log(`bi-facade (postgres wire) on :${biPort}`);
 }
 
-const httpServer = app.listen(PORT, () =>
-  console.log(`studio-server on :${PORT} (oxigraph: ${OXIGRAPH})${process.env.SERVE_UI ? ' serving UI' : ''}`)
+// SECURITY (P1.6): identity is honor-system by default (X-Studio-User header,
+// defaulting to an admin). Binding all interfaces in that mode would let anyone
+// on the network claim admin. So bind loopback unless auth is enforced, and
+// refuse to expose a public interface without AUTH_REQUIRED.
+const AUTH_ON = process.env.AUTH_REQUIRED === '1';
+const HOST = process.env.HOST || (AUTH_ON ? '0.0.0.0' : '127.0.0.1');
+const isPublicBind = HOST === '0.0.0.0' || HOST === '::';
+if (isPublicBind && !AUTH_ON) {
+  console.error(
+    `refusing to bind ${HOST} without AUTH_REQUIRED=1: header-trust auth on a public interface lets anyone claim admin. ` +
+      `Set AUTH_REQUIRED=1 (and configure tokens/OIDC), or bind 127.0.0.1.`
+  );
+  process.exit(1);
+}
+if (!AUTH_ON) {
+  console.warn('⚠  header-trust auth (AUTH_REQUIRED unset): X-Studio-User is trusted; bound to 127.0.0.1 only. Do not expose this port.');
+}
+
+const httpServer = app.listen(PORT, HOST, () =>
+  console.log(`studio-server on ${HOST}:${PORT} (oxigraph: ${OXIGRAPH})${process.env.SERVE_UI ? ' serving UI' : ''}`)
 );
 
 // ---------------- collaboration (WebSocket broadcast bus) ----------------
