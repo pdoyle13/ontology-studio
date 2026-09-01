@@ -2,12 +2,31 @@
 // the meta graph plus live rows from every attached database (label-column
 // LIKE, planned per source from the KG catalog). Ctrl/Cmd+K to open.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { create } from 'zustand';
 import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { searchResources } from '../rdf/queries';
 import { displayName } from '../rdf/display';
+
+// SECURITY (P1.7): search highlights come from indexed content (instance data),
+// so they must never be injected as HTML. The engine wraps matches in
+// <em>…</em>; render those as real elements and everything else as plain text,
+// which React escapes. This replaces a bypassable regex tag-stripper + innerHTML.
+export function renderHighlight(s: string): ReactNode[] {
+  const out: ReactNode[] = [];
+  const re = /<em>([\s\S]*?)<\/em>/gi;
+  let last = 0;
+  let key = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<em key={key++}>{m[1]}</em>);
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+}
 
 interface OmniState {
   open: boolean;
@@ -205,9 +224,7 @@ export function Omnibox() {
                     >
                       <span className="omnibox-label">{displayName(hit.iri, hit.label)}</span>
                       {hit.detail && <span className="term-meta">{hit.detail}</span>}
-                      {hit.highlight && (
-                        <span className="omnibox-snippet" dangerouslySetInnerHTML={{ __html: hit.highlight.replace(/<(?!\/?em>)[^>]*>/g, '') }} />
-                      )}
+                      {hit.highlight && <span className="omnibox-snippet">{renderHighlight(hit.highlight)}</span>}
                     </div>
                   ))}
                 </div>

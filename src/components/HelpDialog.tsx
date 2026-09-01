@@ -63,7 +63,9 @@ export function HelpDialog() {
               API reference ↗
             </a>
           </nav>
-          {/* our own bundled markdown — no user content flows through here */}
+          {/* SECURITY (P1.7): the only input is repo markdown bundled at build
+              time via import.meta.glob (RAW) — never props, fetch, or user
+              input. If that ever changes, sanitize before rendering. */}
           <article className="help-md" dangerouslySetInnerHTML={{ __html: html }} />
         </div>
         <div className="modal-row" style={{ justifyContent: 'flex-end', marginTop: 10 }}>
