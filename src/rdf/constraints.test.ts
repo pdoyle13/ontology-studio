@@ -7,6 +7,7 @@ const ps = (over: Partial<PropertyShapeInfo>): PropertyShapeInfo => ({
   path: 'http://ex.org/p',
   name: null,
   description: null,
+  codelist: null,
   datatype: null,
   classIri: null,
   nodeKind: null,

@@ -112,7 +112,7 @@ export function SourceEditor() {
     diff === null
       ? 'no changes'
       : 'error' in diff
-      ? `parse error: ${diff.error.slice(0, 120)}`
+      ? `parse error: ${diff.error?.slice(0, 120) ?? ''}`
       : diff.mode === 'replace'
       ? 'RDF 1.2 statements present — full graph replace on apply'
       : `+${diff.added.length} −${diff.removed.length} triples`;

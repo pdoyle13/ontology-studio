@@ -48,7 +48,7 @@ export const useValidation = create<ValidationState>((set, get) => ({
       const scopes: (string | null)[] = conn.activeGraph
         ? [conn.activeGraph]
         : (await select(ep, 'SELECT DISTINCT ?g WHERE { GRAPH ?g { ?s ?p ?o } }')).bindings
-            .map((b) => b.g?.value ?? null)
+            .map((b): string | null => b.g?.value ?? null)
             .concat([null]); // plus the default graph
       const counts = await Promise.all(
         scopes.map((g) =>

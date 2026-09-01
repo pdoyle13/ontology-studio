@@ -16,12 +16,8 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return json as T;
 }
 
-function TableRow({ source, table, ns }: { source: string; table: TableInfo; ns: string }) {
-  const conn = useConnection();
-  const { loadClasses } = useGraph();
+function TableRow({ table }: { table: TableInfo }) {
   const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState('');
 
   return (
     <li className="sql-table">
@@ -30,7 +26,6 @@ function TableRow({ source, table, ns }: { source: string; table: TableInfo; ns:
         <span className="class-name">{table.name}</span>
         <span className="count">{table.rowCount.toLocaleString()}</span>
       </div>
-      {msg && <div className="term-meta" style={{ marginLeft: 18 }}>{msg}</div>}
       {open && (
         <ul className="instance-list">
           {table.columns.map((c) => {
@@ -97,7 +92,7 @@ function SourceView({ source, onRemove }: { source: SourceInfo; onRemove: () => 
           </div>
           {msg && <div className="term-meta">{msg}</div>}
           <ul className="class-list">
-            {tables?.map((t) => <TableRow key={t.name} source={source.id} table={t} ns={ns} />)}
+            {tables?.map((t) => <TableRow key={t.name} table={t} />)}
             {!tables && <li className="tree-loading">loading schema…</li>}
           </ul>
         </div>

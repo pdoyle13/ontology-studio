@@ -44,7 +44,7 @@ function ConstrainedInput({
   return (
     <>
       {ps.codelist ? (
-        <CodelistSelect scheme={ps.codelist} value={value} onChange={onChange} />
+        <CodelistSelect scheme={ps.codelist} value={text} onChange={setText} />
       ) : widget === 'enum' && ps.inValues ? (
         <select autoFocus value={text} onChange={(e) => setText(e.target.value)} onKeyDown={keys}>
           <option value="" disabled>

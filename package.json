@@ -7,6 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "lint:es": "eslint .",
+    "lint:types": "tsc -b",
+    "lint:all": "oxlint && eslint . && tsc -b",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -48,6 +51,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@types/d3-force": "^3.0.10",
     "@types/dagre": "^0.7.54",
@@ -55,8 +59,12 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
+    "eslint": "^10.9.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
     "oxlint": "^1.75.0",
     "typescript": "~6.0.2",
+    "typescript-eslint": "^8.69.0",
     "vite": "^8.2.0",
     "vitest": "^4.1.11"
   },

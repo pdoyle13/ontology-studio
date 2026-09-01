@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildTaxonomyTree, type ConceptRow } from './skos';
 
-const row = (iri: string, label: string, broader: string | null = null): ConceptRow => ({ iri, label, broader });
+const row = (iri: string, label: string, broader: string | null = null): ConceptRow => ({ iri, label, broader, deprecated: false });
 
 describe('buildTaxonomyTree', () => {
   it('builds a sorted forest from broader links', () => {

@@ -64,6 +64,7 @@ export function builtinFields(asset: AssetType): PropertyShapeInfo[] {
     path: '',
     name: null,
     description: null,
+    codelist: null,
     datatype: `${XSD}string`,
     classIri: null,
     nodeKind: null,

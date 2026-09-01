@@ -23,6 +23,7 @@ export function labelField(): PropertyShapeInfo {
     path: RDFS_LABEL,
     name: 'Label',
     description: null,
+    codelist: null,
     datatype: 'http://www.w3.org/2001/XMLSchema#string',
     classIri: null,
     nodeKind: null,
