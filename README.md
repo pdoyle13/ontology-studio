@@ -1,11 +1,7 @@
 # Ontology Studio
 
-In the proud lineage of YASGUI and YATE: an unassuming name for an ambitious
-tool. MIT-licensed; commercial support and integration consulting available
-from the author.
-
 A **virtual semantic layer** and knowledge-graph workbench. React + Oxigraph +
-live SQL federation. SHACL-first.
+live SQL federation. SHACL-first. MIT-licensed.
 
 The graph stores **meaning only** — ontology, SHACL shapes, R2RML mappings,
 field-level cross-database links, FIBO business alignment. Instance data never
