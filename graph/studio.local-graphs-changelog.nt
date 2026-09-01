@@ -9876,3 +9876,18 @@
 <https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/zzz-canary> { <https://x/canary> <https://x/p> \"present\" } }" .
 <https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/zzz-canary> .
+<https://studio.local/ns#change/20260901025824811-1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901025824811-1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901025824811-1> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T02:58:24.811Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901025824811-1> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901025824811-1> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> { <https://x/a> } ; DROP SILENT GRAPH <https://studio.local/graphs/zzz-canary> ; INSERT DATA { <https://x/b> <https://x/p> \"v\" } }" .
+<https://studio.local/ns#change/20260901025824811-1> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901025824811-1> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901025824811-1> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/zzz-canary> .
+<https://studio.local/ns#change/20260901025824843-2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901025824843-2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901025824843-2> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T02:58:24.843Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901025824843-2> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901025824843-2> <https://studio.local/ns#detail> "DROP SILENT GRAPH <https://studio.local/graphs/zzz-canary>" .
+<https://studio.local/ns#change/20260901025824843-2> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901025824843-2> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/zzz-canary> .
