@@ -11179,3 +11179,10 @@
 <https://studio.local/ns#change/20260901123403468-96> <https://studio.local/ns#detail> "{\"rules\":3,\"derived\":7,\"passes\":2,\"perRule\":{\"https://studio.local/shapes/rules/rctmt7caj3p2648/rule-mt7calno\":2,\"https://studio.local/shapes/rules/album/rule-mt61sb7r\":3,\"https://studio.local/shapes/rules/rctmt7c8lvf7462/rule-mt7c8onz\":2}}" .
 <https://studio.local/ns#change/20260901123403468-96> <https://studio.local/ns#operation> "rules-materialize" .
 <https://studio.local/ns#change/20260901123403468-96> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/inferred> .
+<https://studio.local/ns#change/20260901125033382-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901125033382-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901125033382-0> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:50:33.382Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901125033382-0> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901125033382-0> <https://studio.local/ns#detail> "\nWITH <https://example.org/graphs/music> DELETE { ?s ?p ?o } WHERE { ?s ?p ?o . FILTER(isIRI(?o)) FILTER( CONTAINS(STR(?o),\"Tmt\") || EXISTS { ?o <http://www.w3.org/2000/01/rdf-schema#label> ?ol FILTER(CONTAINS(STR(?ol),\"Tmt\")) } ) } ;\nWITH <https://example.org/graphs/music> DELETE { ?s ?p ?o } WHERE { ?s ?p ?o . FILTER( CONTAINS(STR(?s),\"Tmt\") || EXISTS { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?sl FILTER(CONTAINS(STR(?sl),\"Tmt\")) } ) }\n" .
+<https://studio.local/ns#change/20260901125033382-0> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901125033382-0> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
