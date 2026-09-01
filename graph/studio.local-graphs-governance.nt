@@ -212,6 +212,14 @@
 <https://studio.local/ns#proposal/pmtimosge> <https://studio.local/ns#reviewer> "sam" .
 <https://studio.local/ns#proposal/pmtimosge> <https://studio.local/ns#status> "merged" .
 <https://studio.local/ns#proposal/pmtimosge> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#proposal/pmtine17w> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Proposal> .
+<https://studio.local/ns#proposal/pmtine17w> <http://www.w3.org/2000/01/rdf-schema#label> "E2E proposal Tmtine17u1084" .
+<https://studio.local/ns#proposal/pmtine17w> <https://studio.local/ns#author> "quinn" .
+<https://studio.local/ns#proposal/pmtine17w> <https://studio.local/ns#createdAt> "2026-09-01T12:32:54.956Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#proposal/pmtine17w> <https://studio.local/ns#proposalId> "pmtine17w" .
+<https://studio.local/ns#proposal/pmtine17w> <https://studio.local/ns#reviewer> "sam" .
+<https://studio.local/ns#proposal/pmtine17w> <https://studio.local/ns#status> "merged" .
+<https://studio.local/ns#proposal/pmtine17w> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
 <https://studio.local/ns#user/pat> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#User> .
 <https://studio.local/ns#user/pat> <http://www.w3.org/2000/01/rdf-schema#label> "pat" .
 <https://studio.local/ns#user/pat> <https://studio.local/ns#role> "admin" .

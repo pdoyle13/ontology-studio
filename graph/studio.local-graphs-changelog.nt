@@ -10896,3 +10896,216 @@
 <https://studio.local/ns#change/20260901123241171-55> <https://studio.local/ns#detail> "DELETE DATA { GRAPH <https://example.org/graphs/music> { <https://example.org/music#STmtindpex7033> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> . } }" .
 <https://studio.local/ns#change/20260901123241171-55> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901123241171-55> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901123250896-56> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123250896-56> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123250896-56> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:50.896Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123250896-56> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123250896-56> <https://studio.local/ns#operation> "store-post" .
+<https://studio.local/ns#change/20260901123252921-57> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123252921-57> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123252921-57> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:52.921Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123252921-57> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123252921-57> <https://studio.local/ns#operation> "store-post" .
+<https://studio.local/ns#change/20260901123254959-58> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123254959-58> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123254959-58> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:54.959Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123254959-58> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260901123254959-58> <https://studio.local/ns#detail> "E2E proposal Tmtine17u1084" .
+<https://studio.local/ns#change/20260901123254959-58> <https://studio.local/ns#operation> "proposal:create" .
+<https://studio.local/ns#change/20260901123254959-58> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260901123254964-59> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123254964-59> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123254964-59> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:54.964Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123254964-59> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260901123254964-59> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/lineage> { <https://x/propTmtine17u1084> <https://x/p> \"staged\" } }" .
+<https://studio.local/ns#change/20260901123254964-59> <https://studio.local/ns#operation> "propose:adds" .
+<https://studio.local/ns#change/20260901123254964-59> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260901123254974-60> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123254974-60> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123254974-60> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:54.974Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123254974-60> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260901123254974-60> <https://studio.local/ns#detail> "E2E proposal Tmtine17u1084" .
+<https://studio.local/ns#change/20260901123254974-60> <https://studio.local/ns#operation> "proposal:submit" .
+<https://studio.local/ns#change/20260901123254974-60> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260901123254985-61> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123254985-61> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123254985-61> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:54.985Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123254985-61> <https://studio.local/ns#actor> "sam" .
+<https://studio.local/ns#change/20260901123254985-61> <https://studio.local/ns#detail> "E2E proposal Tmtine17u1084 (+1/−0)" .
+<https://studio.local/ns#change/20260901123254985-61> <https://studio.local/ns#operation> "proposal:merged" .
+<https://studio.local/ns#change/20260901123254985-61> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lineage> .
+<https://studio.local/ns#change/20260901123258341-62> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123258341-62> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123258341-62> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:32:58.341Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123258341-62> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123258341-62> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/config#app> <https://studio.local/ns#settingSystemNamespaces> ?v } } ;\nINSERT DATA { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/config#app> <https://studio.local/ns#settingSystemNamespaces> \"[\\\"http://www.w3.org/2004/02/skos/core#\\\",\\\"http://www.w3.org/ns/shacl#\\\",\\\"http://www.w3.org/ns/r2rml#\\\",\\\"http://www.w3.org/ns/prov#\\\",\\\"http://datashapes.org/dash#\\\",\\\"http://www.w3.org/2002/07/owl#\\\",\\\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\\\",\\\"http://www.w3.org/2000/01/rdf-schema#\\\",\\\"https://example.org/music#\\\"]\" } }" .
+<https://studio.local/ns#change/20260901123258341-62> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123258341-62> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
+<https://studio.local/ns#change/20260901123300220-63> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123300220-63> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123300220-63> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:00.22Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123300220-63> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123300220-63> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/config#app> <https://studio.local/ns#settingSystemNamespaces> ?v } } ;\nINSERT DATA { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/config#app> <https://studio.local/ns#settingSystemNamespaces> \"[\\\"http://www.w3.org/2004/02/skos/core#\\\",\\\"http://www.w3.org/ns/shacl#\\\",\\\"http://www.w3.org/ns/r2rml#\\\",\\\"http://www.w3.org/ns/prov#\\\",\\\"http://datashapes.org/dash#\\\",\\\"http://www.w3.org/2002/07/owl#\\\",\\\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\\\",\\\"http://www.w3.org/2000/01/rdf-schema#\\\"]\" } }" .
+<https://studio.local/ns#change/20260901123300220-63> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123300220-63> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
+<https://studio.local/ns#change/20260901123300308-64> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123300308-64> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123300308-64> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:00.308Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123300308-64> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123300308-64> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/xwalk-Tmtine5cd9329> {\n        <https://example.org/xw/Tmtine5cd9329/a#car> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/xw/Tmtine5cd9329/a> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Car\"  .\n        <https://example.org/xw/Tmtine5cd9329/a#truck> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/xw/Tmtine5cd9329/a> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Heavy Truck\"  .\n        <https://example.org/xw/Tmtine5cd9329/a#bike> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/xw/Tmtine5cd9329/a> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Bicycle\"  .\n        <https://example.org/xw/Tmtine5cd9329/b#auto> <http://www.w3.org/2004/02/skos/core#inScheme> <https://exam" .
+<https://studio.local/ns#change/20260901123300308-64> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123300308-64> <https://studio.local/ns#targetGraph> <https://example.org/graphs/xwalk-Tmtine5cd9329> .
+<https://studio.local/ns#change/20260901123300322-65> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123300322-65> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123300322-65> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:00.322Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123300322-65> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260901123300322-65> <https://studio.local/ns#detail> "https://example.org/xw/Tmtine5cd9329/a#car -> https://example.org/xw/Tmtine5cd9329/b#auto" .
+<https://studio.local/ns#change/20260901123300322-65> <https://studio.local/ns#operation> "crosswalk:exactMatch" .
+<https://studio.local/ns#change/20260901123300322-65> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/crosswalks> .
+<https://studio.local/ns#change/20260901123300329-66> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123300329-66> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123300329-66> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:00.329Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123300329-66> <https://studio.local/ns#actor> "quinn" .
+<https://studio.local/ns#change/20260901123300329-66> <https://studio.local/ns#detail> "https://example.org/xw/Tmtine5cd9329/a#car -x- https://example.org/xw/Tmtine5cd9329/b#auto" .
+<https://studio.local/ns#change/20260901123300329-66> <https://studio.local/ns#operation> "crosswalk:remove" .
+<https://studio.local/ns#change/20260901123300329-66> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/crosswalks> .
+<https://studio.local/ns#change/20260901123300332-67> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123300332-67> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123300332-67> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:00.332Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123300332-67> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123300332-67> <https://studio.local/ns#detail> "DROP SILENT GRAPH <https://example.org/graphs/xwalk-Tmtine5cd9329>" .
+<https://studio.local/ns#change/20260901123300332-67> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123300332-67> <https://studio.local/ns#targetGraph> <https://example.org/graphs/xwalk-Tmtine5cd9329> .
+<https://studio.local/ns#change/20260901123300378-68> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123300378-68> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123300378-68> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:00.378Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123300378-68> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123300378-68> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n        <https://example.org/xwui/Tmtine5ee5624/a> a <http://www.w3.org/2004/02/skos/core#ConceptScheme> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"XW A Tmtine5ee5624\" .\n        <https://example.org/xwui/Tmtine5ee5624/b> a <http://www.w3.org/2004/02/skos/core#ConceptScheme> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"XW B Tmtine5ee5624\" .\n        <https://example.org/xwui/Tmtine5ee5624/a#jazz> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/xwui/Tmtine5ee5624/a> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Jazz Music\" .\n        <https://example.org/xwui/Tmtine5ee5624/b#jazz> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/xwui/Tmtine5ee5624/b> ; <http://www.w3.org/2004/02/s" .
+<https://studio.local/ns#change/20260901123300378-68> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123300378-68> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901123303955-69> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123303955-69> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123303955-69> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:03.955Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123303955-69> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123303955-69> <https://studio.local/ns#detail> "https://example.org/xwui/Tmtine5ee5624/a#jazz -> https://example.org/xwui/Tmtine5ee5624/b#jazz" .
+<https://studio.local/ns#change/20260901123303955-69> <https://studio.local/ns#operation> "crosswalk:exactMatch" .
+<https://studio.local/ns#change/20260901123303955-69> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/crosswalks> .
+<https://studio.local/ns#change/20260901123304009-70> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123304009-70> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123304009-70> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:04.009Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123304009-70> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123304009-70> <https://studio.local/ns#detail> "DELETE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o } } WHERE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o FILTER(STRSTARTS(STR(?s), \"https://example.org/xwui/Tmtine5ee5624/\")) } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/crosswalks> { <https://example.org/xwui/Tmtine5ee5624/a#jazz> ?p ?o } }" .
+<https://studio.local/ns#change/20260901123304009-70> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123304009-70> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901123304009-70> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/crosswalks> .
+<https://studio.local/ns#change/20260901123304047-71> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123304047-71> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123304047-71> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:04.047Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123304047-71> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123304047-71> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/autotag-Tmtine88b6288> {\n        <https://example.org/at/Tmtine88b6288/genres#jazz> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/at/Tmtine88b6288/genres> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Jazz\" .\n        <https://example.org/at/Tmtine88b6288/genres#fusion> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/at/Tmtine88b6288/genres> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Jazz Fusion\" .\n        <https://example.org/at/Tmtine88b6288/genres#ml> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/at/Tmtine88b6288/genres> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Machine Learning\" ; <http://www.w3.org/2004/02/skos/core#altLabel> \"ML models\" .\n      } }" .
+<https://studio.local/ns#change/20260901123304047-71> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123304047-71> <https://studio.local/ns#targetGraph> <https://example.org/graphs/autotag-Tmtine88b6288> .
+<https://studio.local/ns#change/20260901123304057-72> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123304057-72> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123304057-72> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:04.057Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123304057-72> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123304057-72> <https://studio.local/ns#detail> "DROP SILENT GRAPH <https://example.org/graphs/autotag-Tmtine88b6288>" .
+<https://studio.local/ns#change/20260901123304057-72> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123304057-72> <https://studio.local/ns#targetGraph> <https://example.org/graphs/autotag-Tmtine88b6288> .
+<https://studio.local/ns#change/20260901123306233-73> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123306233-73> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123306233-73> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:06.233Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123306233-73> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123306233-73> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/mappings> {\n        <https://studio.local/mappings/zz-scratch-Tmtine9wt5818> a <http://www.w3.org/ns/r2rml#TriplesMap> ; <http://www.w3.org/ns/r2rml#logicalTable> <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-t> ; <http://www.w3.org/ns/r2rml#subjectMap> <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-s> ;\n                <http://www.w3.org/ns/r2rml#predicateObjectMap> <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-name> .\n        <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-t> <http://www.w3.org/ns/r2rml#tableName> \"zz_scratch_Tmtine9wt5818\" .\n        <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-s> <http://www.w3.org/ns/r2rml#template> \"https://x/zz/{id}\" ; <http://www.w3.org/ns/r2rml#clas" .
+<https://studio.local/ns#change/20260901123306233-73> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123306233-73> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123306250-74> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123306250-74> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123306250-74> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:06.25Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123306250-74> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123306250-74> <https://studio.local/ns#detail> "DELETE { GRAPH <https://studio.local/graphs/mappings> { ?s ?p ?o } } WHERE { GRAPH <https://studio.local/graphs/mappings> { ?s ?p ?o . ?s2 <http://www.w3.org/ns/r2rml#logicalTable> ?lt . FILTER(STRSTARTS(STR(?s), \"https://studio.local/mappings/zz-scratch-\") && !STRSTARTS(STR(?s), \"https://studio.local/mappings/zz-scratch-Tmtine9wt5818\")) } }" .
+<https://studio.local/ns#change/20260901123306250-74> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123306250-74> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123308668-75> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123308668-75> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123308668-75> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:08.668Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123308668-75> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123308668-75> <https://studio.local/ns#detail> "DELETE DATA { GRAPH <https://studio.local/graphs/mappings> { <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-name> <http://www.w3.org/ns/r2rml#predicate> <https://x/zz#name> } } ;\nINSERT DATA { GRAPH <https://studio.local/graphs/mappings> { <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-name> <http://www.w3.org/ns/r2rml#predicate> <https://x/zz#fullNameTmtine9wt5818> } }" .
+<https://studio.local/ns#change/20260901123308668-75> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123308668-75> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123308697-76> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123308697-76> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123308697-76> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:08.697Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123308697-76> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123308697-76> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/mappings> { <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-om-name> <http://www.w3.org/ns/r2rml#datatype> <http://www.w3.org/2001/XMLSchema#integer> } }" .
+<https://studio.local/ns#change/20260901123308697-76> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123308697-76> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123308788-77> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123308788-77> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123308788-77> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:08.788Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123308788-77> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123308788-77> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/mappings> {\n  <https://studio.local/mappings/zz-scratch-Tmtine9wt5818> <http://www.w3.org/ns/r2rml#predicateObjectMap> <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-custom-age-mtinebvz> .\n  <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-custom-age-mtinebvz> <http://www.w3.org/ns/r2rml#predicate> <https://x/zz#ageTmtine9wt5818> .\n  <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-custom-age-mtinebvz> <http://www.w3.org/ns/r2rml#objectMap> <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-om-custom-age-mtinebvz> .\n  <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-om-custom-age-mtinebvz> <http://www.w3.org/ns/r2rml#column> \"age\" .\n} }" .
+<https://studio.local/ns#change/20260901123308788-77> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123308788-77> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123308887-78> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123308887-78> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123308887-78> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:08.887Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123308887-78> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123308887-78> <https://studio.local/ns#detail> "DELETE DATA { GRAPH <https://studio.local/graphs/mappings> { <https://studio.local/mappings/zz-scratch-Tmtine9wt5818> <http://www.w3.org/ns/r2rml#predicateObjectMap> <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-custom-age-mtinebvz> } } ;\nDELETE WHERE { GRAPH <https://studio.local/graphs/mappings> { <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-pom-custom-age-mtinebvz> ?a ?b } } ;\nDELETE WHERE { GRAPH <https://studio.local/graphs/mappings> { <https://studio.local/mappings/zz-scratch-Tmtine9wt5818-om-custom-age-mtinebvz> ?c ?d } }" .
+<https://studio.local/ns#change/20260901123308887-78> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123308887-78> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123308926-79> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123308926-79> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123308926-79> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:08.926Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123308926-79> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123308926-79> <https://studio.local/ns#detail> "DELETE { GRAPH <https://studio.local/graphs/mappings> { ?s ?p ?o } } WHERE { GRAPH <https://studio.local/graphs/mappings> { ?s ?p ?o FILTER(STRSTARTS(STR(?s), \"https://studio.local/mappings/zz-scratch-Tmtine9wt5818\")) } }" .
+<https://studio.local/ns#change/20260901123308926-79> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123308926-79> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/mappings> .
+<https://studio.local/ns#change/20260901123310826-80> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123310826-80> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123310826-80> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:10.826Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123310826-80> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123310826-80> <https://studio.local/ns#detail> "DELETE { GRAPH ?g { ?s ?p ?o } } WHERE { GRAPH ?g { ?s ?p ?o FILTER(REGEX(STR(?s), \"prop/fieldt|vocab/fieldt|#priorityT\")) } }" .
+<https://studio.local/ns#change/20260901123310826-80> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123311480-81> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123311480-81> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123311480-81> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:11.48Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123311480-81> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123311480-81> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n        <https://example.org/music#priorityTmtinec214930> a <http://www.w3.org/2004/02/skos/core#ConceptScheme> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Priority Tmtinec214930\" .\n        <https://example.org/music#priorityTmtinec214930-hi> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/music#priorityTmtinec214930> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"High\" .\n        <https://example.org/music#priorityTmtinec214930-md> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/music#priorityTmtinec214930> ; <http://www.w3.org/2004/02/skos/core#prefLabel> \"Medium\" .\n        <https://example.org/music#priorityTmtinec214930-lo> <http://www.w3.org/2004/02/skos/core#inScheme> <https://e" .
+<https://studio.local/ns#change/20260901123311480-81> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123311480-81> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901123313708-82> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123313708-82> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123313708-82> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:13.708Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123313708-82> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123313708-82> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/shapes/ext/ConceptShape> a <http://www.w3.org/ns/shacl#NodeShape> .\n<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#targetClass> <http://www.w3.org/2004/02/skos/core#Concept> .\n<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtinec214930> .\n<https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtinec214930> a <http://www.w3.org/ns/shacl#PropertyShape> .\n<https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtinec214930> <http://www.w3.org/ns/shacl#path> <https://studio.local/vocab/fieldtmtinec214930> .\n<https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtinec214930> <http://w" .
+<https://studio.local/ns#change/20260901123313708-82> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123313708-82> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
+<https://studio.local/ns#change/20260901123314003-83> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123314003-83> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123314003-83> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:14.003Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123314003-83> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123314003-83> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> { <https://example.org/music#priorityTmtinec214930/urgent-thing-tmtinec214930> a <http://www.w3.org/2004/02/skos/core#Concept> .\n<https://example.org/music#priorityTmtinec214930/urgent-thing-tmtinec214930> <http://www.w3.org/2004/02/skos/core#inScheme> <https://example.org/music#priorityTmtinec214930> .\n<https://example.org/music#priorityTmtinec214930/urgent-thing-tmtinec214930> <http://www.w3.org/2004/02/skos/core#topConceptOf> <https://example.org/music#priorityTmtinec214930> .\n<https://example.org/music#priorityTmtinec214930/urgent-thing-tmtinec214930> <http://www.w3.org/2004/02/skos/core#prefLabel> \"Urgent thing Tmtinec214930\" .\n<https://example.org/music#priorityTmtinec214930/urgent-thing-tmtinec214930> <https://studio.local/vocab" .
+<https://studio.local/ns#change/20260901123314003-83> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123314003-83> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901123314136-84> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123314136-84> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123314136-84> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:14.136Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123314136-84> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123314136-84> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://example.org/graphs/music> { <https://example.org/music#priorityTmtinec214930-md> <http://www.w3.org/2002/07/owl#deprecated> ?v } } ; INSERT DATA { GRAPH <https://example.org/graphs/music> { <https://example.org/music#priorityTmtinec214930-md> <http://www.w3.org/2002/07/owl#deprecated> true  } }" .
+<https://studio.local/ns#change/20260901123314136-84> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123314136-84> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901123314516-85> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123314516-85> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123314516-85> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:14.516Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123314516-85> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123314516-85> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtinec214930> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtinec214930> } }" .
+<https://studio.local/ns#change/20260901123314516-85> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123314516-85> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
+<https://studio.local/ns#change/20260901123314606-86> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901123314606-86> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901123314606-86> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:33:14.606Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901123314606-86> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901123314606-86> <https://studio.local/ns#detail> "DELETE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o } } WHERE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o FILTER(STRSTARTS(STR(?s), \"https://example.org/music#priorityTmtinec214930\") || CONTAINS(STR(?s), \"urgent-thing-tmtinec214930\")) } }" .
+<https://studio.local/ns#change/20260901123314606-86> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901123314606-86> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
