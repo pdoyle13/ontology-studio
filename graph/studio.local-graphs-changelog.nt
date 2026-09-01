@@ -9994,3 +9994,24 @@
 <https://studio.local/ns#change/20260901120730433-18> <https://studio.local/ns#actor> "pat" .
 <https://studio.local/ns#change/20260901120730433-18> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH ?g { <https://example.org/music#Radiohead> <https://studio.local/ns#deprecated> ?v } } ; DELETE WHERE { <https://example.org/music#Radiohead> <https://studio.local/ns#deprecated> ?v }" .
 <https://studio.local/ns#change/20260901120730433-18> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901120746380-19> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901120746380-19> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901120746380-19> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:07:46.38Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901120746380-19> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901120746380-19> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n        <https://example.org/music#Tmtimhopo5979> a <https://example.org/music#Artist> .\n        <https://example.org/music#Tmtimhopo5979> <http://www.w3.org/2000/01/rdf-schema#label> \"LC Tmtimhopo5979\" . } }" .
+<https://studio.local/ns#change/20260901120746380-19> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901120746380-19> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901120749321-20> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901120749321-20> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901120749321-20> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:07:49.321Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901120749321-20> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901120749321-20> <https://studio.local/ns#detail> "https://example.org/music#Tmtimhopo5979" .
+<https://studio.local/ns#change/20260901120749321-20> <https://studio.local/ns#operation> "lifecycle:draft->in-review" .
+<https://studio.local/ns#change/20260901120749321-20> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lifecycle> .
+<https://studio.local/ns#change/20260901120749403-21> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901120749403-21> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901120749403-21> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:07:49.403Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#detail> "https://example.org/music#Tmtimhopo5979" .
+<https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#operation> "lifecycle:in-review->approved" .
+<https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lifecycle> .
