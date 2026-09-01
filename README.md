@@ -28,6 +28,23 @@ plan and answer across every attached database.
 - **Layout engine** — scored auto-layout (crossings/overlaps/compactness),
   straight midpoint-anchored edges
 
+## Screenshots
+
+The graph canvas with the conversational agent alongside — model, connect, and
+query the whole estate from one place:
+
+![Graph canvas and agent](docs/screenshots/canvas.png)
+
+Shape-driven inspector: types, generated SHACL shapes, lifecycle/governance, and
+live "referenced-by" — every panel resolves from the meta graph and live data:
+
+![Resource inspector](docs/screenshots/inspector.png)
+
+Omnibox: one keyword search (BM25) across model terms and live rows from every
+attached database, faceted by kind and source:
+
+![Federated search](docs/screenshots/search.png)
+
 ## Setup
 
 **Prerequisites**: Node 22+, Docker (for Oxigraph + Kafka), git.
