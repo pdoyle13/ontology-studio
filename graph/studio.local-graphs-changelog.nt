@@ -9869,3 +9869,10 @@
 <https://studio.local/ns#change/20260830123846196-89> <https://studio.local/ns#detail> "DELETE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o } } WHERE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o FILTER(STRSTARTS(STR(?s), \"https://example.org/music#priorityTmtfspq7z2097\") || CONTAINS(STR(?s), \"urgent-thing-tmtfspq7z2097\")) } }" .
 <https://studio.local/ns#change/20260830123846196-89> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260830123846196-89> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901025814474-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901025814474-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901025814474-0> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T02:58:14.474Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/zzz-canary> { <https://x/canary> <https://x/p> \"present\" } }" .
+<https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901025814474-0> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/zzz-canary> .
