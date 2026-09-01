@@ -3,6 +3,7 @@
 // hand-writes update SPARQL. All writes are graph-scoped and built server-side.
 
 import { autoTag as autoTagFn } from '../semantic/autotag.mjs';
+import { iri as iriTerm, literal as literalTerm, isValidIri } from '../core/term.mjs';
 
 const RDF_ = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
 const RDFS = 'http://www.w3.org/2000/01/rdf-schema#';
@@ -14,7 +15,8 @@ const esc = (v) => String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace
 const isIri = (s) => /^(https?|urn):/.test(String(s));
 
 function ctx(oxigraph, graph) {
-  const wrap = (t) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+  // SECURITY: the graph IRI is validated before it reaches the query string.
+  const wrap = (t) => (graph ? `GRAPH ${iriTerm(graph)} { ${t} }` : t);
   return {
     wrap,
     async update(u) {
@@ -42,21 +44,28 @@ function ctx(oxigraph, graph) {
   };
 }
 
-/** Resolve an IRI: full IRI passes through; a bare name is minted in ns. */
+/** Resolve an IRI: full IRI passes through; a bare name is minted in ns.
+ *  SECURITY: the result is validated against the IRIREF grammar, so a hostile
+ *  name (`x> <p> <o> } ; DROP ...`) is rejected rather than minted into a
+ *  breakout. Every `<${mint(...)}>` site downstream relies on this guarantee. */
 function mint(ns, iriOrName) {
   const v = String(iriOrName).trim();
-  return isIri(v) ? v : `${ns}${v.replace(/\s+/g, '')}`;
+  const resolved = isIri(v) ? v : `${ns}${v.replace(/\s+/g, '')}`;
+  if (!isValidIri(resolved)) throw new Error(`Refusing to mint invalid IRI from ${JSON.stringify(v.slice(0, 80))}`);
+  return resolved;
 }
 
 function termFor(value, { isIriValue, datatype, lang } = {}) {
   const v = String(value);
-  if (isIriValue || isIri(v)) return `<${v}>`;
-  if (lang) return `"${esc(v)}"@${lang}`;
-  if (datatype) return `"${esc(v)}"^^<${datatype}>`;
-  if (/^-?\d+$/.test(v)) return `"${esc(v)}"^^<${XSD}integer>`;
-  if (/^-?\d*\.\d+$/.test(v)) return `"${esc(v)}"^^<${XSD}decimal>`;
-  if (v === 'true' || v === 'false') return `"${v}"^^<${XSD}boolean>`;
-  return `"${esc(v)}"`;
+  // SECURITY: IRI objects and datatype IRIs are validated (they originate from
+  // untrusted LLM output); serialization goes through the shared term module.
+  if (isIriValue || isIri(v)) return iriTerm(v);
+  if (lang) return literalTerm(v, { lang });
+  if (datatype) return literalTerm(v, { datatype });
+  if (/^-?\d+$/.test(v)) return literalTerm(v, { datatype: `${XSD}integer` });
+  if (/^-?\d*\.\d+$/.test(v)) return literalTerm(v, { datatype: `${XSD}decimal` });
+  if (v === 'true' || v === 'false') return literalTerm(v, { datatype: `${XSD}boolean` });
+  return literalTerm(v);
 }
 
 const str = { type: 'string' };
@@ -111,8 +120,9 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
       description: 'Fetch all outgoing triples of a resource plus up to 50 incoming references.',
       parameters: { type: 'object', properties: { iri: str }, required: ['iri'] },
       run: async ({ iri }) => {
-        const out = await c.query(`SELECT ?p ?o WHERE { <${iri}> ?p ?o } LIMIT 300`);
-        const inc = await c.query(`SELECT ?s ?p WHERE { ?s ?p <${iri}> } LIMIT 50`);
+        const s = iriTerm(iri); // validate: this param is raw untrusted input
+        const out = await c.query(`SELECT ?p ?o WHERE { ${s} ?p ?o } LIMIT 300`);
+        const inc = await c.query(`SELECT ?s ?p WHERE { ?s ?p ${s} } LIMIT 50`);
         return JSON.stringify({ outgoing: JSON.parse(out), incoming: JSON.parse(inc) });
       },
     },
@@ -174,7 +184,7 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
           `<${iri}> <${RDFS}label> "${esc(label)}" .`,
           domain ? `<${iri}> <${RDFS}domain> <${mint(ns, domain)}> .` : '',
           rangeClass ? `<${iri}> <${RDFS}range> <${mint(ns, rangeClass)}> .` : '',
-          dt ? `<${iri}> <${RDFS}range> <${dt}> .` : '',
+          dt ? `<${iri}> <${RDFS}range> ${iriTerm(dt)} .` : '',
           comment ? `<${iri}> <${RDFS}comment> "${esc(comment)}" .` : '',
         ].filter(Boolean);
         await c.update(`INSERT DATA { ${c.wrap(lines.join('\n'))} }`);
@@ -211,11 +221,11 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
           lines.push(`<${psIri}> <${SH}path> <${path}> .`);
           if (p.name) lines.push(`<${psIri}> <${SH}name> "${esc(p.name)}" .`);
           const dt = p.datatype ? (isIri(p.datatype) ? p.datatype : `${XSD}${p.datatype}`) : null;
-          if (dt) lines.push(`<${psIri}> <${SH}datatype> <${dt}> .`);
+          if (dt) lines.push(`<${psIri}> <${SH}datatype> ${iriTerm(dt)} .`);
           if (p.classIri) lines.push(`<${psIri}> <${SH}class> <${mint(ns, p.classIri)}> .`);
-          if (p.minCount != null) lines.push(`<${psIri}> <${SH}minCount> "${p.minCount}"^^<${XSD}integer> .`);
-          if (p.maxCount != null) lines.push(`<${psIri}> <${SH}maxCount> "${p.maxCount}"^^<${XSD}integer> .`);
-          lines.push(`<${psIri}> <${SH}order> "${p.order ?? i + 1}"^^<${XSD}integer> .`);
+          if (p.minCount != null) lines.push(`<${psIri}> <${SH}minCount> "${Number(p.minCount)}"^^<${XSD}integer> .`);
+          if (p.maxCount != null) lines.push(`<${psIri}> <${SH}maxCount> "${Number(p.maxCount)}"^^<${XSD}integer> .`);
+          lines.push(`<${psIri}> <${SH}order> "${Number(p.order ?? i + 1)}"^^<${XSD}integer> .`);
         });
         await c.update(`INSERT DATA { ${c.wrap(lines.join('\n'))} }`);
         return `created shape <${shape}> with ${properties.length} property shapes`;
@@ -279,7 +289,7 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
         required: ['subject', 'predicate', 'value'],
       },
       run: async ({ subject, predicate, value, isIriValue }) => {
-        const t = isIriValue || isIri(value) ? `<${value}>` : null;
+        const t = isIriValue || isIri(value) ? iriTerm(value) : null;
         const s = `<${mint(ns, subject)}>`;
         const p = `<${mint(ns, predicate)}>`;
         if (t) await c.update(`DELETE DATA { ${c.wrap(`${s} ${p} ${t} .`)} }`);
@@ -339,8 +349,9 @@ export function buildTools({ oxigraph, graph, namespace, federation, writePolicy
       description: 'Delete a resource: all its outgoing triples, and optionally all incoming references.',
       parameters: { type: 'object', properties: { iri: str, includeIncoming: bool }, required: ['iri'] },
       run: async ({ iri, includeIncoming }) => {
-        const delOut = `DELETE WHERE { ${c.wrap(`<${iri}> ?p ?o .`)} }`;
-        const delIn = `DELETE WHERE { ${c.wrap(`?s ?p <${iri}> .`)} }`;
+        const s = iriTerm(iri); // validate: raw untrusted param
+        const delOut = `DELETE WHERE { ${c.wrap(`${s} ?p ?o .`)} }`;
+        const delIn = `DELETE WHERE { ${c.wrap(`?s ?p ${s} .`)} }`;
         await c.update(includeIncoming ? `${delOut} ; ${delIn}` : delOut);
         return `deleted <${iri}>`;
       },

@@ -1,27 +1,22 @@
 // Write path: single-triple granular updates via SPARQL UPDATE.
 // All writes are scoped to the active named graph (or the default graph).
+//
+// SECURITY: subjects, predicates, objects and graph IRIs are all serialized
+// through `term.ts` (`iri()` / `serializeTerm()`), which validates against the
+// IRIREF grammar. This is the fix for the confirmed `<${value}>` breakout.
 
 import type { Endpoint } from './sparqlClient';
 import { update } from './sparqlClient';
 import type { TermValue } from './queries';
+import { iri, serializeTerm as serialize } from './term';
 
+// Re-exported for the many existing call sites; now validates its IRI branch.
 export function serializeTerm(t: TermValue): string {
-  if (t.type === 'uri') return `<${t.value}>`;
-  if (t.type === 'bnode') return `_:${t.value}`;
-  const escaped = t.value
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t');
-  if (t.lang) return `"${escaped}"@${t.lang}`;
-  if (t.datatype && t.datatype !== 'http://www.w3.org/2001/XMLSchema#string')
-    return `"${escaped}"^^<${t.datatype}>`;
-  return `"${escaped}"`;
+  return serialize(t as import('./term').TermValue);
 }
 
 function inGraph(graph: string | null, triples: string): string {
-  return graph ? `GRAPH <${graph}> { ${triples} }` : triples;
+  return graph ? `GRAPH ${iri(graph)} { ${triples} }` : triples;
 }
 
 export interface TriplePattern {
@@ -31,7 +26,7 @@ export interface TriplePattern {
 }
 
 const block = (triples: TriplePattern[]) =>
-  triples.map((t) => `<${t.s}> <${t.p}> ${serializeTerm(t.o)} .`).join('\n');
+  triples.map((t) => `${iri(t.s)} ${iri(t.p)} ${serializeTerm(t.o)} .`).join('\n');
 
 export async function insertTriples(ep: Endpoint, graph: string | null, triples: TriplePattern[]): Promise<void> {
   if (!triples.length) return;
@@ -50,7 +45,7 @@ export async function insertTriple(
   predicate: string,
   object: TermValue
 ): Promise<void> {
-  await update(ep, `INSERT DATA { ${inGraph(graph, `<${subject}> <${predicate}> ${serializeTerm(object)} .`)} }`);
+  await update(ep, `INSERT DATA { ${inGraph(graph, `${iri(subject)} ${iri(predicate)} ${serializeTerm(object)} .`)} }`);
 }
 
 export async function deleteTriple(
@@ -60,7 +55,7 @@ export async function deleteTriple(
   predicate: string,
   object: TermValue
 ): Promise<void> {
-  await update(ep, `DELETE DATA { ${inGraph(graph, `<${subject}> <${predicate}> ${serializeTerm(object)} .`)} }`);
+  await update(ep, `DELETE DATA { ${inGraph(graph, `${iri(subject)} ${iri(predicate)} ${serializeTerm(object)} .`)} }`);
 }
 
 export async function replaceTriple(
@@ -71,8 +66,8 @@ export async function replaceTriple(
   oldObject: TermValue,
   newObject: TermValue
 ): Promise<void> {
-  const del = `<${subject}> <${predicate}> ${serializeTerm(oldObject)} .`;
-  const ins = `<${subject}> <${predicate}> ${serializeTerm(newObject)} .`;
+  const del = `${iri(subject)} ${iri(predicate)} ${serializeTerm(oldObject)} .`;
+  const ins = `${iri(subject)} ${iri(predicate)} ${serializeTerm(newObject)} .`;
   await update(ep, `DELETE DATA { ${inGraph(graph, del)} } ; INSERT DATA { ${inGraph(graph, ins)} }`);
 }
 
@@ -80,13 +75,13 @@ export async function replaceTriple(
 export async function createResource(
   ep: Endpoint,
   graph: string | null,
-  iri: string,
+  resourceIri: string,
   typeIri: string,
   label?: string
 ): Promise<void> {
   const triples = [
-    `<${iri}> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <${typeIri}> .`,
-    label ? `<${iri}> <http://www.w3.org/2000/01/rdf-schema#label> ${serializeTerm({ type: 'literal', value: label })} .` : '',
+    `${iri(resourceIri)} ${iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type')} ${iri(typeIri)} .`,
+    label ? `${iri(resourceIri)} ${iri('http://www.w3.org/2000/01/rdf-schema#label')} ${serializeTerm({ type: 'literal', value: label })} .` : '',
   ]
     .filter(Boolean)
     .join('\n');
@@ -97,15 +92,16 @@ export async function createResource(
 export async function deleteResource(
   ep: Endpoint,
   graph: string | null,
-  iri: string,
+  resourceIri: string,
   alsoIncoming: boolean
 ): Promise<void> {
+  const s = iri(resourceIri);
   const out = graph
-    ? `DELETE WHERE { GRAPH <${graph}> { <${iri}> ?p ?o } }`
-    : `DELETE WHERE { <${iri}> ?p ?o }`;
+    ? `DELETE WHERE { GRAPH ${iri(graph)} { ${s} ?p ?o } }`
+    : `DELETE WHERE { ${s} ?p ?o }`;
   const inn = graph
-    ? `DELETE WHERE { GRAPH <${graph}> { ?s ?p <${iri}> } }`
-    : `DELETE WHERE { ?s ?p <${iri}> }`;
+    ? `DELETE WHERE { GRAPH ${iri(graph)} { ?s ?p ${s} } }`
+    : `DELETE WHERE { ?s ?p ${s} }`;
   await update(ep, alsoIncoming ? `${out} ; ${inn}` : out);
 }
 
