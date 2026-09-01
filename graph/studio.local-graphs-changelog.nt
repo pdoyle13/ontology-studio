@@ -9910,3 +9910,31 @@
 <https://studio.local/ns#change/20260901025844385-5> <https://studio.local/ns#detail> "DROP SILENT GRAPH <https://studio.local/graphs/zzz-canary>" .
 <https://studio.local/ns#change/20260901025844385-5> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901025844385-5> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/zzz-canary> .
+<https://studio.local/ns#change/20260901035206462-6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901035206462-6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901035206462-6> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T03:52:06.462Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901035206462-6> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901035206462-6> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations/widget/orders-by-status-2> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/orders-by-status-2> } }" .
+<https://studio.local/ns#change/20260901035206462-6> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901035206462-6> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/dashboards> .
+<https://studio.local/ns#change/20260901035207706-7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901035207706-7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901035207706-7> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T03:52:07.706Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901035207706-7> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901035207706-7> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations/widget/top-status-count-1> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/top-status-count-1> } }" .
+<https://studio.local/ns#change/20260901035207706-7> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901035207706-7> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/dashboards> .
+<https://studio.local/ns#change/20260901035207864-8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901035207864-8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901035207864-8> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T03:52:07.864Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901035207864-8> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901035207864-8> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations/widget/top-status-count-3> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/top-status-count-3> } }" .
+<https://studio.local/ns#change/20260901035207864-8> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901035207864-8> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/dashboards> .
+<https://studio.local/ns#change/20260901035209066-9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901035209066-9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901035209066-9> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T03:52:09.066Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901035209066-9> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901035209066-9> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations/widget/orders-by-status-0> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/dashboards> { <https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/orders-by-status-0> } }" .
+<https://studio.local/ns#change/20260901035209066-9> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901035209066-9> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/dashboards> .

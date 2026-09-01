@@ -1,36 +1,6 @@
 # graph: https://studio.local/graphs/dashboards
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <http://www.w3.org/2000/01/rdf-schema#label> "Orders by status" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <https://studio.local/ns#component> "bar" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <https://studio.local/ns#position> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <https://studio.local/ns#query> <https://studio.local/query/orders-by-status> .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <https://studio.local/ns#xField> "status" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-0> <https://studio.local/ns#yField> "n" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <http://www.w3.org/2000/01/rdf-schema#label> "Orders by status" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <https://studio.local/ns#component> "bar" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <https://studio.local/ns#position> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <https://studio.local/ns#query> <https://studio.local/query/orders-by-status> .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <https://studio.local/ns#xField> "status" .
-<https://studio.local/dashboard/order-operations/widget/orders-by-status-2> <https://studio.local/ns#yField> "n" .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-1> <http://www.w3.org/2000/01/rdf-schema#label> "Top status count" .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-1> <https://studio.local/ns#component> "kpi" .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-1> <https://studio.local/ns#position> "1"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-1> <https://studio.local/ns#query> <https://studio.local/query/orders-by-status> .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-1> <https://studio.local/ns#yField> "n" .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-3> <http://www.w3.org/2000/01/rdf-schema#label> "Top status count" .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-3> <https://studio.local/ns#component> "kpi" .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-3> <https://studio.local/ns#position> "3"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-3> <https://studio.local/ns#query> <https://studio.local/query/orders-by-status> .
-<https://studio.local/dashboard/order-operations/widget/top-status-count-3> <https://studio.local/ns#yField> "n" .
 <https://studio.local/dashboard/order-operations> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
 <https://studio.local/dashboard/order-operations> <http://www.w3.org/2000/01/rdf-schema#label> "Order Operations" .
-<https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/orders-by-status-0> .
-<https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/orders-by-status-2> .
-<https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/top-status-count-1> .
-<https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/top-status-count-3> .
 <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
 <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <http://www.w3.org/2000/01/rdf-schema#label> "Bars Tmt7c62kw7017" .
 <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#component> "bar" .
