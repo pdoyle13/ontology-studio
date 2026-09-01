@@ -74,6 +74,19 @@ export function planSources(catalog, classIris) {
 const OPS = new Set(['=', '!=', '>', '<', '>=', '<=', 'LIKE', 'ILIKE']);
 const sqlLit = (v) => (typeof v === 'number' ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
 
+// SECURITY: table/column names come from the R2RML catalog, which is writable
+// by anyone who can author mappings (incl. the visual mapping editor). Quote as
+// a standard SQL delimited identifier — double any embedded `"` so a name like
+// `t" ; DROP TABLE x --` cannot break out of the quotes. Backtick and control
+// characters are rejected outright (defense in depth for backtick dialects).
+const quoteIdent = (name) => {
+    const s = String(name);
+    if (s.length === 0 || /[\u0000-\u001f\u0060]/.test(s)) {
+        throw new Error(`illegal SQL identifier: ${JSON.stringify(s.slice(0, 60))}`);
+    }
+    return `"${s.replace(/"/g, '""')}"`;
+};
+
 /**
  * Build a guarded SELECT for one catalog entry.
  * columns: subset of mapped columns (default all). filters: [{column, op, value}].
@@ -91,19 +104,19 @@ export function buildSelect(entry, { columns, filters, limit, orderBy, offset } 
       const op = String(f.op ?? '=').toUpperCase();
       if (!OPS.has(op)) throw new Error(`unsupported operator ${f.op}`);
       // portable case-insensitive match: engines disagree on LIKE case rules
-      if (op === 'ILIKE') return `LOWER("${f.column}") LIKE ${sqlLit(String(f.value).toLowerCase())}`;
-      return `"${f.column}" ${op} ${sqlLit(f.value)}`;
+      if (op === 'ILIKE') return `LOWER(${quoteIdent(f.column)}) LIKE ${sqlLit(String(f.value).toLowerCase())}`;
+      return `${quoteIdent(f.column)} ${op} ${sqlLit(f.value)}`;
     })
     .join(' AND ');
   let order = '';
   if (orderBy?.column) {
     if (!known.has(orderBy.column)) throw new Error(`unknown sort column ${orderBy.column}`);
     const dir = String(orderBy.dir ?? 'asc').toLowerCase() === 'desc' ? 'DESC' : 'ASC';
-    order = ` ORDER BY "${orderBy.column}" ${dir}`;
+    order = ` ORDER BY ${quoteIdent(orderBy.column)} ${dir}`;
   }
   const n = Math.min(Number(limit) > 0 ? Number(limit) : 200, 1000);
   const off = Number(offset) > 0 ? ` OFFSET ${Math.floor(Number(offset))}` : '';
-  return `SELECT ${cols.map((c) => `"${c}"`).join(', ')} FROM "${entry.table}"${where ? ` WHERE ${where}` : ''}${order} LIMIT ${n}${off}`;
+  return `SELECT ${cols.map(quoteIdent).join(', ')} FROM ${quoteIdent(entry.table)}${where ? ` WHERE ${where}` : ''}${order} LIMIT ${n}${off}`;
 }
 
 /** Mint the subject IRI for a row using the R2RML subject template. */

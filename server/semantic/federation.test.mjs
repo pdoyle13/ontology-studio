@@ -48,6 +48,19 @@ describe('buildSelect', () => {
     expect(buildSelect(ENTRY, { limit: 99999 })).toContain('LIMIT 1000');
     expect(buildSelect(ENTRY, {})).toContain('LIMIT 200');
   });
+
+  // P1.2 — table/column names come from the writable R2RML catalog.
+  it('neutralizes a hostile table name (identifier injection)', () => {
+    const evil = { ...ENTRY, table: 'orders" ; DROP TABLE users; --' };
+    const sql = buildSelect(evil, { columns: ['id'] });
+    // the delimiter is doubled, so the payload stays inside the identifier
+    expect(sql).toContain('FROM "orders"" ; DROP TABLE users; --"');
+    expect(sql).not.toMatch(/FROM "orders" ;/);
+  });
+
+  it('rejects identifiers with control chars or backticks', () => {
+    expect(() => buildSelect({ ...ENTRY, table: 'a`b' }, { columns: ['id'] })).toThrow(/illegal SQL identifier/);
+  });
 });
 
 describe('mintSubject', () => {
