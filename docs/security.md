@@ -41,9 +41,11 @@ internal API opt in per connector (`allowPrivateHost`). Note the check resolves
 the address before the fetch but does not pin the socket; DNS-rebinding
 pinning is a tracked follow-up.
 
-**Path traversal.** File-backed connectors (sqlite, duckdb) resolve their path
-inside a configurable `DATA_ROOT` (default: the repo root) and the attach
-endpoint is admin-gated, so an API call cannot read arbitrary files.
+**Path traversal.** The attach endpoint is admin-gated. When `DATA_ROOT` is set,
+file-backed connectors (sqlite, duckdb) must resolve inside it — set this on any
+shared/deployed instance so an API call cannot read arbitrary files. Left unset
+(the local default), file paths are unconfined, which a single-user local setup
+needs to attach databases from anywhere (e.g. a sibling repo).
 
 ## Identity and access
 
@@ -77,7 +79,7 @@ a CSRF token or strict SameSite + origin check becomes mandatory.
 
 - [ ] `AUTH_REQUIRED=1`, with API tokens and/or OIDC configured
 - [ ] Database connections use read-only users for the SQL console
-- [ ] `DATA_ROOT` set to a dedicated directory for file connectors
+- [ ] `DATA_ROOT` set to a dedicated directory to confine file connectors
 - [ ] REST connectors point only at intended hosts (`allowPrivateHost` off unless needed)
 - [ ] Server reached only through a trusted reverse proxy / network boundary
 - [ ] Secrets provided via environment, never committed

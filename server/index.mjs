@@ -336,13 +336,17 @@ app.delete('/api/auth/tokens/:id', (req, res) => {
 /** @type {Map<string, ReturnType<typeof createDriver>>} */
 const sources = new Map();
 
-// SECURITY (P1.5): file-backed connectors must stay inside DATA_ROOT (default:
-// the repo root, which holds seed/*.db). Set DATA_ROOT to relocate.
-const DATA_ROOT = process.env.DATA_ROOT ? resolvePath(process.env.DATA_ROOT) : join(__dirname, '..');
+// SECURITY (P1.5): when DATA_ROOT is set, file-backed connectors must resolve
+// inside it — recommended for any shared/deployed instance. Unset (the local
+// default) means no path confinement: attaching a file is already admin-only
+// and the server binds loopback by default, so a single-user local setup can
+// attach databases anywhere (incl. sibling repos). Set DATA_ROOT to lock it.
+const DATA_ROOT = process.env.DATA_ROOT ? resolvePath(process.env.DATA_ROOT) : null;
 const FILE_KINDS = new Set(['sqlite', 'duckdb']);
 
 function attach({ kind = 'sqlite', target, id }) {
-    const confinedTarget = FILE_KINDS.has(kind) ? assertInsideRoot(DATA_ROOT, target, `${kind} file`) : target;
+    const confinedTarget =
+        DATA_ROOT && FILE_KINDS.has(kind) ? assertInsideRoot(DATA_ROOT, target, `${kind} file`) : target;
     const sid =
         id ??
         (kind === 'sqlite'
