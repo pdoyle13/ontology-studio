@@ -226,6 +226,8 @@
 <https://example.org/music#Tmtimid835186> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmtimid835186" .
 <https://example.org/music#Tmtin3hot1961X> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
 <https://example.org/music#Tmtin3hot1961X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmtin3hot1961" .
+<https://example.org/music#Tmtin5foy298> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmtin5foy298> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmtin5foy298" .
 <https://example.org/music#Track> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://example.org/music#Track> <http://www.w3.org/2000/01/rdf-schema#label> "Track" .
 <https://example.org/music#TrackShape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .
