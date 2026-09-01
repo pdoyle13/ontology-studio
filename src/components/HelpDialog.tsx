@@ -24,6 +24,7 @@ const ORDER: { match: string; title: string }[] = [
     { match: 'personas/admin.md', title: 'For admins' },
     { match: 'docs/governance.md', title: 'Governance model' },
     { match: 'docs/architecture.md', title: 'Architecture' },
+    { match: 'docs/security.md', title: 'Security & hardening' },
 ];
 
 function docList(): { title: string; body: string }[] {

@@ -55,6 +55,7 @@ database into classes + shapes + R2RML in one click.
 |---|---|
 | [Quickstart](docs/quickstart.md) | run it, first five minutes |
 | [Architecture](docs/architecture.md) | the meta-only design, request paths, caching, code map |
+| [Security](docs/security.md) | what's defended (injection, SSRF, auth) + deployment hardening |
 | [Capability coverage](docs/coverage.md) | feature audit + known gaps |
 | **API** | Swagger UI at `http://localhost:7881/api/docs` · spec at `/api/openapi.json` |
 | [Workspaces & asset types](docs/workspaces.md) | per-persona entry points; dynamic asset-type framework |
