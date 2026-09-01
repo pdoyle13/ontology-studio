@@ -10569,3 +10569,15 @@
 <https://studio.local/ns#change/20260901122541221-5> <https://studio.local/ns#actor> "pat" .
 <https://studio.local/ns#change/20260901122541221-5> <https://studio.local/ns#detail> "DELETE DATA { <https://example.org/music#KidA> <https://example.org/music#genre> \"rock\" . }" .
 <https://studio.local/ns#change/20260901122541221-5> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122553826-6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122553826-6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122553826-6> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:25:53.826Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122553826-6> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122553826-6> <https://studio.local/ns#detail> "INSERT DATA { <https://example.org/music#Radiohead> <https://studio.local/ns#deprecated> true . }" .
+<https://studio.local/ns#change/20260901122553826-6> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122553942-7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122553942-7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122553942-7> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:25:53.942Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122553942-7> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122553942-7> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH ?g { <https://example.org/music#Radiohead> <https://studio.local/ns#deprecated> ?v } } ; DELETE WHERE { <https://example.org/music#Radiohead> <https://studio.local/ns#deprecated> ?v }" .
+<https://studio.local/ns#change/20260901122553942-7> <https://studio.local/ns#operation> "sparql-update" .
