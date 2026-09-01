@@ -163,11 +163,6 @@
 <https://studio.local/ns#assetType/widgetstmt8lxp882644> <https://studio.local/ns#assetClass> <https://studio.local/ns#Widgetstmt8lxp882644> .
 <https://studio.local/ns#assetType/widgetstmt8lxp882644> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <https://studio.local/ns#assetType/widgetstmt8lxp882644> <https://studio.local/ns#presentation> "list" .
-<https://studio.local/ns#assetType/widgetstmtimj3xz5191> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#AssetType> .
-<https://studio.local/ns#assetType/widgetstmtimj3xz5191> <http://www.w3.org/2000/01/rdf-schema#label> "WidgetsTmtimj3xz5191" .
-<https://studio.local/ns#assetType/widgetstmtimj3xz5191> <https://studio.local/ns#assetClass> <https://studio.local/ns#Widgetstmtimj3xz5191> .
-<https://studio.local/ns#assetType/widgetstmtimj3xz5191> <https://studio.local/ns#order> "50"^^<http://www.w3.org/2001/XMLSchema#integer> .
-<https://studio.local/ns#assetType/widgetstmtimj3xz5191> <https://studio.local/ns#presentation> "list" .
 <https://studio.local/ns#importTemplate/datadomains-1102525612> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#ImportTemplate> .
 <https://studio.local/ns#importTemplate/datadomains-1102525612> <https://studio.local/ns#forClass> <https://studio.local/ns#DataDomains> .
 <https://studio.local/ns#importTemplate/datadomains-1102525612> <https://studio.local/ns#mapping> "{\"Label\":\"http://www.w3.org/2000/01/rdf-schema#label\",\"Steward Person\":\"\",\"Notes\":\"\"}" .
