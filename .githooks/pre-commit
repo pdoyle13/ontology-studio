@@ -17,7 +17,7 @@ npm run format:check --silent || {
 }
 
 echo "pre-commit: eslint…"
-npm run lint:es --silent || {
+npx eslint . --quiet || {
   echo "pre-commit: eslint errors — fix them (use --no-verify only if you mean it)"
   exit 1
 }
