@@ -10720,3 +10720,28 @@
 <https://studio.local/ns#change/20260901122733685-29> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/shapes/ext/ConceptShape> a <http://www.w3.org/ns/shacl#NodeShape> .\n<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#targetClass> <http://www.w3.org/2004/02/skos/core#Concept> .\n<https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtin74r49037> .\n<https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtin74r49037> a <http://www.w3.org/ns/shacl#PropertyShape> .\n<https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtin74r49037> <http://www.w3.org/ns/shacl#path> <https://studio.local/vocab/fieldtmtin74r49037> .\n<https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtin74r49037> <http://w" .
 <https://studio.local/ns#change/20260901122733685-29> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901122733685-29> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
+<https://studio.local/ns#change/20260901122735063-30> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122735063-30> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122735063-30> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:27:35.063Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122735063-30> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122735063-30> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtin74r49037> ?p ?o } } ; DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/shapes/ext/ConceptShape> <http://www.w3.org/ns/shacl#property> <https://studio.local/shapes/ext/ConceptShape/prop/fieldtmtin74r49037> } }" .
+<https://studio.local/ns#change/20260901122735063-30> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122735063-30> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
+<https://studio.local/ns#change/20260901122745619-31> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122745619-31> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122745619-31> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:27:45.619Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122745619-31> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122745619-31> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH ?g { ?s ?p ?o } . FILTER(REGEX(STR(?s), \"taxonomy/(scheme-|top-|child-|a-|b-|old-|new-|parent|kid)t\\d\", \"i\")) }" .
+<https://studio.local/ns#change/20260901122745619-31> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122745696-32> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122745696-32> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122745696-32> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:27:45.696Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122745696-32> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122745696-32> <https://studio.local/ns#detail> "DELETE { GRAPH ?g { ?s ?p ?o } } WHERE { GRAPH ?g { ?s ?p ?o } FILTER(REGEX(STR(?s), \"prop/fieldt\", \"i\")) }" .
+<https://studio.local/ns#change/20260901122745696-32> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122745752-33> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122745752-33> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122745752-33> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:27:45.752Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122745752-33> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122745752-33> <https://studio.local/ns#detail> "DELETE { GRAPH ?g { ?s ?p ?o } } WHERE { GRAPH ?g { ?s ?p ?o } FILTER(isIRI(?o) && REGEX(STR(?o), \"vocab/fieldt\", \"i\")) }" .
+<https://studio.local/ns#change/20260901122745752-33> <https://studio.local/ns#operation> "sparql-update" .
