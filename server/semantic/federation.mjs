@@ -80,6 +80,7 @@ const sqlLit = (v) => (typeof v === 'number' ? String(v) : `'${String(v).replace
 // characters are rejected outright (defense in depth for backtick dialects).
 const quoteIdent = (name) => {
     const s = String(name);
+    // eslint-disable-next-line no-control-regex -- rejecting control chars is the point
     if (s.length === 0 || /[\u0000-\u001f\u0060]/.test(s)) {
         throw new Error(`illegal SQL identifier: ${JSON.stringify(s.slice(0, 60))}`);
     }

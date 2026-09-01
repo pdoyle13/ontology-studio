@@ -14,7 +14,6 @@ test.describe('inspector: shape forms', () => {
     });
 
     test('add, edit, and remove a literal value (undoable)', async ({ page }) => {
-        const tag = runTag();
         await openViaOmnibox(page, 'kid a');
         await expect(page.locator('.shape-form')).toBeVisible({ timeout: 10_000 });
         const genreField = page.locator('.shape-field', { hasText: 'Genre' }).first();

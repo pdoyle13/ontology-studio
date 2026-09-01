@@ -104,7 +104,6 @@ async function runXai({ cfg, messages, tools, system }) {
         for (const call of msg.tool_calls) {
             const tool = byName.get(call.function?.name);
             let out;
-            let ok = true;
             try {
                 if (!tool) throw new Error(`unknown tool ${call.function?.name}`);
                 const args = call.function.arguments ? JSON.parse(call.function.arguments) : {};
@@ -112,11 +111,10 @@ async function runXai({ cfg, messages, tools, system }) {
                 trace.push({ tool: tool.name, input: JSON.stringify(args).slice(0, 1500), ok: true });
             } catch (e) {
                 out = `ERROR: ${e.message}`;
-                ok = false;
                 trace.push({
                     tool: call.function?.name ?? '?',
                     input: (call.function?.arguments ?? '').slice(0, 1500),
-                    ok,
+                    ok: false,
                 });
             }
             convo.push({ role: 'tool', tool_call_id: call.id, content: String(out) });

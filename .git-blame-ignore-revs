@@ -1,0 +1,5 @@
+# Revisions to skip in `git blame` (bulk mechanical reformats — no authorship).
+# Enable locally with:  git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: reformat to 4-space indentation repo-wide (Prettier) — P2.1
+2a4bf42bf6a42fc5f2584018e8ecb2c9322b9988

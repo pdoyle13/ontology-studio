@@ -10,6 +10,8 @@
     "lint:es": "eslint .",
     "lint:types": "tsc -b",
     "lint:all": "oxlint && eslint . && tsc -b",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"server/**/*.mjs\" \"e2e/**/*.ts\" \"*.{js,ts}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"server/**/*.mjs\" \"e2e/**/*.ts\" \"*.{js,ts}\"",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -18,7 +18,6 @@ import {
 import { sparql } from '../core/meta.mjs';
 
 const SH = 'http://www.w3.org/ns/shacl#';
-const XSD = 'http://www.w3.org/2001/XMLSchema#';
 
 /** Read every node shape with a target class into plain rows. */
 export async function readShapeCatalog(oxigraph) {

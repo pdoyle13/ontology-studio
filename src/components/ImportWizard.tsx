@@ -117,7 +117,6 @@ export function ImportWizard() {
             }
         }, 400);
         return () => clearTimeout(t);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [preview]);
 
     if (!open || !classIri) return null;
