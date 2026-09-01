@@ -10764,3 +10764,10 @@
 <https://studio.local/ns#change/20260901122804036-36> <https://studio.local/ns#actor> "pat" .
 <https://studio.local/ns#change/20260901122804036-36> <https://studio.local/ns#detail> "INSERT DATA { <https://studio.local/ns#WTmtin7sew5202> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widgetstmtin7sew5202> .\n<https://studio.local/ns#WTmtin7sew5202> <http://www.w3.org/2000/01/rdf-schema#label> \"Widget Tmtin7sew5202\" . }" .
 <https://studio.local/ns#change/20260901122804036-36> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122821044-37> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122821044-37> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122821044-37> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:28:21.044Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122821044-37> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122821044-37> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/extensions> { <https://studio.local/ns#assetType/widgetstmtin7sew5202> ?p ?o } }" .
+<https://studio.local/ns#change/20260901122821044-37> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122821044-37> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/extensions> .
