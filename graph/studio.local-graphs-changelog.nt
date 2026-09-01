@@ -10200,3 +10200,10 @@
 <https://studio.local/ns#change/20260901120941179-50> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/queries> { <https://studio.local/query/sq-tmtimk5jd220> ?p ?o } }" .
 <https://studio.local/ns#change/20260901120941179-50> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901120941179-50> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/queries> .
+<https://studio.local/ns#change/20260901121000135-51> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901121000135-51> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901121000135-51> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:10:00.135Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901121000135-51> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901121000135-51> <https://studio.local/ns#detail> "DELETE WHERE { GRAPH <https://studio.local/graphs/queries> { <https://studio.local/query/param-demo-tmtimkh0o3205> ?p ?o } } ; INSERT DATA { GRAPH <https://studio.local/graphs/queries> { <https://studio.local/query/param-demo-tmtimkh0o3205> a <https://studio.local/ns#SavedQuery> .\n<https://studio.local/query/param-demo-tmtimkh0o3205> <http://purl.org/dc/terms/title> \"param demo Tmtimkh0o3205\" .\n<https://studio.local/query/param-demo-tmtimkh0o3205> <https://studio.local/ns#queryMode> \"sparql\" .\n<https://studio.local/query/param-demo-tmtimkh0o3205> <https://studio.local/ns#queryText> \"SELECT ?s WHERE { ?s a {{cls}} } LIMIT {{max}}\" .\n<https://studio.local/query/param-demo-tmtimkh0o3205> <https://studio.local/ns#queryParams> \"{\\\"cls\\\":\\\"<https://example.org/music#Artist>\\\",\\\"max\\\":\\\"3\\\"}\" . }" .
+<https://studio.local/ns#change/20260901121000135-51> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901121000135-51> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/queries> .

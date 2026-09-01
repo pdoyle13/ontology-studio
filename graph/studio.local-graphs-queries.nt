@@ -64,3 +64,8 @@
 <https://studio.local/query/orders-by-status> <https://studio.local/ns#queryMode> "sql" .
 <https://studio.local/query/orders-by-status> <https://studio.local/ns#queryText> "SELECT status, COUNT(*) AS n FROM orders GROUP BY status ORDER BY n DESC" .
 <https://studio.local/query/orders-by-status> <https://studio.local/ns#sourceId> "sales_db" .
+<https://studio.local/query/param-demo-tmtimkh0o3205> <http://purl.org/dc/terms/title> "param demo Tmtimkh0o3205" .
+<https://studio.local/query/param-demo-tmtimkh0o3205> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#SavedQuery> .
+<https://studio.local/query/param-demo-tmtimkh0o3205> <https://studio.local/ns#queryMode> "sparql" .
+<https://studio.local/query/param-demo-tmtimkh0o3205> <https://studio.local/ns#queryParams> "{\"cls\":\"<https://example.org/music#Artist>\",\"max\":\"3\"}" .
+<https://studio.local/query/param-demo-tmtimkh0o3205> <https://studio.local/ns#queryText> "SELECT ?s WHERE { ?s a {{cls}} } LIMIT {{max}}" .
