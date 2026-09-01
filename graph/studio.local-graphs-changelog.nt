@@ -10305,3 +10305,17 @@
 <https://studio.local/ns#change/20260901121252865-65> <https://studio.local/ns#detail> "[{\"id\":\"classes-without-labels\",\"label\":\"Classes without labels\",\"count\":0},{\"id\":\"classes-without-shapes\",\"label\":\"Classes without node shapes\",\"count\":61},{\"id\":\"concepts-without-definitions\",\"label\":\"Concepts without definitions\",\"count\":123},{\"id\":\"orphan-concepts\",\"label\":\"Concepts in no scheme\",\"count\":0},{\"id\":\"properties-without-domain\",\"label\":\"Properties without a domain\",\"count\":13},{\"id\":\"unaligned-business-fields\",\"label\":\"Mapped fields without a business concept\",\"count\":230}]" .
 <https://studio.local/ns#change/20260901121252865-65> <https://studio.local/ns#operation> "quality-run" .
 <https://studio.local/ns#change/20260901121252865-65> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/quality> .
+<https://studio.local/ns#change/20260901121303485-66> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901121303485-66> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901121303485-66> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:13:03.485Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901121303485-66> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901121303485-66> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> { <https://example.org/music#STmtimogs49844> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> . } }" .
+<https://studio.local/ns#change/20260901121303485-66> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901121303485-66> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901121303566-67> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901121303566-67> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901121303566-67> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:13:03.566Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901121303566-67> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901121303566-67> <https://studio.local/ns#detail> "DELETE DATA { GRAPH <https://example.org/graphs/music> { <https://example.org/music#STmtimogs49844> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> . } }" .
+<https://studio.local/ns#change/20260901121303566-67> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901121303566-67> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
