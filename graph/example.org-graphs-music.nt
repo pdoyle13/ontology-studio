@@ -216,6 +216,10 @@
 <https://example.org/music#Tmtimg0fv3552X> <http://www.w3.org/2000/01/rdf-schema#label> "Band Tmtimg0fv3552" .
 <https://example.org/music#Tmtimhopo5979> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
 <https://example.org/music#Tmtimhopo5979> <http://www.w3.org/2000/01/rdf-schema#label> "LC Tmtimhopo5979" .
+<https://example.org/music#Tmtimi3bw9098> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmtimi3bw9098> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmtimi3bw9098" .
+<https://example.org/music#Tmtimid835186> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://example.org/music#Artist> .
+<https://example.org/music#Tmtimid835186> <http://www.w3.org/2000/01/rdf-schema#label> "Undo Tmtimid835186" .
 <https://example.org/music#Track> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2000/01/rdf-schema#Class> .
 <https://example.org/music#Track> <http://www.w3.org/2000/01/rdf-schema#label> "Track" .
 <https://example.org/music#TrackShape> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/shacl#NodeShape> .

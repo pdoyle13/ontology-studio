@@ -10015,3 +10015,24 @@
 <https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#detail> "https://example.org/music#Tmtimhopo5979" .
 <https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#operation> "lifecycle:in-review->approved" .
 <https://studio.local/ns#change/20260901120749403-21> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lifecycle> .
+<https://studio.local/ns#change/20260901120800585-22> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901120800585-22> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901120800585-22> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:08:00.585Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901120800585-22> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901120800585-22> <https://studio.local/ns#detail> "https://example.org/music#Radiohead" .
+<https://studio.local/ns#change/20260901120800585-22> <https://studio.local/ns#operation> "comment" .
+<https://studio.local/ns#change/20260901120800585-22> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/comments> .
+<https://studio.local/ns#change/20260901120805639-23> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901120805639-23> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901120805639-23> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:08:05.639Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901120805639-23> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901120805639-23> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n        <https://example.org/music#Tmtimi3bw9098> a <https://example.org/music#Artist> .\n        <https://example.org/music#Tmtimi3bw9098> <http://www.w3.org/2000/01/rdf-schema#label> \"Undo Tmtimi3bw9098\" . } }" .
+<https://studio.local/ns#change/20260901120805639-23> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901120805639-23> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901120825784-24> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901120825784-24> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901120825784-24> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:08:25.784Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901120825784-24> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901120825784-24> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n        <https://example.org/music#Tmtimid835186> a <https://example.org/music#Artist> .\n        <https://example.org/music#Tmtimid835186> <http://www.w3.org/2000/01/rdf-schema#label> \"Undo Tmtimid835186\" . } }" .
+<https://studio.local/ns#change/20260901120825784-24> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901120825784-24> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
