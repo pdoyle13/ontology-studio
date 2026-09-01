@@ -4,6 +4,8 @@
 // EXPERIMENTAL: written to the documented SDK surface, not yet validated
 // against a live account.
 
+import { parseJsonSafe, stripProto } from '../core/json.mjs';
+
 export const meta = { kind: 'snowflake', label: 'Snowflake (JSON descriptor)', targetKind: 'json', experimental: true };
 
 const sfType = (t) => {
@@ -18,7 +20,7 @@ const sfType = (t) => {
 };
 
 export function create(id, target) {
-  const cfg = typeof target === 'string' ? JSON.parse(target) : target;
+  const cfg = typeof target === 'string' ? parseJsonSafe(target) : stripProto(target);
   let connPromise = null;
   const connect = () => {
     if (!connPromise) {

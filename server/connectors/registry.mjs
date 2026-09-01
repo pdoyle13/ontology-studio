@@ -4,7 +4,8 @@
 
 import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname } from 'node:path';
+import { parseJsonSafe, stripProto } from '../core/json.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -33,7 +34,7 @@ export function safeDescriptor(kind, target) {
   const meta = registry.get(kind)?.meta;
   if (meta?.targetKind === 'json') {
     try {
-      const o = typeof target === 'string' ? JSON.parse(target) : target;
+      const o = typeof target === 'string' ? parseJsonSafe(target) : stripProto(target);
       return JSON.stringify({ ...o, password: undefined, token: undefined, privateKey: undefined });
     } catch {
       return `${kind}:{…}`;

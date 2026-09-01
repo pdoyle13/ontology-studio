@@ -13,6 +13,7 @@
 // evaluates it in memory over the fetched rows.
 
 import { assertPublicUrl } from '../core/net.mjs';
+import { parseJsonSafe, stripProto } from '../core/json.mjs';
 
 export const meta = { kind: 'rest', label: 'REST / JSON API (experimental)', targetKind: 'json' };
 
@@ -101,7 +102,7 @@ function matches(row, f) {
 }
 
 export function create(id, target) {
-  const cfg = typeof target === 'string' ? JSON.parse(target) : target;
+  const cfg = typeof target === 'string' ? parseJsonSafe(target) : stripProto(target);
   if (!cfg?.baseUrl || !Array.isArray(cfg.resources) || cfg.resources.length === 0) {
     throw new Error("rest connector needs { baseUrl, resources: [{ name, path }] }");
   }

@@ -106,6 +106,11 @@ app.get('/metrics', (_req, res) => res.type('text/plain').send(metrics.promText(
 // Resolution order: Bearer API token → OIDC JWT (when configured) →
 // X-Studio-User header. AUTH_REQUIRED=1 turns the header path off for
 // everything except reads, closing the honor-system gap for deployment.
+//
+// CSRF (P1.8): auth is header-based (Authorization / X-Studio-User), never a
+// cookie, so a browser will not attach credentials to a cross-site request —
+// there is no ambient authority to forge. If cookie/session auth is ever added,
+// a CSRF token (or SameSite=strict + origin check) becomes mandatory here.
 const tokenStore = createTokenStore(process.env.TOKENS_FILE ?? new URL('./.state/tokens.json', import.meta.url).pathname.replace(/^\/(\w:)/, '$1'));
 const oidc = createOidcVerifier();
 

@@ -49,15 +49,25 @@ async function conceptLexicon(oxigraph, scheme) {
  * Tag free text with taxonomy concepts. Returns matches with counts and the
  * matched surface form; each text span is claimed once (longest label wins).
  */
+// DoS bounds (P1.8): the matcher runs one regex per label over the whole text,
+// so cost is O(labels × text). Cap both so a huge scheme or a huge input can't
+// pin the event loop. (Labels are escaped, so no catastrophic backtracking.)
+const MAX_TEXT = 100_000; // chars
+const MAX_LABELS = 10_000;
+const MAX_LABEL_LEN = 200;
+
 export async function autoTag(oxigraph, { text, scheme = null, limit = 50 }) {
   const lex = await conceptLexicon(oxigraph, scheme);
+  const body = String(text).slice(0, MAX_TEXT);
   const claimed = []; // [start, end) intervals already tagged
   const overlaps = (s, e) => claimed.some(([cs, ce]) => s < ce && e > cs);
   const byConcept = new Map();
+  let processed = 0;
   for (const entry of lex) {
-    if (entry.name.length < 3) continue; // 1-2 char labels are noise
+    if (entry.name.length < 3 || entry.name.length > MAX_LABEL_LEN) continue; // noise / pathological
+    if (++processed > MAX_LABELS) break;
     const re = new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(entry.name)}(?![\\p{L}\\p{N}])`, 'giu');
-    for (const m of String(text).matchAll(re)) {
+    for (const m of body.matchAll(re)) {
       const s = m.index;
       const e = s + m[0].length;
       if (overlaps(s, e)) continue;
