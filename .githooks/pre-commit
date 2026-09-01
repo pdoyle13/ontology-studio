@@ -1,5 +1,6 @@
 #!/bin/sh
-# Pre-commit gate: unit tests must pass. (Build runs in CI; tests are fast.)
+# Pre-commit gate: keep local commits green with CI (.github/workflows/ci.yml).
+# Runs prettier --check, eslint, and the unit tests. (Build/tsc runs in CI.)
 # Skip for graph-snapshot auto-commits (data, not code).
 staged=$(git diff --cached --name-only)
 case "$staged" in
@@ -8,6 +9,19 @@ esac
 if [ "$only_graph" = "true" ] && ! echo "$staged" | grep -qv '^graph/'; then
   exit 0
 fi
+
+echo "pre-commit: prettier --check…"
+npm run format:check --silent || {
+  echo "pre-commit: formatting issues — run 'npm run format' (use --no-verify only if you mean it)"
+  exit 1
+}
+
+echo "pre-commit: eslint…"
+npm run lint:es --silent || {
+  echo "pre-commit: eslint errors — fix them (use --no-verify only if you mean it)"
+  exit 1
+}
+
 echo "pre-commit: running tests…"
 npx vitest run --silent || {
   echo "pre-commit: tests failed — commit blocked (use --no-verify only if you mean it)"
