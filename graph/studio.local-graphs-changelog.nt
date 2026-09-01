@@ -10557,3 +10557,15 @@
 <https://studio.local/ns#change/20260901122523742-3> <https://studio.local/ns#actor> "pat" .
 <https://studio.local/ns#change/20260901122523742-3> <https://studio.local/ns#detail> "DELETE { ?p ?x ?y } WHERE { ?p ?x ?y . ?p <http://www.w3.org/2000/01/rdf-schema#label> \"links to orders Tmtin4bt61509\" }" .
 <https://studio.local/ns#change/20260901122523742-3> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122541005-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122541005-4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122541005-4> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:25:41.005Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122541005-4> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122541005-4> <https://studio.local/ns#detail> "INSERT DATA { <https://example.org/music#KidA> <https://example.org/music#genre> \"rock\" . }" .
+<https://studio.local/ns#change/20260901122541005-4> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122541221-5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122541221-5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122541221-5> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:25:41.221Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122541221-5> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122541221-5> <https://studio.local/ns#detail> "DELETE DATA { <https://example.org/music#KidA> <https://example.org/music#genre> \"rock\" . }" .
+<https://studio.local/ns#change/20260901122541221-5> <https://studio.local/ns#operation> "sparql-update" .
