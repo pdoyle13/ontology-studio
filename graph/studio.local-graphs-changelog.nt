@@ -10595,3 +10595,17 @@
 <https://studio.local/ns#change/20260901122627167-9> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n        <https://example.org/music#Tmtin5pgx813> a <https://example.org/music#Artist> .\n        <https://example.org/music#Tmtin5pgx813> <http://www.w3.org/2000/01/rdf-schema#label> \"LC Tmtin5pgx813\" . } }" .
 <https://studio.local/ns#change/20260901122627167-9> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901122627167-9> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901122637423-10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122637423-10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122637423-10> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:26:37.423Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122637423-10> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122637423-10> <https://studio.local/ns#detail> "https://example.org/music#Tmtin5pgx813" .
+<https://studio.local/ns#change/20260901122637423-10> <https://studio.local/ns#operation> "lifecycle:draft->in-review" .
+<https://studio.local/ns#change/20260901122637423-10> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lifecycle> .
+<https://studio.local/ns#change/20260901122637504-11> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122637504-11> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122637504-11> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:26:37.504Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122637504-11> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122637504-11> <https://studio.local/ns#detail> "https://example.org/music#Tmtin5pgx813" .
+<https://studio.local/ns#change/20260901122637504-11> <https://studio.local/ns#operation> "lifecycle:in-review->approved" .
+<https://studio.local/ns#change/20260901122637504-11> <https://studio.local/ns#targetGraph> <https://studio.local/graphs/lifecycle> .
