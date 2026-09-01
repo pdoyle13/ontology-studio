@@ -1,6 +1,14 @@
 # graph: https://studio.local/graphs/dashboards
+<https://studio.local/dashboard/order-operations/widget/obs-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
+<https://studio.local/dashboard/order-operations/widget/obs-0> <http://www.w3.org/2000/01/rdf-schema#label> "obs" .
+<https://studio.local/dashboard/order-operations/widget/obs-0> <https://studio.local/ns#component> "bar" .
+<https://studio.local/dashboard/order-operations/widget/obs-0> <https://studio.local/ns#position> "0"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://studio.local/dashboard/order-operations/widget/obs-0> <https://studio.local/ns#query> <https://studio.local/query/orders-by-status> .
+<https://studio.local/dashboard/order-operations/widget/obs-0> <https://studio.local/ns#xField> "status" .
+<https://studio.local/dashboard/order-operations/widget/obs-0> <https://studio.local/ns#yField> "n" .
 <https://studio.local/dashboard/order-operations> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Dashboard> .
 <https://studio.local/dashboard/order-operations> <http://www.w3.org/2000/01/rdf-schema#label> "Order Operations" .
+<https://studio.local/dashboard/order-operations> <https://studio.local/ns#widget> <https://studio.local/dashboard/order-operations/widget/obs-0> .
 <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Widget> .
 <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <http://www.w3.org/2000/01/rdf-schema#label> "Bars Tmt7c62kw7017" .
 <https://studio.local/dashboard/page-tmt7c62kw7017/widget/bars-tmt7c62kw7017-0> <https://studio.local/ns#component> "bar" .
