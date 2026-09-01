@@ -50,7 +50,28 @@ export const propIri = (ns, table, col) => `${ns}${sane(table)}_${sane(col)}`;
 export const escLit = (v) =>
   String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
 
-export const isReadOnlySql = (sql) => /^(SELECT|WITH|PRAGMA|EXPLAIN)\b/i.test(String(sql).trim());
+// Data-modifying keywords that must never appear in a read-only console query.
+// Checked anywhere in the (string/comment-stripped) body so a data-modifying
+// CTE — `WITH x AS (...) DELETE FROM t` on Postgres — cannot slip past the
+// prefix allowlist. REPLACE/MERGE are intentionally omitted (they are also
+// string functions); a statement that starts with them fails the prefix check.
+const WRITE_KEYWORDS = /\b(INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|GRANT|REVOKE|VACUUM|REINDEX|ATTACH|DETACH)\b/i;
+
+/** Read-only guard for the SQL console. Allowlist the opening keyword, then
+ *  reject multi-statement bodies and any data-modifying keyword. Not a
+ *  substitute for a read-only DB connection, but closes the CTE/`;` bypasses. */
+export const isReadOnlySql = (sql) => {
+  const raw = String(sql).trim();
+  if (!/^(SELECT|WITH|PRAGMA|EXPLAIN)\b/i.test(raw)) return false;
+  const stripped = raw
+    .replace(/'(?:[^']|'')*'/g, "''") // single-quoted strings
+    .replace(/"(?:[^"]|"")*"/g, '""') // double-quoted identifiers
+    .replace(/--[^\n]*/g, ' ') // line comments
+    .replace(/\/\*[\s\S]*?\*\//g, ' '); // block comments
+  if (/;\s*\S/.test(stripped.replace(/;\s*$/, ''))) return false; // one statement only
+  if (WRITE_KEYWORDS.test(stripped)) return false;
+  return true;
+};
 
 /** Generate ontology + SHACL shapes for a schema (introspection JSON) as N-Triples. */
 export function translateSchema(schema, ns) {

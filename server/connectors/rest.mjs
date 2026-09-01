@@ -3,12 +3,16 @@
 //   baseUrl: "https://api.example.com",
 //   headers?: { Authorization: "Bearer …" },
 //   cacheTtlMs?: 30000,
+//   allowPrivateHost?: true,  // opt past the SSRF guard for internal/on-prem APIs
+//                             // (default: private/loopback/metadata hosts blocked)
 //   resources: [{ name: "users", path: "/users", method?: "GET", rowsPath?: "data.items", params?: {…} }]
 // }
 // Each resource becomes a "table"; rows come from the JSON response (rowsPath
 // walks to the array). The federation layer only ever issues the guarded
 // SELECT it builds itself, so query(sql) parses that closed grammar and
 // evaluates it in memory over the fetched rows.
+
+import { assertPublicUrl } from '../core/net.mjs';
 
 export const meta = { kind: 'rest', label: 'REST / JSON API (experimental)', targetKind: 'json' };
 
@@ -112,6 +116,10 @@ export function create(id, target) {
     if (hit && Date.now() - hit.at < ttl) return hit.rows;
     const url = new URL(res.path, cfg.baseUrl);
     for (const [k, v] of Object.entries(res.params ?? {})) url.searchParams.set(k, String(v));
+    // SECURITY (SSRF): baseUrl/path are user-supplied connector config — reject
+    // private/loopback/metadata targets before fetching. An operator who
+    // deliberately points at an internal API opts in with allowPrivateHost.
+    await assertPublicUrl(url.href, { allowPrivate: cfg.allowPrivateHost === true });
     const r = await fetch(url, { method: res.method ?? 'GET', headers: cfg.headers ?? {} });
     if (!r.ok) throw new Error(`rest connector: ${name} → HTTP ${r.status}`);
     const body = await r.json();

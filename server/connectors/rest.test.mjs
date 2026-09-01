@@ -30,10 +30,19 @@ afterAll(() => server.close());
 const driver = () =>
   create('api', {
     baseUrl: base,
+    allowPrivateHost: true, // test server runs on loopback; opt in past the SSRF guard
     resources: [{ name: 'users', path: '/users', rowsPath: 'data.items' }],
   });
 
 describe('rest connector', () => {
+  it('blocks a private/loopback baseUrl without the opt-in (SSRF guard, P1.4)', async () => {
+    const d = create('evil', {
+      baseUrl: 'http://169.254.169.254',
+      resources: [{ name: 'meta', path: '/latest/meta-data/', rowsPath: '' }],
+    });
+    await expect(d.query(`SELECT "x" FROM "meta" LIMIT 1`)).rejects.toThrow(/private|blocked/);
+  });
+
   it('lists resources as tables and introspects columns from rows', async () => {
     const d = driver();
     expect(await d.tables()).toEqual(['users']);

@@ -79,6 +79,22 @@ describe('isReadOnlySql', () => {
     expect(isReadOnlySql('UPDATE t SET a=1')).toBe(false);
     expect(isReadOnlySql('')).toBe(false);
   });
+
+  it('blocks the data-modifying CTE bypass (P1.3)', () => {
+    expect(isReadOnlySql('WITH x AS (SELECT 1) DELETE FROM users')).toBe(false);
+    expect(isReadOnlySql('WITH x AS (SELECT 1) UPDATE users SET admin = true')).toBe(false);
+  });
+
+  it('blocks multi-statement bodies but allows a trailing semicolon', () => {
+    expect(isReadOnlySql('SELECT 1; DROP TABLE t')).toBe(false);
+    expect(isReadOnlySql('SELECT 1; SELECT 2')).toBe(false);
+    expect(isReadOnlySql('SELECT * FROM t WHERE x = 1;')).toBe(true);
+  });
+
+  it('does not false-positive on write keywords inside string literals', () => {
+    expect(isReadOnlySql("SELECT 'DELETE FROM t' AS note")).toBe(true);
+    expect(isReadOnlySql("SELECT * FROM t WHERE note = 'we will DROP soon'")).toBe(true);
+  });
 });
 
 describe('translateSchema', () => {
