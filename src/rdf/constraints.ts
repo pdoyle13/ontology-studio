@@ -9,56 +9,56 @@ export type Widget = 'text' | 'textarea' | 'langtext' | 'number' | 'date' | 'dat
 const LANG_STRING = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#langString';
 
 export function widgetFor(ps: PropertyShapeInfo): Widget {
-  if (ps.inValues && ps.inValues.length > 0) return 'enum';
-  if (ps.classIri) return 'iri';
-  if (ps.datatype === LANG_STRING) return 'langtext';
-  if (ps.singleLine === false) return 'textarea';
-  switch (datatypeToKind(ps.datatype)) {
-    case 'integer':
-    case 'decimal':
-      return 'number';
-    case 'boolean':
-      return 'boolean';
-    case 'date':
-      return 'date';
-    case 'dateTime':
-      return 'datetime';
-    default:
-      return 'text';
-  }
+    if (ps.inValues && ps.inValues.length > 0) return 'enum';
+    if (ps.classIri) return 'iri';
+    if (ps.datatype === LANG_STRING) return 'langtext';
+    if (ps.singleLine === false) return 'textarea';
+    switch (datatypeToKind(ps.datatype)) {
+        case 'integer':
+        case 'decimal':
+            return 'number';
+        case 'boolean':
+            return 'boolean';
+        case 'date':
+            return 'date';
+        case 'dateTime':
+            return 'datetime';
+        default:
+            return 'text';
+    }
 }
 
 /** Validate raw input against the shape's constraints. Returns an error message or null. */
 export function validateAgainstShape(ps: PropertyShapeInfo, raw: string): string | null {
-  const v = raw.trim();
-  if (v === '') return 'value is empty';
-  const kind = datatypeToKind(ps.datatype);
+    const v = raw.trim();
+    if (v === '') return 'value is empty';
+    const kind = datatypeToKind(ps.datatype);
 
-  if (kind === 'integer' && !/^[+-]?\d+$/.test(v)) return `must be an integer (xsd:${ps.datatype?.split('#').pop()})`;
-  if (kind === 'decimal' && !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(v)) return 'must be a decimal number';
-  if (kind === 'boolean' && v !== 'true' && v !== 'false') return 'must be true or false';
-  if (kind === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'must be a date (YYYY-MM-DD)';
-  if (kind === 'dateTime' && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?/.test(v))
-    return 'must be a dateTime (YYYY-MM-DDTHH:MM)';
+    if (kind === 'integer' && !/^[+-]?\d+$/.test(v)) return `must be an integer (xsd:${ps.datatype?.split('#').pop()})`;
+    if (kind === 'decimal' && !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(v)) return 'must be a decimal number';
+    if (kind === 'boolean' && v !== 'true' && v !== 'false') return 'must be true or false';
+    if (kind === 'date' && !/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'must be a date (YYYY-MM-DD)';
+    if (kind === 'dateTime' && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?/.test(v))
+        return 'must be a dateTime (YYYY-MM-DDTHH:MM)';
 
-  if ((kind === 'integer' || kind === 'decimal') && (ps.minInclusive !== null || ps.maxInclusive !== null)) {
-    const n = Number(v);
-    if (ps.minInclusive !== null && n < Number(ps.minInclusive)) return `must be ≥ ${ps.minInclusive}`;
-    if (ps.maxInclusive !== null && n > Number(ps.maxInclusive)) return `must be ≤ ${ps.maxInclusive}`;
-  }
-
-  if (ps.pattern) {
-    try {
-      if (!new RegExp(ps.pattern).test(v)) return `must match pattern ${ps.pattern}`;
-    } catch {
-      /* invalid regex in shape — don't block the user */
+    if ((kind === 'integer' || kind === 'decimal') && (ps.minInclusive !== null || ps.maxInclusive !== null)) {
+        const n = Number(v);
+        if (ps.minInclusive !== null && n < Number(ps.minInclusive)) return `must be ≥ ${ps.minInclusive}`;
+        if (ps.maxInclusive !== null && n > Number(ps.maxInclusive)) return `must be ≤ ${ps.maxInclusive}`;
     }
-  }
 
-  if (ps.maxLength !== null && v.length > ps.maxLength) return `must be at most ${ps.maxLength} characters`;
+    if (ps.pattern) {
+        try {
+            if (!new RegExp(ps.pattern).test(v)) return `must match pattern ${ps.pattern}`;
+        } catch {
+            /* invalid regex in shape — don't block the user */
+        }
+    }
 
-  if (ps.inValues && ps.inValues.length > 0 && !ps.inValues.some((iv) => iv.value === v))
-    return `must be one of: ${ps.inValues.map((iv) => iv.value).join(', ')}`;
+    if (ps.maxLength !== null && v.length > ps.maxLength) return `must be at most ${ps.maxLength} characters`;
 
-  return null;
+    if (ps.inValues && ps.inValues.length > 0 && !ps.inValues.some((iv) => iv.value === v))
+        return `must be one of: ${ps.inValues.map((iv) => iv.value).join(', ')}`;
+
+    return null;
 }

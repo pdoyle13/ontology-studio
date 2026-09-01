@@ -24,6 +24,8 @@ describe('assertInsideRoot', () => {
         expect(p.startsWith(ROOT)).toBe(true);
     });
     it('throws when outside', () => {
-        expect(() => assertInsideRoot(ROOT, '../../etc/passwd', 'sqlite file')).toThrow(/escapes the permitted data root/);
+        expect(() => assertInsideRoot(ROOT, '../../etc/passwd', 'sqlite file')).toThrow(
+            /escapes the permitted data root/,
+        );
     });
 });

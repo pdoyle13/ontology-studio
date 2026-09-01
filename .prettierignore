@@ -1,0 +1,14 @@
+# Generated / vendored / data — not ours to format
+dist
+node_modules
+.oxigraph-data
+graph
+seed
+sdk/python
+server/.cache
+server/.state
+test-results
+playwright-report
+coverage
+*.md
+package-lock.json

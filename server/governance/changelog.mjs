@@ -14,44 +14,46 @@ let seq = 0;
 
 /** Fire-and-forget change record. Never blocks or fails the write it describes. */
 export function recordChange(oxigraph, { actor, operation, graphs = [], detail = '' }) {
-  const now = new Date().toISOString();
-  const iri = `${STUDIO}change/${now.replace(/[-:.TZ]/g, '')}-${seq++}`;
-  const lines = [
-    `<${iri}> <${RDF}type> <${PROV}Activity> .`,
-    `<${iri}> <${RDF}type> <${STUDIO}Change> .`,
-    `<${iri}> <${STUDIO}actor> "${esc(actor || 'anonymous')}" .`,
-    `<${iri}> <${STUDIO}operation> "${esc(operation)}" .`,
-    `<${iri}> <${PROV}endedAtTime> "${now}"^^<${XSD}dateTime> .`,
-    detail ? `<${iri}> <${STUDIO}detail> "${esc(String(detail).slice(0, 800))}" .` : '',
-    ...graphs.filter(Boolean).map((g) => `<${iri}> <${STUDIO}targetGraph> <${g}> .`),
-  ].filter(Boolean);
-  fetch(`${oxigraph}/update`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-update' },
-    body: `INSERT DATA { GRAPH <${CHANGELOG_GRAPH}> { ${lines.join('\n')} } }`,
-  }).catch(() => { /* audit is best-effort, never blocks the write */ });
+    const now = new Date().toISOString();
+    const iri = `${STUDIO}change/${now.replace(/[-:.TZ]/g, '')}-${seq++}`;
+    const lines = [
+        `<${iri}> <${RDF}type> <${PROV}Activity> .`,
+        `<${iri}> <${RDF}type> <${STUDIO}Change> .`,
+        `<${iri}> <${STUDIO}actor> "${esc(actor || 'anonymous')}" .`,
+        `<${iri}> <${STUDIO}operation> "${esc(operation)}" .`,
+        `<${iri}> <${PROV}endedAtTime> "${now}"^^<${XSD}dateTime> .`,
+        detail ? `<${iri}> <${STUDIO}detail> "${esc(String(detail).slice(0, 800))}" .` : '',
+        ...graphs.filter(Boolean).map((g) => `<${iri}> <${STUDIO}targetGraph> <${g}> .`),
+    ].filter(Boolean);
+    fetch(`${oxigraph}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/sparql-update' },
+        body: `INSERT DATA { GRAPH <${CHANGELOG_GRAPH}> { ${lines.join('\n')} } }`,
+    }).catch(() => {
+        /* audit is best-effort, never blocks the write */
+    });
 }
 
 /** Recent changes, newest first. */
 export async function readChangelog(oxigraph, limit = 50) {
-  const res = await fetch(`${oxigraph}/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
-    body: `SELECT ?c ?actor ?op ?at ?detail (GROUP_CONCAT(?g; separator="|") AS ?graphs) WHERE {
+    const res = await fetch(`${oxigraph}/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/sparql-query', Accept: 'application/sparql-results+json' },
+        body: `SELECT ?c ?actor ?op ?at ?detail (GROUP_CONCAT(?g; separator="|") AS ?graphs) WHERE {
   GRAPH <${CHANGELOG_GRAPH}> {
     ?c <${STUDIO}actor> ?actor ; <${STUDIO}operation> ?op ; <${PROV}endedAtTime> ?at .
     OPTIONAL { ?c <${STUDIO}detail> ?detail }
     OPTIONAL { ?c <${STUDIO}targetGraph> ?g }
   }
 } GROUP BY ?c ?actor ?op ?at ?detail ORDER BY DESC(?at) LIMIT ${Math.min(limit, 500)}`,
-  });
-  if (!res.ok) throw new Error(`changelog query ${res.status}`);
-  return (await res.json()).results.bindings.map((b) => ({
-    id: b.c.value,
-    actor: b.actor.value,
-    operation: b.op.value,
-    at: b.at.value,
-    detail: b.detail?.value ?? null,
-    graphs: b.graphs?.value ? b.graphs.value.split('|').filter(Boolean) : [],
-  }));
+    });
+    if (!res.ok) throw new Error(`changelog query ${res.status}`);
+    return (await res.json()).results.bindings.map((b) => ({
+        id: b.c.value,
+        actor: b.actor.value,
+        operation: b.op.value,
+        at: b.at.value,
+        detail: b.detail?.value ?? null,
+        graphs: b.graphs?.value ? b.graphs.value.split('|').filter(Boolean) : [],
+    }));
 }

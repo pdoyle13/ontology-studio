@@ -4,7 +4,15 @@ import { isPrivateIp, assertPublicUrl } from './net.mjs';
 
 describe('isPrivateIp', () => {
     it('flags private / loopback / link-local / metadata IPv4', () => {
-        for (const ip of ['10.0.0.1', '127.0.0.1', '172.16.5.4', '192.168.1.1', '169.254.169.254', '0.0.0.0', '100.64.0.1']) {
+        for (const ip of [
+            '10.0.0.1',
+            '127.0.0.1',
+            '172.16.5.4',
+            '192.168.1.1',
+            '169.254.169.254',
+            '0.0.0.0',
+            '100.64.0.1',
+        ]) {
             expect(isPrivateIp(ip)).toBe(true);
         }
     });

@@ -11,14 +11,14 @@ let store = null;
 let storeBase = null;
 
 export function metaStore(base) {
-  const wanted = process.env.GRAPH_STORE_URL ?? base;
-  if (!store || (wanted && storeBase !== wanted)) {
-    store = createGraphStore({ url: wanted });
-    storeBase = wanted;
-  }
-  return store;
+    const wanted = process.env.GRAPH_STORE_URL ?? base;
+    if (!store || (wanted && storeBase !== wanted)) {
+        store = createGraphStore({ url: wanted });
+        storeBase = wanted;
+    }
+    return store;
 }
 
 export async function sparql(base, query) {
-  return metaStore(base).query(query, { union: true });
+    return metaStore(base).query(query, { union: true });
 }
