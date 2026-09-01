@@ -10532,3 +10532,16 @@
 <https://studio.local/ns#change/20260901121337535-98> <https://studio.local/ns#detail> "DELETE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o } } WHERE { GRAPH <https://example.org/graphs/music> { ?s ?p ?o FILTER(STRSTARTS(STR(?s), \"https://example.org/music#priorityTmtimp3tm2575\") || CONTAINS(STR(?s), \"urgent-thing-tmtimp3tm2575\")) } }" .
 <https://studio.local/ns#change/20260901121337535-98> <https://studio.local/ns#operation> "sparql-update" .
 <https://studio.local/ns#change/20260901121337535-98> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901122443106-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122443106-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122443106-0> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:24:43.106Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122443106-0> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122443106-0> <https://studio.local/ns#detail> "INSERT DATA { GRAPH <https://example.org/graphs/music> {\n            <https://example.org/music#Tmtin3hot1961> a <https://example.org/music#Artist> .\n            <https://example.org/music#Tmtin3hot1961> <http://www.w3.org/2000/01/rdf-schema#label> \"Band Tmtin3hot1961\" . } }" .
+<https://studio.local/ns#change/20260901122443106-0> <https://studio.local/ns#operation> "sparql-update" .
+<https://studio.local/ns#change/20260901122443106-0> <https://studio.local/ns#targetGraph> <https://example.org/graphs/music> .
+<https://studio.local/ns#change/20260901122447993-1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/prov#Activity> .
+<https://studio.local/ns#change/20260901122447993-1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://studio.local/ns#Change> .
+<https://studio.local/ns#change/20260901122447993-1> <http://www.w3.org/ns/prov#endedAtTime> "2026-09-01T12:24:47.993Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://studio.local/ns#change/20260901122447993-1> <https://studio.local/ns#actor> "pat" .
+<https://studio.local/ns#change/20260901122447993-1> <https://studio.local/ns#detail> "DELETE { GRAPH ?g { <https://example.org/music#Tmtin3hot1961> ?p ?o } } INSERT { GRAPH ?g { <https://example.org/music#Tmtin3hot1961X> ?p ?o } } WHERE { GRAPH ?g { <https://example.org/music#Tmtin3hot1961> ?p ?o } } ;\nDELETE { <https://example.org/music#Tmtin3hot1961> ?p ?o } INSERT { <https://example.org/music#Tmtin3hot1961X> ?p ?o } WHERE { <https://example.org/music#Tmtin3hot1961> ?p ?o } ;\nDELETE { GRAPH ?g { ?s <https://example.org/music#Tmtin3hot1961> ?o } } INSERT { GRAPH ?g { ?s <https://example.org/music#Tmtin3hot1961X> ?o } } WHERE { GRAPH ?g { ?s <https://example.org/music#Tmtin3hot1961> ?o } } ;\nDELETE { ?s <https://example.org/music#Tmtin3hot1961> ?o } INSERT { ?s <https://example.org/music#Tmtin3hot1961X> ?o } WHERE { ?s <https://example.org/music#Tmtin3hot1961> ?o } ;\nDELETE" .
+<https://studio.local/ns#change/20260901122447993-1> <https://studio.local/ns#operation> "sparql-update" .
