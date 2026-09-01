@@ -30,6 +30,7 @@ import { openSourceEditor } from './SourceEditor';
 import { cmdDelete, cmdDeleteResource, cmdRenameIri } from '../rdf/commands';
 import { useConnection as useConn2 } from '../state/connection';
 import { useGraph } from '../state/graph';
+import { useUi } from '../state/ui';
 import { useConnection } from '../state/connection';
 import { useHistory } from '../state/history';
 import { useValidation } from '../state/validation';
@@ -62,7 +63,7 @@ function RdfNodeView({ data, selected }: NodeProps & { data: RdfNodeData }) {
                     title="Add property"
                     onClick={quick(() => {
                         useGraph.getState().selectResource(data.iri);
-                        import('../state/ui').then(({ useUi }) => useUi.getState().setAddPropertyIntent(true));
+                        useUi.getState().setAddPropertyIntent(true);
                     })}
                 >
                     +

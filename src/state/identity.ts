@@ -3,6 +3,7 @@
 // surface (SPARQL, virtual layer, agent, proposals) acts as the chosen user.
 
 import { create } from 'zustand';
+import { useWorkspace, roleDefaultWorkspace } from './workspace';
 
 export interface GovUser {
     name: string;
@@ -27,9 +28,7 @@ export const useIdentity = create<IdentityState>((set, get) => ({
         // no explicit workspace chosen yet -> follow the new role's default
         if (!localStorage.getItem('studio.workspace')) {
             const role = get().users.find((u) => u.name === actingUser)?.role ?? 'viewer';
-            import('./workspace').then(({ useWorkspace, roleDefaultWorkspace }) =>
-                useWorkspace.getState().setWorkspace(roleDefaultWorkspace(role)),
-            );
+            useWorkspace.getState().setWorkspace(roleDefaultWorkspace(role));
         }
     },
     loadUsers: async () => {

@@ -13,7 +13,9 @@ const registry = new Map(); // kind → { meta, create }
 
 for (const file of readdirSync(HERE)) {
     if (!file.endsWith('.mjs') || file === 'registry.mjs' || file.endsWith('.test.mjs')) continue;
-    const mod = await import(`./${file}`);
+    // Node resolves this fine (file includes its .mjs extension); the comment
+    // stops Vite/vitest's static analysis from warning about the dynamic path.
+    const mod = await import(/* @vite-ignore */ `./${file}`);
     if (mod.meta?.kind && typeof mod.create === 'function') {
         registry.set(mod.meta.kind, { meta: mod.meta, create: mod.create });
     }

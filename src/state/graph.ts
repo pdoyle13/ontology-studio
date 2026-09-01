@@ -5,6 +5,7 @@ import { PrefixMap } from '../rdf/prefixes';
 import type { ClassInfo, ResourceDescription } from '../rdf/queries';
 import { fetchClasses, describeResource } from '../rdf/queries';
 import { useConnection } from './connection';
+import { useUi } from './ui';
 
 export interface GraphState {
     prefixes: PrefixMap;
@@ -52,7 +53,7 @@ export const useGraph = create<GraphState>((set, get) => ({
             return;
         }
         // selecting something is an intent to inspect it
-        import('./ui').then(({ useUi }) => useUi.getState().setRightTab('inspector'));
+        useUi.getState().setRightTab('inspector');
         const conn = useConnection.getState();
         const ep = conn.active();
         if (!ep) return;

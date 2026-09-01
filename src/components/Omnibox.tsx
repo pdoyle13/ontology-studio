@@ -8,6 +8,7 @@ import { useConnection } from '../state/connection';
 import { useGraph } from '../state/graph';
 import { searchResources } from '../rdf/queries';
 import { displayName } from '../rdf/display';
+import { pushToast } from '../state/collab';
 
 // SECURITY (P1.7): search highlights come from indexed content (instance data),
 // so they must never be injected as HTML. The engine wraps matches in
@@ -208,7 +209,6 @@ export function Omnibox() {
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ query: q.trim() }),
                                 });
-                                const { pushToast } = await import('../state/collab');
                                 pushToast(`Watching “${q.trim()}” — you’ll be notified on new results`);
                             }}
                         >
