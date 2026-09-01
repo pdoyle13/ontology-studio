@@ -1,5 +1,9 @@
 // Undoable write commands: pair each mutation with its inverse and run it
 // through the history store.
+//
+// SECURITY: the SPARQL these build is assembled by the pure builders below,
+// which serialize every IRI through term.ts `iri()` — a hostile IRI (from
+// import, the agent, or a typed rename) can't break out of the `<...>`.
 
 import type { Endpoint } from './sparqlClient';
 import { update } from './sparqlClient';
@@ -9,12 +13,88 @@ import {
     insertTriple,
     deleteTriple,
     replaceTriple,
-    serializeTerm,
     insertTriples,
     deleteTriples,
     type TriplePattern,
 } from './mutations';
+import { iri, serializeTerm } from './term';
 import { useHistory } from '../state/history';
+
+const RDF_TYPE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+const RDFS_LABEL = 'http://www.w3.org/2000/01/rdf-schema#label';
+const DEPRECATED = 'https://studio.local/ns#deprecated';
+
+const graphWrap = (graph: string | null, triples: string): string =>
+    graph ? `GRAPH ${iri(graph)} { ${triples} }` : triples;
+
+// ---- pure SPARQL builders (validated IRIs; unit-tested) ----
+
+/** INSERT/DELETE DATA text for a typed resource with an optional label. */
+export function buildCreateResource(
+    graph: string | null,
+    resourceIri: string,
+    typeIri: string,
+    label?: string,
+): { insert: string; delete: string } {
+    const triples = [`${iri(resourceIri)} ${iri(RDF_TYPE)} ${iri(typeIri)} .`];
+    if (label)
+        triples.push(`${iri(resourceIri)} ${iri(RDFS_LABEL)} ${serializeTerm({ type: 'literal', value: label })} .`);
+    const block = graphWrap(graph, triples.join('\n'));
+    return { insert: `INSERT DATA { ${block} }`, delete: `DELETE DATA { ${block} }` };
+}
+
+/** INSERT/DELETE DATA text for an instance with initial property values. */
+export function buildCreateInstance(
+    graph: string | null,
+    resourceIri: string,
+    typeIri: string,
+    label: string | undefined,
+    props: { predicate: string; value: string; isIri: boolean; datatype?: string }[],
+): { insert: string; delete: string } {
+    const triples = [`${iri(resourceIri)} ${iri(RDF_TYPE)} ${iri(typeIri)} .`];
+    if (label)
+        triples.push(`${iri(resourceIri)} ${iri(RDFS_LABEL)} ${serializeTerm({ type: 'literal', value: label })} .`);
+    for (const p of props) {
+        const term: TermValue = p.isIri
+            ? { type: 'uri', value: p.value }
+            : { type: 'literal', value: p.value, datatype: p.datatype };
+        triples.push(`${iri(resourceIri)} ${iri(p.predicate)} ${serializeTerm(term)} .`);
+    }
+    const block = graphWrap(graph, triples.join('\n'));
+    return { insert: `INSERT DATA { ${block} }`, delete: `DELETE DATA { ${block} }` };
+}
+
+/** DELETE-WHERE text for a resource (outgoing, optionally incoming too). */
+export function buildDeleteResource(graph: string | null, resourceIri: string, alsoIncoming: boolean): string {
+    const s = iri(resourceIri);
+    const out = graph ? `DELETE WHERE { GRAPH ${iri(graph)} { ${s} ?p ?o } }` : `DELETE WHERE { ${s} ?p ?o }`;
+    const inn = graph ? `DELETE WHERE { GRAPH ${iri(graph)} { ?s ?p ${s} } }` : `DELETE WHERE { ?s ?p ${s} }`;
+    return alsoIncoming ? `${out} ; ${inn}` : out;
+}
+
+/** Rewrite every occurrence of one IRI to another across subject/predicate/object. */
+export function buildRenameIri(oldIri: string, newIri: string): string {
+    const a = iri(oldIri);
+    const b = iri(newIri);
+    return [
+        `DELETE { GRAPH ?g { ${a} ?p ?o } } INSERT { GRAPH ?g { ${b} ?p ?o } } WHERE { GRAPH ?g { ${a} ?p ?o } }`,
+        `DELETE { ${a} ?p ?o } INSERT { ${b} ?p ?o } WHERE { ${a} ?p ?o }`,
+        `DELETE { GRAPH ?g { ?s ${a} ?o } } INSERT { GRAPH ?g { ?s ${b} ?o } } WHERE { GRAPH ?g { ?s ${a} ?o } }`,
+        `DELETE { ?s ${a} ?o } INSERT { ?s ${b} ?o } WHERE { ?s ${a} ?o }`,
+        `DELETE { GRAPH ?g { ?s ?p ${a} } } INSERT { GRAPH ?g { ?s ?p ${b} } } WHERE { GRAPH ?g { ?s ?p ${a} } }`,
+        `DELETE { ?s ?p ${a} } INSERT { ?s ?p ${b} } WHERE { ?s ?p ${a} }`,
+    ].join(' ;\n');
+}
+
+/** INSERT/DELETE text for the deprecated flag on a resource. */
+export function buildSetDeprecated(graph: string | null, resourceIri: string): { add: string; del: string } {
+    const triple = `${iri(resourceIri)} ${iri(DEPRECATED)} true .`;
+    const add = `INSERT DATA { ${graphWrap(graph, triple)} }`;
+    const del = `DELETE WHERE { GRAPH ?g { ${iri(resourceIri)} ${iri(DEPRECATED)} ?v } } ; DELETE WHERE { ${iri(resourceIri)} ${iri(DEPRECATED)} ?v }`;
+    return { add, del };
+}
+
+// ---- commands (unchanged signatures; now inverse-paired through the builders) ----
 
 /** One undoable step inserting several triples at once. */
 export async function cmdInsertMany(
@@ -78,20 +158,15 @@ export async function cmdReplace(
 export async function cmdCreateResource(
     ep: Endpoint,
     graph: string | null,
-    iri: string,
+    resourceIri: string,
     typeIri: string,
     label?: string,
 ): Promise<void> {
-    const triples: [string, string, TermValue][] = [
-        [iri, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', { type: 'uri', value: typeIri }],
-    ];
-    if (label) triples.push([iri, 'http://www.w3.org/2000/01/rdf-schema#label', { type: 'literal', value: label }]);
-    const block = triples.map(([s, p, o]) => `<${s}> <${p}> ${serializeTerm(o)} .`).join('\n');
-    const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+    const q = buildCreateResource(graph, resourceIri, typeIri, label);
     await useHistory.getState().exec({
         label: 'create resource',
-        redo: () => update(ep, `INSERT DATA { ${wrap(block)} }`),
-        undo: () => update(ep, `DELETE DATA { ${wrap(block)} }`),
+        redo: () => update(ep, q.insert),
+        undo: () => update(ep, q.delete),
     });
 }
 
@@ -99,28 +174,16 @@ export async function cmdCreateResource(
 export async function cmdCreateInstanceFull(
     ep: Endpoint,
     graph: string | null,
-    iri: string,
+    resourceIri: string,
     typeIri: string,
     label: string | undefined,
     props: { predicate: string; value: string; isIri: boolean; datatype?: string }[],
 ): Promise<void> {
-    const triples: string[] = [`<${iri}> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <${typeIri}> .`];
-    if (label)
-        triples.push(
-            `<${iri}> <http://www.w3.org/2000/01/rdf-schema#label> ${serializeTerm({ type: 'literal', value: label })} .`,
-        );
-    for (const p of props) {
-        const term: TermValue = p.isIri
-            ? { type: 'uri', value: p.value }
-            : { type: 'literal', value: p.value, datatype: p.datatype };
-        triples.push(`<${iri}> <${p.predicate}> ${serializeTerm(term)} .`);
-    }
-    const block = triples.join('\n');
-    const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+    const q = buildCreateInstance(graph, resourceIri, typeIri, label, props);
     await useHistory.getState().exec({
         label: 'create instance',
-        redo: () => update(ep, `INSERT DATA { ${wrap(block)} }`),
-        undo: () => update(ep, `DELETE DATA { ${wrap(block)} }`),
+        redo: () => update(ep, q.insert),
+        undo: () => update(ep, q.delete),
     });
 }
 
@@ -128,52 +191,42 @@ export async function cmdCreateInstanceFull(
 export async function cmdDeleteResource(
     ep: Endpoint,
     graph: string | null,
-    iri: string,
+    resourceIri: string,
     alsoIncoming: boolean,
 ): Promise<void> {
-    const d = await describeResource(ep, graph, iri);
-    const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
+    const d = await describeResource(ep, graph, resourceIri);
     const outBlock = d.outgoing
         .filter((s) => s.object.type !== 'bnode')
-        .map((s) => `<${iri}> <${s.predicate}> ${serializeTerm(s.object)} .`)
+        .map((s) => `${iri(resourceIri)} ${iri(s.predicate)} ${serializeTerm(s.object)} .`)
         .join('\n');
-    const inBlock = alsoIncoming ? d.incoming.map((s) => `<${s.subject}> <${s.predicate}> <${iri}> .`).join('\n') : '';
-    const snapshot = [outBlock, inBlock].filter(Boolean).join('\n');
-    const delOut = graph ? `DELETE WHERE { GRAPH <${graph}> { <${iri}> ?p ?o } }` : `DELETE WHERE { <${iri}> ?p ?o }`;
-    const delIn = graph ? `DELETE WHERE { GRAPH <${graph}> { ?s ?p <${iri}> } }` : `DELETE WHERE { ?s ?p <${iri}> }`;
+    const inBlock = alsoIncoming
+        ? d.incoming.map((s) => `${iri(s.subject)} ${iri(s.predicate)} ${iri(resourceIri)} .`).join('\n')
+        : '';
+    const snapshot = graphWrap(graph, [outBlock, inBlock].filter(Boolean).join('\n'));
     await useHistory.getState().exec({
         label: 'delete resource',
-        redo: () => update(ep, alsoIncoming ? `${delOut} ; ${delIn}` : delOut),
-        undo: () => update(ep, `INSERT DATA { ${wrap(snapshot)} }`),
+        redo: () => update(ep, buildDeleteResource(graph, resourceIri, alsoIncoming)),
+        undo: () => update(ep, `INSERT DATA { ${snapshot} }`),
     });
 }
 
 /** Rename an IRI everywhere: subject, predicate, and object positions across
  *  every named graph and the default graph. One undoable command. */
 export async function cmdRenameIri(ep: Endpoint, oldIri: string, newIri: string): Promise<void> {
-    const move = (a: string, b: string) =>
-        [
-            `DELETE { GRAPH ?g { <${a}> ?p ?o } } INSERT { GRAPH ?g { <${b}> ?p ?o } } WHERE { GRAPH ?g { <${a}> ?p ?o } }`,
-            `DELETE { <${a}> ?p ?o } INSERT { <${b}> ?p ?o } WHERE { <${a}> ?p ?o }`,
-            `DELETE { GRAPH ?g { ?s <${a}> ?o } } INSERT { GRAPH ?g { ?s <${b}> ?o } } WHERE { GRAPH ?g { ?s <${a}> ?o } }`,
-            `DELETE { ?s <${a}> ?o } INSERT { ?s <${b}> ?o } WHERE { ?s <${a}> ?o }`,
-            `DELETE { GRAPH ?g { ?s ?p <${a}> } } INSERT { GRAPH ?g { ?s ?p <${b}> } } WHERE { GRAPH ?g { ?s ?p <${a}> } }`,
-            `DELETE { ?s ?p <${a}> } INSERT { ?s ?p <${b}> } WHERE { ?s ?p <${a}> }`,
-        ].join(' ;\n');
     await useHistory.getState().exec({
         label: 'rename IRI',
-        redo: () => update(ep, move(oldIri, newIri)),
-        undo: () => update(ep, move(newIri, oldIri)),
+        redo: () => update(ep, buildRenameIri(oldIri, newIri)),
+        undo: () => update(ep, buildRenameIri(newIri, oldIri)),
     });
 }
 
-const DEPRECATED = 'https://studio.local/ns#deprecated';
-
-export async function cmdSetDeprecated(ep: Endpoint, graph: string | null, iri: string, on: boolean): Promise<void> {
-    const triple = `<${iri}> <${DEPRECATED}> true .`;
-    const wrap = (t: string) => (graph ? `GRAPH <${graph}> { ${t} }` : t);
-    const add = `INSERT DATA { ${wrap(triple)} }`;
-    const del = `DELETE WHERE { GRAPH ?g { <${iri}> <${DEPRECATED}> ?v } } ; DELETE WHERE { <${iri}> <${DEPRECATED}> ?v }`;
+export async function cmdSetDeprecated(
+    ep: Endpoint,
+    graph: string | null,
+    resourceIri: string,
+    on: boolean,
+): Promise<void> {
+    const { add, del } = buildSetDeprecated(graph, resourceIri);
     await useHistory.getState().exec({
         label: on ? 'deprecate' : 'undeprecate',
         redo: () => update(ep, on ? add : del),
